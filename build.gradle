@@ -1,0 +1,78 @@
+buildscript {
+    // ext 키워드 : build.gradle 에서 사용하는 전역변수를 설정한다
+    ext {
+        springBootVersion = '2.1.7.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+plugins {
+    // jenkins 에서 ./gradlew docker 혹은 dockerRun 이라는 task 를 실행하기위해 필요한 플러그인들
+//    id 'com.palantir.docker' version '0.25.0'
+//    id "com.palantir.docker-run" version "0.22.1"
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+group = 'com'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+// repositories : 각종 의존성(라이브러리)들을 어떤 원격 저장소에서 받을지 정한다.
+repositories {
+    // mavenCentral : 이전부터 많이 사용하는 저장소. 개발자들이 직접 만든 라이버리를 업로드하는 과정이 힘들어 점차 공유가 안되는 문제점발생
+    // jcenter : 그러한 문제점을 개선하여 라이브러리 업로드를 간단하게 함
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    implementation 'junit:junit:4.12'
+    implementation 'org.projectlombok:lombok:1.18.16'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+    compile('org.springframework.boot:spring-boot-starter-web')
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+
+    // lombok
+    // annotationProcessor : gradle 버전이 올라감에 따라 롬복설정이 변하였기에 설정해준다.
+    annotationProcessor("org.projectlombok:lombok")
+    compile('org.projectlombok:lombok')
+
+    // mysql
+    implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.15'
+
+    // spring data JPA
+    compile('org.springframework.boot:spring-boot-starter-data-jpa')
+    compile('com.h2database:h2')
+
+    // mustache
+    compile('org.springframework.boot:spring-boot-starter-mustache')
+
+    // oauth2
+    compile('org.springframework.boot:spring-boot-starter-oauth2-client')
+
+    // JPA 가 자동으로 세션 저장용 테이블을 생성하도록 하기위한 의존성
+    compile('org.springframework.session:spring-session-jdbc')
+
+    // 스프링 시큐리티 테스트를 위한 여러 도구를 지원하는 의존성
+    testCompile('org.springframework.security:spring-security-test')
+}
+
+test {
+    useJUnitPlatform()
+}

@@ -1,0 +1,42 @@
+server:
+  port: 8080
+
+#  url: jdbc:mysql://<주소>:3306/<테이블 명>?serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true&useSSL=false&characterEncoding=UTF-8
+# <테이블 명> = spring_example
+# <주소>
+# db : docker network 에 jar 파일을 올렸을 경우(= push 한 경우), 연결되는 컨테이너 데이터베이스 이름
+# 젠킨스에서 도커를 사용하기위해 chmod 777 /var/run/docker.sock 명령어를 먼저 입력해준다.
+# localhost : 로컬에서 스프링 앱을 구동할 경우,  docker 의 db 컨테이너로 연결하기 위해선 localhost 로 지정해야 한다.
+# test 할 경우 : datasource 부분을 모두 주석처리 할 것 (내장 H2 DB 사용하기 때문)
+
+spring:
+  profiles:
+    include: oauth
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/coconut_db?serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true&useSSL=false&characterEncoding=UTF-8
+    username: root
+    password: wnsgusgk3537
+
+  jpa:
+    properties:
+      hibernate:
+        ddl-auto: update
+        format-sql: true
+        dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+    show-sql: true
+    generate-ddl: true
+    open-in-view: false
+
+  session:
+    store-type: jdbc
+    # spring.session.jdbc.initialize-schema: always 설정이 있어야만 JPA 가 자동으로 세션 저장용 테이블을 생성한다.
+    jdbc:
+      initialize-schema: always
+
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
