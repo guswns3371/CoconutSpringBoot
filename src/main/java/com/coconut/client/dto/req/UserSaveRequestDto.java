@@ -1,5 +1,6 @@
 package com.coconut.client.dto.req;
 
+import com.coconut.domain.user.Role;
 import com.coconut.domain.user.User;
 import lombok.Builder;
 import lombok.Getter;
@@ -14,7 +15,6 @@ public class UserSaveRequestDto {
      *     @SerializedName("userId") var userId : String,
      *     @SerializedName("name") var userName : String,
      *     @SerializedName("password") var userPassword : String
-     *
      */
 
     private String email;
@@ -36,6 +36,7 @@ public class UserSaveRequestDto {
                 .userId(userId)
                 .name(name)
                 .password(password)
+                .role(Role.USER)
                 .build();
     }
 

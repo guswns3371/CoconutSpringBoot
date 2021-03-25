@@ -1,6 +1,8 @@
 package com.coconut.service.auth;
 
+import com.coconut.client.dto.req.OAuthUserLoginRequestDto;
 import com.coconut.client.dto.req.UserSaveRequestDto;
+import com.coconut.client.dto.res.OAuthUserLoginResponseDto;
 import com.coconut.client.dto.res.UserSaveResponseDto;
 import com.coconut.domain.user.User;
 import com.coconut.domain.user.UserRepository;
@@ -31,6 +33,18 @@ public class AuthService {
         logger.warn("AuthService>emailCheck : " + email + ", isEmailOk : " + isEmailOk);
         return UserSaveResponseDto.builder()
                 .isEmailOk(!isEmailOk)
+                .build();
+    }
+
+    @Transactional
+    public OAuthUserLoginResponseDto saveOAuthUser(OAuthUserLoginRequestDto requestDto) {
+        logger.warn(requestDto.toString());
+        User user = userRepository.save(requestDto.toEntity());
+        return OAuthUserLoginResponseDto.builder()
+                .userId(user.getUserId())
+                .name(user.getName())
+                .email(user.getEmail())
+                .profilePicture(user.getProfilePicture())
                 .build();
     }
 }

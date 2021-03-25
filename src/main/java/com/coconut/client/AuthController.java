@@ -1,6 +1,8 @@
 package com.coconut.client;
 
+import com.coconut.client.dto.req.OAuthUserLoginRequestDto;
 import com.coconut.client.dto.req.UserSaveRequestDto;
+import com.coconut.client.dto.res.OAuthUserLoginResponseDto;
 import com.coconut.client.dto.res.UserSaveResponseDto;
 import com.coconut.config.auth.LoginUser;
 import com.coconut.config.auth.dto.SessionUser;
@@ -26,14 +28,13 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @PostMapping("/register")
+    @PostMapping("/api/register")
     public UserSaveResponseDto save(@RequestBody UserSaveRequestDto requestDto) {
-
         logger.error("@PostMapping(\"/register\") : "+requestDto.toString());
         return authService.save(requestDto);
     }
 
-    @PostMapping("/register/{email}")
+    @PostMapping("/api/register/{email}")
     public UserSaveResponseDto emailCheck(@PathVariable String email) {
         logger.error("@PostMapping(\"/register/{email}\") : "+email);
         return authService.emailCheck(email);
@@ -43,5 +44,11 @@ public class AuthController {
     public SessionUser sessionCheck(@LoginUser SessionUser user){
         logger.error("get /");
         return user;
+    }
+
+    @PostMapping("/api/user/auth/info")
+    public OAuthUserLoginResponseDto saveOAuthUser(@RequestBody OAuthUserLoginRequestDto requestDto) {
+        logger.warn("saveOAuthUser : "+requestDto.toString());
+        return authService.saveOAuthUser(requestDto);
     }
 }
