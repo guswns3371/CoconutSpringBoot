@@ -65,4 +65,19 @@ public class User extends BaseTimeEntity {
     public String getRoleKey() {
         return this.role.getKey();
     }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", userId='" + userId + '\'' +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", stateMessage='" + stateMessage + '\'' +
+                ", profilePicture='" + profilePicture + '\'' +
+                ", backgroundPicture='" + backgroundPicture + '\'' +
+                ", role=" + role +
+                '}';
+    }
 }

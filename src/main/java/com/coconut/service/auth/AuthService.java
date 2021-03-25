@@ -29,19 +29,24 @@ public class AuthService {
 
     @Transactional
     public UserSaveResponseDto emailCheck(String email) {
-        boolean isEmailOk = userRepository.findByEmail(email).isPresent();
-        logger.warn("AuthService>emailCheck : " + email + ", isEmailOk : " + isEmailOk);
+        boolean isPresent = userRepository.findByEmail(email).isPresent();
         return UserSaveResponseDto.builder()
-                .isEmailOk(!isEmailOk)
+                .isEmailOk(!isPresent)
                 .build();
     }
 
     @Transactional
     public OAuthUserLoginResponseDto saveOAuthUser(OAuthUserLoginRequestDto requestDto) {
-        logger.warn(requestDto.toString());
-        User user = userRepository.save(requestDto.toEntity());
+
+        // 먼저 이미 등록된 유저인지 확인한다. 존재하면 db에서 가져오고, 존재하지 않으면 req.toEntity()로 만든다
+        User user = userRepository.findByEmail(requestDto.getEmail())
+                .orElse(requestDto.toEntity());
+
+        // JPA에서 save는 insert, update의 기능을 가진다.
+        userRepository.save(user);
+
         return OAuthUserLoginResponseDto.builder()
-                .userId(user.getUserId())
+                .userId(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())
                 .profilePicture(user.getProfilePicture())

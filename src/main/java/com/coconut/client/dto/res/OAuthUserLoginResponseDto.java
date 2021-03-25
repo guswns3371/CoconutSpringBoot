@@ -16,13 +16,13 @@ public class OAuthUserLoginResponseDto {
      *     @SerializedName("profilePicture") var profilePicture : String?
      */
 
-    private String userId;
+    private Long userId;
     private String email;
     private String name;
     private String profilePicture;
 
     @Builder
-    public OAuthUserLoginResponseDto(String userId, String email, String name, String profilePicture) {
+    public OAuthUserLoginResponseDto(Long userId, String email, String name, String profilePicture) {
         this.userId = userId;
         this.email = email;
         this.name = name;
