@@ -32,7 +32,7 @@ public class OAuthUserLoginRequestDto {
                 .name(name)
                 .email(email)
                 .profilePicture(profilePicture)
-                .role(Role.USER)
+                .role(Role.USER) // OAUTH로 가입한 회원은 USER권한을 얻는다.
                 .build();
     }
 

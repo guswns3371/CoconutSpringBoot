@@ -36,7 +36,7 @@ public class UserSaveRequestDto {
                 .userId(userId)
                 .name(name)
                 .password(password)
-                .role(Role.USER)
+                .role(Role.GUEST) // 일반적인 방법으로 회원가입하면 이메일을 인증해야 USER 권한을 얻는다.
                 .build();
     }
 

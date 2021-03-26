@@ -1,8 +1,10 @@
 package com.coconut.client;
 
 import com.coconut.client.dto.req.OAuthUserLoginRequestDto;
+import com.coconut.client.dto.req.UserLoginRequestDto;
 import com.coconut.client.dto.req.UserSaveRequestDto;
 import com.coconut.client.dto.res.OAuthUserLoginResponseDto;
+import com.coconut.client.dto.res.UserLoginResponseDto;
 import com.coconut.client.dto.res.UserSaveResponseDto;
 import com.coconut.config.auth.LoginUser;
 import com.coconut.config.auth.dto.SessionUser;
@@ -12,43 +14,38 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ *  logger.trace("Trace Level 테스트");
+ *  logger.debug("DEBUG Level 테스트");
+ *  logger.info("INFO Level 테스트");
+ *  logger.warn("Warn Level 테스트");
+ *  logger.error("ERROR Level 테스트");
+ */
+
 @RequiredArgsConstructor
 @RestController
 public class AuthController {
 
-    /**
-     *  logger.trace("Trace Level 테스트");
-     *  logger.debug("DEBUG Level 테스트");
-     *  logger.info("INFO Level 테스트");
-     *  logger.warn("Warn Level 테스트");
-     *  logger.error("ERROR Level 테스트");
-     */
-
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
     private final AuthService authService;
 
-    @PostMapping("/api/register")
+    @PostMapping("/api/auth/register")
     public UserSaveResponseDto save(@RequestBody UserSaveRequestDto requestDto) {
-        logger.error("@PostMapping(\"/register\") : "+requestDto.toString());
         return authService.save(requestDto);
     }
 
-    @PostMapping("/api/register/{email}")
+    @PostMapping("/api/auth/register/{email}")
     public UserSaveResponseDto emailCheck(@PathVariable String email) {
-        logger.error("@PostMapping(\"/register/{email}\") : "+email);
         return authService.emailCheck(email);
     }
 
-    @GetMapping("/")
-    public SessionUser sessionCheck(@LoginUser SessionUser user){
-        logger.error("get /");
-        return user;
+    @PostMapping("/api/auth/user/info")
+    public OAuthUserLoginResponseDto saveOAuthUser(@RequestBody OAuthUserLoginRequestDto requestDto) {
+        return authService.saveOAuthUser(requestDto);
     }
 
-    @PostMapping("/api/user/auth/info")
-    public OAuthUserLoginResponseDto saveOAuthUser(@RequestBody OAuthUserLoginRequestDto requestDto) {
-        logger.warn("saveOAuthUser : "+requestDto.toString());
-        return authService.saveOAuthUser(requestDto);
+    @PostMapping("/api/auth/login")
+    public UserLoginResponseDto login(@RequestBody UserLoginRequestDto requestDto) {
+        return authService.login(requestDto);
     }
 }

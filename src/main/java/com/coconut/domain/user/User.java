@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -39,7 +40,16 @@ public class User extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private Role role;
+    private Role role = Role.GUEST;
+
+//    // 부모 정의 (셀프 참조)
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "SUPER_USER_ID")
+//    private User superUser;
+//
+//    // 자식 정의
+//    @OneToMany(fetch = FetchType.LAZY,mappedBy = "superUser", cascade = CascadeType.ALL)
+//    private List<User> subUsers;
 
     @Builder
     public User(String userId, String name, String email, String password, String stateMessage, String profilePicture, String backgroundPicture, Role role) {
