@@ -11,7 +11,7 @@ server:
 
 spring:
   profiles:
-    include: oauth
+    include: oauth, smtp
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
