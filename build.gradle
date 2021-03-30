@@ -43,10 +43,12 @@ repositories {
 dependencies {
     implementation 'junit:junit:4.12'
     implementation 'org.projectlombok:lombok:1.18.16'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.6.0'
+    implementation 'org.testng:testng:7.1.0'
+    testCompile 'org.junit.jupiter:junit-jupiter:5.6.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
     compile('org.springframework.boot:spring-boot-starter-web')
     testCompile('org.springframework.boot:spring-boot-starter-test')
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 
     // lombok
     // annotationProcessor : gradle 버전이 올라감에 따라 롬복설정이 변하였기에 설정해준다.
@@ -74,6 +76,7 @@ dependencies {
 
     // 메일
     compile('org.springframework.boot:spring-boot-starter-mail')
+    compile('org.springframework.boot:spring-boot-starter-thymeleaf')
 }
 
 test {

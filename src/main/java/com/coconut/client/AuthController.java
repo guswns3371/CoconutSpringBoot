@@ -1,13 +1,12 @@
 package com.coconut.client;
 
 import com.coconut.client.dto.req.OAuthUserLoginRequestDto;
+import com.coconut.client.dto.req.UserEmailVerifyRequestDto;
 import com.coconut.client.dto.req.UserLoginRequestDto;
 import com.coconut.client.dto.req.UserSaveRequestDto;
 import com.coconut.client.dto.res.OAuthUserLoginResponseDto;
 import com.coconut.client.dto.res.UserLoginResponseDto;
 import com.coconut.client.dto.res.UserSaveResponseDto;
-import com.coconut.config.auth.LoginUser;
-import com.coconut.config.auth.dto.SessionUser;
 import com.coconut.service.auth.AuthService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -47,5 +46,10 @@ public class AuthController {
     @PostMapping("/api/auth/login")
     public UserLoginResponseDto login(@RequestBody UserLoginRequestDto requestDto) {
         return authService.login(requestDto);
+    }
+
+    @PostMapping("/api/auth/login/verify")
+    public UserLoginResponseDto emailVerify(@RequestBody UserEmailVerifyRequestDto requestDto) {
+        return authService.emailVerify(requestDto);
     }
 }

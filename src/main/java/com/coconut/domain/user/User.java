@@ -1,12 +1,12 @@
 package com.coconut.domain.user;
 
 import com.coconut.domain.BaseTimeEntity;
+import com.coconut.mail.TokenBuilder;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -38,6 +38,9 @@ public class User extends BaseTimeEntity {
     @Column
     private String backgroundPicture;
 
+    @Column
+    private String confirmToken;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role = Role.GUEST;
@@ -52,7 +55,7 @@ public class User extends BaseTimeEntity {
 //    private List<User> subUsers;
 
     @Builder
-    public User(String userId, String name, String email, String password, String stateMessage, String profilePicture, String backgroundPicture, Role role) {
+    public User(String userId, String name, String email, String password, String stateMessage, String profilePicture, String backgroundPicture, String confirmToken ,Role role) {
         this.userId = userId;
         this.name = name;
         this.email = email;
@@ -60,6 +63,7 @@ public class User extends BaseTimeEntity {
         this.stateMessage = stateMessage;
         this.profilePicture = profilePicture;
         this.backgroundPicture = backgroundPicture;
+        this.confirmToken = confirmToken;
         this.role = role;
     }
 
@@ -72,10 +76,19 @@ public class User extends BaseTimeEntity {
         return this;
     }
 
+    public String updateConfirmToken() {
+        this.confirmToken = new TokenBuilder().generateNewToken();
+
+        return this.confirmToken;
+    }
+
     public String getRoleKey() {
         return this.role.getKey();
     }
 
+    public void approveUser() {
+        this.role = Role.USER;
+    }
     @Override
     public String toString() {
         return "User{" +

@@ -1,19 +1,20 @@
 package com.coconut.service.auth;
 
-import com.coconut.client.dto.req.OAuthUserLoginRequestDto;
-import com.coconut.client.dto.req.UserLoginRequestDto;
-import com.coconut.client.dto.req.UserSaveRequestDto;
+import com.coconut.client.dto.req.*;
 import com.coconut.client.dto.res.OAuthUserLoginResponseDto;
 import com.coconut.client.dto.res.UserLoginResponseDto;
 import com.coconut.client.dto.res.UserSaveResponseDto;
 import com.coconut.domain.user.Role;
 import com.coconut.domain.user.User;
 import com.coconut.domain.user.UserRepository;
+import com.coconut.mail.MailService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.mail.MessagingException;
 
 @RequiredArgsConstructor
 @Service
@@ -21,6 +22,7 @@ public class AuthService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final UserRepository userRepository;
+    private final MailService mailService;
 
     @Transactional
     public UserSaveResponseDto save(UserSaveRequestDto requestDto) {
@@ -66,16 +68,52 @@ public class AuthService {
         boolean isConfirmed = false;
         String id = null;
 
-        if(user.getEmail() !=null){
+        if (user.getEmail() != null) {
             isCorrect = true;
             id = user.getId().toString();
 
             if (user.getRoleKey().equals(Role.USER.getKey())) { // 이메일 인증이 된 사용자
-               isConfirmed = true;
+                isConfirmed = true;
+            } else {
+                isConfirmed = false;
+                String token = user.updateConfirmToken();
+                try {
+                    mailService.sendEmail(MailDto.builder()
+                            .address("gkguswns3371@gmail.com")
+                            //.address(user.getEmail()) : 테스트가 끝나면 이걸로 바꿔야 유저가 등록한 이메일로 메일이 간다.
+                            .title("Coconut 이메일 인증")
+                            .token(token)
+                            .build());
+                } catch (MessagingException e) {
+                    e.printStackTrace();
+                }
             }
         }
         return UserLoginResponseDto.builder()
                 .id(id)
+                .isCorrect(isCorrect)
+                .isConfirmed(isConfirmed)
+                .build();
+    }
+
+    @Transactional
+    public UserLoginResponseDto emailVerify(UserEmailVerifyRequestDto requestDto) {
+        User user = userRepository.findByEmail(requestDto.getEmail())
+                .orElse(new User());
+
+        boolean isConfirmed = false;
+        boolean isCorrect = false;
+        if (user.getConfirmToken() != null) {
+            isConfirmed = user.getConfirmToken().equals(requestDto.getSecretToken());
+            isCorrect = user.getEmail().equals(requestDto.getEmail());
+        }
+
+        if (isConfirmed) {
+            user.approveUser(); // Role.GUEST 에서 Role.USER 로 변경
+        }
+
+        return UserLoginResponseDto.builder()
+                .id(user.getId().toString())
                 .isCorrect(isCorrect)
                 .isConfirmed(isConfirmed)
                 .build();
