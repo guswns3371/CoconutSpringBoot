@@ -29,8 +29,8 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/api/auth/register")
-    public UserSaveResponseDto save(@RequestBody UserSaveRequestDto requestDto) {
-        return authService.save(requestDto);
+    public UserSaveResponseDto saveUser(@RequestBody UserSaveRequestDto requestDto) {
+        return authService.saveUser(requestDto);
     }
 
     @PostMapping("/api/auth/register/{email}")

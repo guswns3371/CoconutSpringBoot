@@ -7,6 +7,7 @@ import com.coconut.client.dto.res.UserSaveResponseDto;
 import com.coconut.domain.user.Role;
 import com.coconut.domain.user.User;
 import com.coconut.domain.user.UserRepository;
+import com.coconut.util.encrypt.EncryptHelper;
 import com.coconut.util.mail.MailService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -23,10 +24,13 @@ public class AuthService {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final UserRepository userRepository;
     private final MailService mailService;
+    private final EncryptHelper encryptHelper;
 
     @Transactional
-    public UserSaveResponseDto save(UserSaveRequestDto requestDto) {
-        userRepository.save(requestDto.toEntity());
+    public UserSaveResponseDto saveUser(UserSaveRequestDto requestDto) {
+
+        userRepository.save(requestDto.toEntity(
+                encryptHelper.encrypt(requestDto.getPassword())));
         return UserSaveResponseDto.builder()
                 .isRegistered(true)
                 .build();
@@ -59,6 +63,7 @@ public class AuthService {
                 .build();
     }
 
+    // OAuth가 아닌 ID,PW로 로그인한 경우
     @Transactional
     public UserLoginResponseDto login(UserLoginRequestDto requestDto) {
         User user = userRepository.findByEmail(requestDto.getEmail())
@@ -69,7 +74,7 @@ public class AuthService {
         String id = null;
 
         if (user.getEmail() != null) {
-            isCorrect = true;
+            isCorrect = encryptHelper.isMatch(requestDto.getPassword(), user.getPassword());
             id = user.getId().toString();
 
             if (user.getRoleKey().equals(Role.USER.getKey())) { // 이메일 인증이 된 사용자

@@ -51,17 +51,20 @@ public class UserProfileUpdateRequestDto {
     }
 
     public User toEntity() {
-        String profileImagePath = PathNameBuilder.builder()
-                .userIndex(id)
-                .fileOriginalName(profileImage.getOriginalFilename())
-                .build()
-                .getProfileImagePath();
-
-        String backImagePath = PathNameBuilder.builder()
-                .userIndex(id)
-                .fileOriginalName(backImage.getOriginalFilename())
-                .build()
-                .getBackgroundImagePath();
+        String profileImagePath = null;
+        String backImagePath = null;
+        if (profileImage != null)
+            profileImagePath = PathNameBuilder.builder()
+                    .userIndex(id)
+                    .fileOriginalName(profileImage.getOriginalFilename())
+                    .build()
+                    .getProfileImagePath();
+        if (backImage != null)
+            backImagePath = PathNameBuilder.builder()
+                    .userIndex(id)
+                    .fileOriginalName(backImage.getOriginalFilename())
+                    .build()
+                    .getBackgroundImagePath();
 
         return User.builder()
                 .userId(userId)

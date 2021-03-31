@@ -1,7 +1,7 @@
 package com.coconut.domain.user;
 
 import com.coconut.domain.BaseTimeEntity;
-import com.coconut.util.mail.TokenBuilder;
+import com.coconut.util.mail.TokenGenerator;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -83,7 +83,7 @@ public class User extends BaseTimeEntity {
     }
 
     public String updateConfirmToken() {
-        this.confirmToken = new TokenBuilder().generateNewToken();
+        this.confirmToken = new TokenGenerator().generateNewToken();
 
         return this.confirmToken;
     }

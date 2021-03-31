@@ -30,12 +30,12 @@ public class UserSaveRequestDto {
         this.password = password;
     }
 
-    public User toEntity() {
+    public User toEntity(String hashedPassword) {
         return User.builder()
                 .email(email)
                 .userId(userId)
                 .name(name)
-                .password(password)
+                .password(hashedPassword)
                 .role(Role.GUEST) // 일반적인 방법으로 회원가입하면 이메일을 인증해야 USER 권한을 얻는다.
                 .build();
     }

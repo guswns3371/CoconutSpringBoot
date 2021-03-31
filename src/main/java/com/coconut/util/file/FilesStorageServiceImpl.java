@@ -1,5 +1,7 @@
 package com.coconut.util.file;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
@@ -15,7 +17,10 @@ import java.util.Objects;
 import java.util.stream.Stream;
 
 @Service
-public class FilesStorageServiceImpl implements FilesStorageService{
+public class FilesStorageServiceImpl implements FilesStorageService {
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     private final Path root = Paths.get("uploads");
 
     @Override
@@ -37,8 +42,7 @@ public class FilesStorageServiceImpl implements FilesStorageService{
                     this.root.resolve(Objects.requireNonNull(
                             fileName)));
         } catch (Exception e) {
-            throw new RuntimeException("Could not store the file. Error: "
-                    + e.getMessage());
+            logger.warn("Could not store the file. Error: "+e.getMessage());
         }
 
     }
