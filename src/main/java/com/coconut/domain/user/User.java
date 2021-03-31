@@ -1,7 +1,7 @@
 package com.coconut.domain.user;
 
 import com.coconut.domain.BaseTimeEntity;
-import com.coconut.mail.TokenBuilder;
+import com.coconut.util.mail.TokenBuilder;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -67,11 +67,17 @@ public class User extends BaseTimeEntity {
         this.role = role;
     }
 
-    public User update(String name, String profilePicture, String backgroundPicture, String stateMessage) {
-        this.name = name;
-        this.profilePicture = profilePicture;
-        this.backgroundPicture = backgroundPicture;
-        this.stateMessage = stateMessage;
+    public User update(User entity) {
+        if (entity.getUserId() != null)
+            this.userId = entity.getUserId();
+        if (entity.name != null)
+            this.name = entity.getName();
+        if (entity.profilePicture != null)
+            this.profilePicture = entity.getProfilePicture();
+        if (entity.backgroundPicture != null)
+            this.backgroundPicture = entity.getBackgroundPicture();
+        if (entity.getStateMessage() != null)
+            this.stateMessage = entity.getStateMessage();
 
         return this;
     }

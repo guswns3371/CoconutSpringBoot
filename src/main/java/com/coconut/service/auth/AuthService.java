@@ -7,7 +7,7 @@ import com.coconut.client.dto.res.UserSaveResponseDto;
 import com.coconut.domain.user.Role;
 import com.coconut.domain.user.User;
 import com.coconut.domain.user.UserRepository;
-import com.coconut.mail.MailService;
+import com.coconut.util.mail.MailService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

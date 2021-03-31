@@ -50,3 +50,9 @@ spring:
     mode: HTML
     encoding: UTF-8
     check-template-location: true
+
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 10MB
+      enabled: true

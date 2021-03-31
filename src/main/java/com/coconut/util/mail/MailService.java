@@ -1,4 +1,4 @@
-package com.coconut.mail;
+package com.coconut.util.mail;
 
 import com.coconut.client.dto.req.MailDto;
 import lombok.AllArgsConstructor;

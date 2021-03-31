@@ -29,7 +29,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        OAuth2UserService<OAuth2UserRequest,OAuth2User> delegate = new DefaultOAuth2UserService();
+        OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
         OAuth2User oAuth2User = delegate.loadUser(userRequest);
 
         // registrationId
@@ -46,9 +46,9 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         // OAuthAttributes
         // OAuth2UserService를 통해 가져온 OAuth2User의 attributes를 담을 클래스이다.
         // 다른 소셜 로그인도 이 클래스를 사용한다.
-        OAuthAttributes attributes = OAuthAttributes.of(registrationId,userNameAttributeName,oAuth2User.getAttributes());
+        OAuthAttributes attributes = OAuthAttributes.of(registrationId, userNameAttributeName, oAuth2User.getAttributes());
 
-        logger.error("CustomOAuth2UserService loadUser() : "+attributes.toString());
+        logger.error("CustomOAuth2UserService loadUser() : " + attributes.toString());
 
         // SessionUser
         // 세션에 사용자 정보를 저장하기 위한 Dto 클래스이다.
@@ -65,10 +65,11 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     private User saveOrUpdate(OAuthAttributes attributes) {
         User user = userRepository.findByEmail(attributes.getEmail())
                 .map(entity -> entity.update(
-                        attributes.getName(),
-                        attributes.getProfilePicture(),
-                        null,
-                        null))
+                        User.builder()
+                                .name(attributes.getName())
+                                .profilePicture(attributes.getProfilePicture())
+                                .build()
+                ))
                 .orElse(attributes.toEntity());
 
         return userRepository.save(user);

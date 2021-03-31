@@ -1,6 +1,5 @@
-package com.coconut.mail;
+package com.coconut.util.mail;
 
-import lombok.Builder;
 import lombok.NoArgsConstructor;
 
 import java.security.SecureRandom;
