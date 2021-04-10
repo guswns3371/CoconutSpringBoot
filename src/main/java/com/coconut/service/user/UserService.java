@@ -5,7 +5,7 @@ import com.coconut.client.dto.res.BaseResponseDto;
 import com.coconut.client.dto.res.UserDataResponseDto;
 import com.coconut.domain.user.User;
 import com.coconut.domain.user.UserRepository;
-import com.coconut.util.file.FilesStorageService;
+import com.coconut.service.utils.file.FilesStorageService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

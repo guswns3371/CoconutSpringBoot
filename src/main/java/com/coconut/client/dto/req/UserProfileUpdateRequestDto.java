@@ -1,7 +1,7 @@
 package com.coconut.client.dto.req;
 
 import com.coconut.domain.user.User;
-import com.coconut.util.file.PathNameBuilder;
+import com.coconut.service.utils.file.PathNameBuilder;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

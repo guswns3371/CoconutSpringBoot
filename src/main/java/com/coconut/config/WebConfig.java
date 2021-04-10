@@ -2,6 +2,7 @@ package com.coconut.config;
 
 import com.coconut.config.auth.LoginUserArgumentResolver;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
@@ -13,6 +14,9 @@ import java.util.List;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
+    @Value("uploads")
+    private String path;
+    
     private final LoginUserArgumentResolver loginUserArgumentResolver;
 
     @Override
@@ -24,9 +28,9 @@ public class WebConfig implements WebMvcConfigurer {
     // https://subji.github.io/posts/2019/11/21/springboot-external-reources-solve-copy-2https://subji.github.io/posts/2019/11/21/springboot-external-reources-solve-copy-2
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        String path = "uploads";
         registry
                 .addResourceHandler(path + "/**") // url 접근 경로
                 .addResourceLocations("file:" + path + "/"); // 디렉토리 경로 (반드시 file: 을 붙여주어야 한다.)
     }
+
 }

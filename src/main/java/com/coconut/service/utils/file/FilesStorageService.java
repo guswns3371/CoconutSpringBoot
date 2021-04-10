@@ -1,4 +1,4 @@
-package com.coconut.util.file;
+package com.coconut.service.utils.file;
 
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;

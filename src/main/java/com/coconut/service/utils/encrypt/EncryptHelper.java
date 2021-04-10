@@ -1,4 +1,4 @@
-package com.coconut.util.encrypt;
+package com.coconut.service.utils.encrypt;
 
 public interface EncryptHelper {
 

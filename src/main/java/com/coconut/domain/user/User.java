@@ -1,7 +1,7 @@
 package com.coconut.domain.user;
 
 import com.coconut.domain.BaseTimeEntity;
-import com.coconut.util.mail.TokenGenerator;
+import com.coconut.service.utils.mail.TokenGenerator;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

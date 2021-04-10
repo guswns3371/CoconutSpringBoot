@@ -1,6 +1,11 @@
 server:
   port: 8080
 
+socket:
+  host: localhost
+  port: 9092
+  allowCustomRequests: true
+
 #  url: jdbc:mysql://<주소>:3306/<테이블 명>?serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true&useSSL=false&characterEncoding=UTF-8
 # <테이블 명> = spring_example
 # <주소>

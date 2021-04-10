@@ -80,6 +80,12 @@ dependencies {
 
     // Bcrypt 패스워드 암호화
     implementation group: 'org.mindrot', name: 'jbcrypt', version: '0.3m'
+
+    // spring boot 용 implementation
+    // socket.io https://mvnrepository.com/artifact/com.corundumstudio.socketio/netty-socketio
+    implementation group: 'com.corundumstudio.socketio', name: 'netty-socketio', version: '1.5.0'
+    implementation 'org.springframework.boot:spring-boot-starter-websocket'
+
 }
 
 test {

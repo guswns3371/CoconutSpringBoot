@@ -1,4 +1,4 @@
-package com.coconut.util.file;
+package com.coconut.service.utils.file;
 
 import lombok.Builder;
 import lombok.Getter;
