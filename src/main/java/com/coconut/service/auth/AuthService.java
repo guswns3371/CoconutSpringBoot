@@ -10,8 +10,7 @@ import com.coconut.domain.user.UserRepository;
 import com.coconut.service.utils.encrypt.EncryptHelper;
 import com.coconut.service.utils.mail.MailService;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,9 +18,9 @@ import javax.mail.MessagingException;
 
 @RequiredArgsConstructor
 @Service
+@Slf4j
 public class AuthService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final UserRepository userRepository;
     private final MailService mailService;
     private final EncryptHelper encryptHelper;

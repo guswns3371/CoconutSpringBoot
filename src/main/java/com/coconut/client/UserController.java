@@ -5,24 +5,23 @@ import com.coconut.client.dto.res.BaseResponseDto;
 import com.coconut.client.dto.res.UserDataResponseDto;
 import com.coconut.service.user.UserService;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 public class UserController {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final UserService userService;
 
     @GetMapping("/api/account/{id}")
     public List<UserDataResponseDto> findAllUsers(@PathVariable String id) {
-        logger.warn("UserController> findAllUsers> id="+id);
+        log.warn("UserController> findAllUsers> id="+id);
         return userService.findAllUsers(Long.parseLong(id));
     }
 

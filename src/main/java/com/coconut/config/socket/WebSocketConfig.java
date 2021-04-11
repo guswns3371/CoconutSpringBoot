@@ -16,10 +16,11 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.setUserDestinationPrefix("/user");
     }
 
-
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
-        registry.addEndpoint("/socket-endpoint").withSockJS();
+        registry.addEndpoint("/socket-endpoint")
+                .setAllowedOrigins("http://localhost")
+                .withSockJS();
     }
 
     @Override

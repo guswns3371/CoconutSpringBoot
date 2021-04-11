@@ -9,9 +9,11 @@ import com.coconut.client.dto.res.UserLoginResponseDto;
 import com.coconut.client.dto.res.UserSaveResponseDto;
 import com.coconut.service.auth.AuthService;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  *  logger.trace("Trace Level 테스트");
@@ -21,11 +23,11 @@ import org.springframework.web.bind.annotation.*;
  *  logger.error("ERROR Level 테스트");
  */
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 public class AuthController {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final AuthService authService;
 
     @PostMapping("/api/auth/register")

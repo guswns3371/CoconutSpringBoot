@@ -7,25 +7,24 @@ import com.coconut.domain.user.User;
 import com.coconut.domain.user.UserRepository;
 import com.coconut.service.utils.file.FilesStorageService;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class UserService {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private final UserRepository userRepository;
     private final FilesStorageService storageService;
 
     @Transactional
     public List<UserDataResponseDto> findAllUsers(Long id) {
-        logger.warn("findAllUsers> : id ="+id.toString());
+        log.warn("findAllUsers> : id =" + id.toString());
         List<User> userFindAll = userRepository.findAll();
 
         // 자기 자신
@@ -40,7 +39,7 @@ public class UserService {
                 .collect(Collectors.toList());
 
         // index 0에 자기 자신을 삽입한다.
-        userList.add(0,me);
+        userList.add(0, me);
 
         // List<User> 를 List<UserDataResponseDto>로 변환한다.
         return userList.stream()
@@ -50,14 +49,14 @@ public class UserService {
 
     @Transactional
     public BaseResponseDto profileUpdate(UserProfileUpdateRequestDto requestDto) {
-        logger.warn(requestDto.toString());
+        log.warn(requestDto.toString());
         User user = userRepository.findUserById(Long.parseLong(requestDto.getId())).orElse(new User());
         boolean success;
         String message;
 
         if (!String.valueOf(user.getId()).equals(requestDto.getId())) {
             success = false;
-            message = "존재하지 않은 유저입니다. id="+requestDto.getId();
+            message = "존재하지 않은 유저입니다. id=" + requestDto.getId();
         } else {
             try {
                 User entity = requestDto.toEntity();
@@ -70,7 +69,7 @@ public class UserService {
 
                 success = true;
                 message = "프로필 업데이트 성공";
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
                 success = false;
                 message = "프로필 업데이트 실패";

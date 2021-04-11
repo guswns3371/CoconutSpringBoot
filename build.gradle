@@ -85,6 +85,7 @@ dependencies {
     // socket.io https://mvnrepository.com/artifact/com.corundumstudio.socketio/netty-socketio
     implementation group: 'com.corundumstudio.socketio', name: 'netty-socketio', version: '1.5.0'
     implementation 'org.springframework.boot:spring-boot-starter-websocket'
+    implementation 'org.springframework:spring-messaging'
 
 }
 
