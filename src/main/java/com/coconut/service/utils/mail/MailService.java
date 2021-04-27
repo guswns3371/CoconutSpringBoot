@@ -1,6 +1,6 @@
 package com.coconut.service.utils.mail;
 
-import com.coconut.client.dto.req.MailDto;
+import com.coconut.client.dto.MailDto;
 import lombok.AllArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;

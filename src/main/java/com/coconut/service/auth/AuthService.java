@@ -1,9 +1,10 @@
 package com.coconut.service.auth;
 
+import com.coconut.client.dto.MailDto;
 import com.coconut.client.dto.req.*;
-import com.coconut.client.dto.res.OAuthUserLoginResponseDto;
-import com.coconut.client.dto.res.UserLoginResponseDto;
-import com.coconut.client.dto.res.UserSaveResponseDto;
+import com.coconut.client.dto.res.OAuthUserLoginResDto;
+import com.coconut.client.dto.res.UserLoginResDto;
+import com.coconut.client.dto.res.UserSaveResDto;
 import com.coconut.domain.user.Role;
 import com.coconut.domain.user.User;
 import com.coconut.domain.user.UserRepository;
@@ -26,25 +27,25 @@ public class AuthService {
     private final EncryptHelper encryptHelper;
 
     @Transactional
-    public UserSaveResponseDto saveUser(UserSaveRequestDto requestDto) {
+    public UserSaveResDto saveUser(UserSaveReqDto requestDto) {
 
         userRepository.save(requestDto.toEntity(
                 encryptHelper.encrypt(requestDto.getPassword())));
-        return UserSaveResponseDto.builder()
+        return UserSaveResDto.builder()
                 .isRegistered(true)
                 .build();
     }
 
     @Transactional
-    public UserSaveResponseDto emailCheck(String email) {
+    public UserSaveResDto emailCheck(String email) {
         boolean isPresent = userRepository.findByEmail(email).isPresent();
-        return UserSaveResponseDto.builder()
+        return UserSaveResDto.builder()
                 .isEmailOk(!isPresent)
                 .build();
     }
 
     @Transactional
-    public OAuthUserLoginResponseDto saveOAuthUser(OAuthUserLoginRequestDto requestDto) {
+    public OAuthUserLoginResDto saveOAuthUser(OAuthUserLoginReqDto requestDto) {
 
         // 먼저 이미 등록된 유저인지 확인한다. 존재하면 db에서 가져오고, 존재하지 않으면 req.toEntity()로 만든다
         User user = userRepository.findByEmail(requestDto.getEmail())
@@ -54,7 +55,7 @@ public class AuthService {
         // JPA에서 save는 insert, update의 기능을 가진다.
         userRepository.save(user);
 
-        return OAuthUserLoginResponseDto.builder()
+        return OAuthUserLoginResDto.builder()
                 .userId(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())
@@ -64,7 +65,7 @@ public class AuthService {
 
     // OAuth가 아닌 ID,PW로 로그인한 경우
     @Transactional
-    public UserLoginResponseDto login(UserLoginRequestDto requestDto) {
+    public UserLoginResDto login(UserLoginReqDto requestDto) {
         User user = userRepository.findByEmail(requestDto.getEmail())
                 .orElse(new User());
 
@@ -93,7 +94,7 @@ public class AuthService {
                 }
             }
         }
-        return UserLoginResponseDto.builder()
+        return UserLoginResDto.builder()
                 .id(id)
                 .isCorrect(isCorrect)
                 .isConfirmed(isConfirmed)
@@ -101,7 +102,7 @@ public class AuthService {
     }
 
     @Transactional
-    public UserLoginResponseDto emailVerify(UserEmailVerifyRequestDto requestDto) {
+    public UserLoginResDto emailVerify(UserEmailVerifyReqDto requestDto) {
         User user = userRepository.findByEmail(requestDto.getEmail())
                 .orElse(new User());
 
@@ -116,7 +117,7 @@ public class AuthService {
             user.approveUser(); // Role.GUEST 에서 Role.USER 로 변경
         }
 
-        return UserLoginResponseDto.builder()
+        return UserLoginResDto.builder()
                 .id(user.getId().toString())
                 .isCorrect(isCorrect)
                 .isConfirmed(isConfirmed)

@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class UserSaveRequestDto {
+public class UserSaveReqDto {
 
     /**
      *     @SerializedName("email") var userEmail : String,
@@ -23,7 +23,7 @@ public class UserSaveRequestDto {
     private String password;
 
     @Builder
-    public UserSaveRequestDto(String email, String userId, String name, String password) {
+    public UserSaveReqDto(String email, String userId, String name, String password) {
         this.email = email;
         this.userId = userId;
         this.name = name;

@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class BaseResponseDto {
+public class BaseResDto {
     /**
      *     @SerializedName("success") var success : Boolean,
      *     @SerializedName("message") var message : String,
@@ -16,7 +16,7 @@ public class BaseResponseDto {
     private String message;
 
     @Builder
-    public BaseResponseDto(Boolean success, String message) {
+    public BaseResDto(Boolean success, String message) {
         this.success = success;
         this.message = message;
     }

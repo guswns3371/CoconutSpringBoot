@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class UserSaveResponseDto {
+public class UserSaveResDto {
 
     /**
      *     @SerializedName("isEmailOk") var isEmailOk: Boolean,
@@ -19,7 +19,7 @@ public class UserSaveResponseDto {
 
 
     @Builder
-    public UserSaveResponseDto(Boolean isEmailOk, Boolean isRegistered) {
+    public UserSaveResDto(Boolean isEmailOk, Boolean isRegistered) {
         this.isEmailOk = isEmailOk;
         this.isRegistered = isRegistered;
     }

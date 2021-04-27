@@ -1,8 +1,8 @@
 package com.coconut.client;
 
-import com.coconut.client.dto.req.UserProfileUpdateRequestDto;
-import com.coconut.client.dto.res.BaseResponseDto;
-import com.coconut.client.dto.res.UserDataResponseDto;
+import com.coconut.client.dto.req.UserProfileUpdateReqDto;
+import com.coconut.client.dto.res.BaseResDto;
+import com.coconut.client.dto.res.UserDataResDto;
 import com.coconut.service.user.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +20,7 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping("/api/account/{id}")
-    public List<UserDataResponseDto> findAllUsers(@PathVariable String id) {
+    public List<UserDataResDto> findAllUsers(@PathVariable String id) {
         log.warn("UserController> findAllUsers> id="+id);
         return userService.findAllUsers(Long.parseLong(id));
     }
@@ -34,7 +34,7 @@ public class UserController {
             }
             )
     // @RequestPart(value = "id", required = false) : required = false해줘야 null 값이 들어와도 코드가 진행된다.
-    public BaseResponseDto profileUpdate(
+    public BaseResDto profileUpdate(
             @RequestPart(value = "id", required = false) String id,
             @RequestPart(value = "userId", required = false) String userId,
             @RequestPart(value = "name", required = false) String name,
@@ -42,7 +42,7 @@ public class UserController {
             @RequestPart(value = "profileImage",required = false) MultipartFile profileImage,
             @RequestPart(value = "backImage", required = false) MultipartFile backImage
     ) {
-        return userService.profileUpdate(UserProfileUpdateRequestDto.builder()
+        return userService.profileUpdate(UserProfileUpdateReqDto.builder()
                 .id(id)
                 .userId(userId)
                 .name(name)

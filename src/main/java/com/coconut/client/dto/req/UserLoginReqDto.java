@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class UserLoginRequestDto {
+public class UserLoginReqDto {
     /***
      *     @SerializedName("email") var email : String,
      *     @SerializedName("password") var password : String
@@ -16,7 +16,7 @@ public class UserLoginRequestDto {
     private String password;
 
     @Builder
-    public UserLoginRequestDto(String email, String password) {
+    public UserLoginReqDto(String email, String password) {
         this.email = email;
         this.password = password;
     }

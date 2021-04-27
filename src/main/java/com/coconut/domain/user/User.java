@@ -1,12 +1,17 @@
 package com.coconut.domain.user;
 
+import com.coconut.client.dto.res.UserDataResDto;
 import com.coconut.domain.BaseTimeEntity;
+import com.coconut.domain.chat.ChatHistory;
+import com.coconut.domain.chat.UserChatRoom;
 import com.coconut.service.utils.mail.TokenGenerator;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -45,6 +50,12 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false)
     private Role role = Role.GUEST;
 
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<UserChatRoom> chatRoomList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<ChatHistory> chatHistoryList = new ArrayList<>();
+
 //    // 부모 정의 (셀프 참조)
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "SUPER_USER_ID")
@@ -55,7 +66,7 @@ public class User extends BaseTimeEntity {
 //    private List<User> subUsers;
 
     @Builder
-    public User(String userId, String name, String email, String password, String stateMessage, String profilePicture, String backgroundPicture, String confirmToken ,Role role) {
+    public User(String userId, String name, String email, String password, String stateMessage, String profilePicture, String backgroundPicture, String confirmToken, Role role) {
         this.userId = userId;
         this.name = name;
         this.email = email;
@@ -94,6 +105,23 @@ public class User extends BaseTimeEntity {
 
     public void approveUser() {
         this.role = Role.USER;
+    }
+
+    public void disapproveUser() {
+        this.role = Role.GUEST;
+    }
+
+
+    public UserDataResDto toUserDataResDto() {
+        return UserDataResDto.builder()
+                .id(id)
+                .userId(userId)
+                .email(email)
+                .name(name)
+                .profilePicture(profilePicture)
+                .backgroundPicture(backgroundPicture)
+                .stateMessage(stateMessage)
+                .build();
     }
     @Override
     public String toString() {

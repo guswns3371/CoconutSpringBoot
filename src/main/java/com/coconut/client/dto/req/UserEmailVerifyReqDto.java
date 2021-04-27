@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class UserEmailVerifyRequestDto {
+public class UserEmailVerifyReqDto {
     /**
      *     @SerializedName("email") val email : String,
      *     @SerializedName("secretToken") val secretToken : String
@@ -16,7 +16,7 @@ public class UserEmailVerifyRequestDto {
     private String secretToken;
 
     @Builder
-    public UserEmailVerifyRequestDto(String email, String secretToken) {
+    public UserEmailVerifyReqDto(String email, String secretToken) {
         this.email = email;
         this.secretToken = secretToken;
     }

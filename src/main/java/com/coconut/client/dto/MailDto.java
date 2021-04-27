@@ -1,4 +1,4 @@
-package com.coconut.client.dto.req;
+package com.coconut.client.dto;
 
 import lombok.Builder;
 import lombok.Getter;

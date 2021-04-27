@@ -1,8 +1,8 @@
 package com.coconut.service.user;
 
-import com.coconut.client.dto.req.UserProfileUpdateRequestDto;
-import com.coconut.client.dto.res.BaseResponseDto;
-import com.coconut.client.dto.res.UserDataResponseDto;
+import com.coconut.client.dto.req.UserProfileUpdateReqDto;
+import com.coconut.client.dto.res.BaseResDto;
+import com.coconut.client.dto.res.UserDataResDto;
 import com.coconut.domain.user.User;
 import com.coconut.domain.user.UserRepository;
 import com.coconut.service.utils.file.FilesStorageService;
@@ -23,7 +23,7 @@ public class UserService {
     private final FilesStorageService storageService;
 
     @Transactional
-    public List<UserDataResponseDto> findAllUsers(Long id) {
+    public List<UserDataResDto> findAllUsers(Long id) {
         log.warn("findAllUsers> : id =" + id.toString());
         List<User> userFindAll = userRepository.findAll();
 
@@ -43,12 +43,12 @@ public class UserService {
 
         // List<User> 를 List<UserDataResponseDto>로 변환한다.
         return userList.stream()
-                .map(UserDataResponseDto::toDto)
+                .map(UserDataResDto::toDto)
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public BaseResponseDto profileUpdate(UserProfileUpdateRequestDto requestDto) {
+    public BaseResDto profileUpdate(UserProfileUpdateReqDto requestDto) {
         log.warn(requestDto.toString());
         User user = userRepository.findUserById(Long.parseLong(requestDto.getId())).orElse(new User());
         boolean success;
@@ -76,7 +76,7 @@ public class UserService {
             }
 
         }
-        return BaseResponseDto.builder()
+        return BaseResDto.builder()
                 .success(success)
                 .message(message)
                 .build();

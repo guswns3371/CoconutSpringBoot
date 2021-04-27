@@ -9,7 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @NoArgsConstructor
-public class UserProfileUpdateRequestDto {
+public class UserProfileUpdateReqDto {
     /**
      *     var id : RequestBody?,
      *     var userId : RequestBody?,
@@ -36,12 +36,12 @@ public class UserProfileUpdateRequestDto {
     private MultipartFile backImage;
 
     @Builder
-    public UserProfileUpdateRequestDto(String id,
-                                       String userId,
-                                       String name,
-                                       String message,
-                                       MultipartFile profileImage,
-                                       MultipartFile backImage) {
+    public UserProfileUpdateReqDto(String id,
+                                   String userId,
+                                   String name,
+                                   String message,
+                                   MultipartFile profileImage,
+                                   MultipartFile backImage) {
         this.id = id;
         this.userId = userId;
         this.name = name;

@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class OAuthUserLoginRequestDto {
+public class OAuthUserLoginReqDto {
 
     /***
      *     @SerializedName("name") var name : String?,
@@ -21,7 +21,7 @@ public class OAuthUserLoginRequestDto {
     private String profilePicture;
 
     @Builder
-    public OAuthUserLoginRequestDto(String name, String email, String profilePicture) {
+    public OAuthUserLoginReqDto(String name, String email, String profilePicture) {
         this.name = name;
         this.email = email;
         this.profilePicture = profilePicture;

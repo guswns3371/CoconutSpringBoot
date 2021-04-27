@@ -1,4 +1,4 @@
-package com.coconut.client;
+package com.coconut.client.socket;
 
 import com.coconut.client.model.EchoModel;
 import com.coconut.service.socket.SocketService;
@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-public class SocketController {
+public class SocketUserController {
 
     private final SocketService socketService;
 
@@ -36,6 +36,7 @@ public class SocketController {
                 .build();
     }
 
+    // online user
     @MessageMapping("/online")
     @SendTo("/topic/service")
     public List<String> onlineUsers(String userIndex) {
@@ -45,6 +46,7 @@ public class SocketController {
         return connectedUserList;
     }
 
+    // offline user
     @MessageMapping("/offline")
     @SendTo("/topic/service")
     public List<String> offlineUsers(String userIndex) {

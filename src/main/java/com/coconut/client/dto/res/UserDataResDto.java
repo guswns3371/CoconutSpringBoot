@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class UserDataResponseDto {
+public class UserDataResDto {
     /**
      *     @SerializedName("id") var id : String,
      *     @SerializedName("user_id") var user_id : String,
@@ -16,8 +16,7 @@ public class UserDataResponseDto {
      *     @SerializedName("state_message") var state_message : String ?,
      *     @SerializedName("profile_picture") var profile_picture : String ?,
      *     @SerializedName("background_picture") var background_picture : String ?,
-     *     @SerializedName("err") var err : String ?,
-     *     var status : Boolean
+     *     @SerializedName("err") var err : String ?
      */
 
     private Long id;
@@ -27,9 +26,10 @@ public class UserDataResponseDto {
     private String stateMessage;
     private String profilePicture;
     private String backgroundPicture;
+    private String err;
 
     @Builder
-    public UserDataResponseDto(Long id, String userId, String name, String email, String stateMessage, String profilePicture, String backgroundPicture) {
+    public UserDataResDto(Long id, String userId, String name, String email, String stateMessage, String profilePicture, String backgroundPicture, String err) {
         this.id = id;
         this.userId = userId;
         this.name = name;
@@ -37,10 +37,11 @@ public class UserDataResponseDto {
         this.stateMessage = stateMessage;
         this.profilePicture = profilePicture;
         this.backgroundPicture = backgroundPicture;
+        this.err = err;
     }
 
-    public static UserDataResponseDto toDto(User entity) {
-        return UserDataResponseDto.builder()
+    public static UserDataResDto toDto(User entity) {
+        return UserDataResDto.builder()
                 .id(entity.getId())
                 .userId(entity.getUserId())
                 .name(entity.getName())

@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @Getter
-public class UserLoginResponseDto {
+public class UserLoginResDto {
     /***
      *   @SerializedName("isCorrect") var isCorrect : Boolean,
      *   @SerializedName("isConfirmed") var isConfirmed : Boolean,
@@ -18,7 +18,7 @@ public class UserLoginResponseDto {
     private String id;
 
     @Builder
-    public UserLoginResponseDto(Boolean isCorrect, Boolean isConfirmed, String id) {
+    public UserLoginResDto(Boolean isCorrect, Boolean isConfirmed, String id) {
         this.isCorrect = isCorrect;
         this.isConfirmed = isConfirmed;
         this.id = id;

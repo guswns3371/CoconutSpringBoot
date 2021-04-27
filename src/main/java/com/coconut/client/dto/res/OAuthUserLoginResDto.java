@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @Getter
-public class OAuthUserLoginResponseDto {
+public class OAuthUserLoginResDto {
 
     /***
      *     @SerializedName("userId") var userId : String?,
@@ -22,7 +22,7 @@ public class OAuthUserLoginResponseDto {
     private String profilePicture;
 
     @Builder
-    public OAuthUserLoginResponseDto(Long userId, String email, String name, String profilePicture) {
+    public OAuthUserLoginResDto(Long userId, String email, String name, String profilePicture) {
         this.userId = userId;
         this.email = email;
         this.name = name;

@@ -15,7 +15,7 @@ public class WebSocketEventListener {
 
     @EventListener
     public void handleWebSocketConnectListener(SessionConnectedEvent event) {
-        log.warn("Received a new web socket connection : 소켓 연결 성공!");;
+        log.warn("소켓 연결 성공!");;
     }
 
     @EventListener
@@ -23,6 +23,6 @@ public class WebSocketEventListener {
         StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
         String username = (String) Objects.requireNonNull(headerAccessor.getSessionAttributes()).get("username");
 
-        log.warn("Received a new web socket disconnection : 소켓 연결 끊음!");;
+        log.warn("소켓 연결 끊음!");;
     }
 }

@@ -1,12 +1,12 @@
 package com.coconut.client;
 
-import com.coconut.client.dto.req.OAuthUserLoginRequestDto;
-import com.coconut.client.dto.req.UserEmailVerifyRequestDto;
-import com.coconut.client.dto.req.UserLoginRequestDto;
-import com.coconut.client.dto.req.UserSaveRequestDto;
-import com.coconut.client.dto.res.OAuthUserLoginResponseDto;
-import com.coconut.client.dto.res.UserLoginResponseDto;
-import com.coconut.client.dto.res.UserSaveResponseDto;
+import com.coconut.client.dto.req.OAuthUserLoginReqDto;
+import com.coconut.client.dto.req.UserEmailVerifyReqDto;
+import com.coconut.client.dto.req.UserLoginReqDto;
+import com.coconut.client.dto.req.UserSaveReqDto;
+import com.coconut.client.dto.res.OAuthUserLoginResDto;
+import com.coconut.client.dto.res.UserLoginResDto;
+import com.coconut.client.dto.res.UserSaveResDto;
 import com.coconut.service.auth.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,27 +31,27 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/api/auth/register")
-    public UserSaveResponseDto saveUser(@RequestBody UserSaveRequestDto requestDto) {
+    public UserSaveResDto saveUser(@RequestBody UserSaveReqDto requestDto) {
         return authService.saveUser(requestDto);
     }
 
     @PostMapping("/api/auth/register/{email}")
-    public UserSaveResponseDto emailCheck(@PathVariable String email) {
+    public UserSaveResDto emailCheck(@PathVariable String email) {
         return authService.emailCheck(email);
     }
 
     @PostMapping("/api/auth/user/info")
-    public OAuthUserLoginResponseDto saveOAuthUser(@RequestBody OAuthUserLoginRequestDto requestDto) {
+    public OAuthUserLoginResDto saveOAuthUser(@RequestBody OAuthUserLoginReqDto requestDto) {
         return authService.saveOAuthUser(requestDto);
     }
 
     @PostMapping("/api/auth/login")
-    public UserLoginResponseDto login(@RequestBody UserLoginRequestDto requestDto) {
+    public UserLoginResDto login(@RequestBody UserLoginReqDto requestDto) {
         return authService.login(requestDto);
     }
 
     @PostMapping("/api/auth/login/verify")
-    public UserLoginResponseDto emailVerify(@RequestBody UserEmailVerifyRequestDto requestDto) {
+    public UserLoginResDto emailVerify(@RequestBody UserEmailVerifyReqDto requestDto) {
         return authService.emailVerify(requestDto);
     }
 }
