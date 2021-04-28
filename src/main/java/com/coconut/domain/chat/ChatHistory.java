@@ -1,6 +1,7 @@
 package com.coconut.domain.chat;
 
 import com.coconut.client.dto.res.ChatHistoryResDto;
+import com.coconut.client.dto.res.ChatHistorySaveResDto;
 import com.coconut.domain.BaseTimeEntity;
 import com.coconut.domain.user.User;
 import lombok.Builder;
@@ -65,15 +66,26 @@ public class ChatHistory extends BaseTimeEntity {
     }
 
     public ChatHistoryResDto toChatHistoryResDto() {
-        boolean isFile = this.messageType.equals(MessageType.FILE);
         return ChatHistoryResDto.builder()
                 .userInfo(user.toUserDataResDto())
                 .chatRoomId(chatRoom.getId().toString())
-                .chatUserId(user.getUserId())
+                .chatUserId(user.getId().toString())
                 .readMembers(readMembers)
-                .time(getCreatedData().format(DateTimeFormatter.ofPattern("a HH시 mm분")))
+                .time(getCreatedData().format(DateTimeFormatter.ofPattern("a h시 mm분")))
                 .history(history)
-                .isFile(isFile)
+                .messageType(getMessageTypeKey())
+                .build();
+    }
+
+    public ChatHistorySaveResDto toChatHistorySaveResDto() {
+        return ChatHistorySaveResDto.builder()
+                .userInfo(user.toUserDataResDto())
+                .chatRoomId(chatRoom.getId().toString())
+                .chatUserId(user.getId().toString())
+                .readMembers(readMembers)
+                .time(getCreatedData().format(DateTimeFormatter.ofPattern("a h시 mm분")))
+                .history(history)
+                .messageType(getMessageTypeKey())
                 .build();
     }
 }

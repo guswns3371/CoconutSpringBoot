@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @Getter
-public class ChatHistoryResDto {
+public class ChatHistorySaveResDto {
     /**
      *     @SerializedName("userInfo") var userInfo : UserDataResponse,
      *     @SerializedName("chatRoomId") var chatRoomId : String,
@@ -14,7 +14,7 @@ public class ChatHistoryResDto {
      *     @SerializedName("readMembers") var readMembers : String,
      *     @SerializedName("time") var time : String,
      *     @SerializedName("history") var history : String,
-     *     @SerializedName("messageType") var messageType : Boolean?,
+     *     @SerializedName("messageType") var messageType : Boolean?
      */
 
     private UserDataResDto userInfo;
@@ -26,7 +26,7 @@ public class ChatHistoryResDto {
     private String messageType;
 
     @Builder
-    public ChatHistoryResDto(UserDataResDto userInfo, String chatRoomId, String chatUserId, String readMembers, String time, String history, String messageType) {
+    public ChatHistorySaveResDto(UserDataResDto userInfo, String chatRoomId, String chatUserId, String readMembers, String time, String history, String messageType) {
         this.userInfo = userInfo;
         this.chatRoomId = chatRoomId;
         this.chatUserId = chatUserId;
@@ -34,5 +34,18 @@ public class ChatHistoryResDto {
         this.time = time;
         this.history = history;
         this.messageType = messageType;
+    }
+
+    @Override
+    public String toString() {
+        return "ChatHistorySaveResDto{" +
+                "userInfo=" + userInfo.toString() +
+                ", chatRoomId='" + chatRoomId + '\'' +
+                ", chatUserId='" + chatUserId + '\'' +
+                ", readMembers='" + readMembers + '\'' +
+                ", time='" + time + '\'' +
+                ", history='" + history + '\'' +
+                ", messageType=" + messageType +
+                '}';
     }
 }

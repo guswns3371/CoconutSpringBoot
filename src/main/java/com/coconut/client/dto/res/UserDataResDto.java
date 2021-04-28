@@ -16,7 +16,8 @@ public class UserDataResDto {
      *     @SerializedName("state_message") var state_message : String ?,
      *     @SerializedName("profile_picture") var profile_picture : String ?,
      *     @SerializedName("background_picture") var background_picture : String ?,
-     *     @SerializedName("err") var err : String ?
+     *     @SerializedName("err") var err : String ?,
+     *     @SerializedName("status") var status : Boolean?
      */
 
     private Long id;
@@ -27,9 +28,10 @@ public class UserDataResDto {
     private String profilePicture;
     private String backgroundPicture;
     private String err;
+    private boolean status;
 
     @Builder
-    public UserDataResDto(Long id, String userId, String name, String email, String stateMessage, String profilePicture, String backgroundPicture, String err) {
+    public UserDataResDto(Long id, String userId, String name, String email, String stateMessage, String profilePicture, String backgroundPicture, String err, boolean status) {
         this.id = id;
         this.userId = userId;
         this.name = name;
@@ -38,6 +40,7 @@ public class UserDataResDto {
         this.profilePicture = profilePicture;
         this.backgroundPicture = backgroundPicture;
         this.err = err;
+        this.status = status;
     }
 
     public static UserDataResDto toDto(User entity) {
@@ -50,5 +53,19 @@ public class UserDataResDto {
                 .profilePicture(entity.getProfilePicture())
                 .backgroundPicture(entity.getBackgroundPicture())
                 .build();
+    }
+
+    @Override
+    public String toString() {
+        return "UserDataResDto{" +
+                "id=" + id +
+                ", userId='" + userId + '\'' +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", stateMessage='" + stateMessage + '\'' +
+                ", profilePicture='" + profilePicture + '\'' +
+                ", backgroundPicture='" + backgroundPicture + '\'' +
+                ", err='" + err + '\'' +
+                '}';
     }
 }

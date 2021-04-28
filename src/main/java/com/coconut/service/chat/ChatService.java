@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -36,8 +37,8 @@ public class ChatService {
         String chatRoomId;
         String myIndex = chatRoomSaveReqDto.getChatUserId();
 
-        ArrayList<String> members = chatRoomSaveReqDto.getChatRoomMembers().stream().sorted()
-                .collect(Collectors.toCollection(ArrayList::new));
+        ArrayList<String> members = chatRoomSaveReqDto.getChatRoomMembers();
+        Collections.sort(members);
         ArrayList<User> users = new ArrayList<>();
         ArrayList<UserDataResDto> membersInfo;
         Optional<ChatRoom> optionalChatRoom = chatRoomRepository.findChatRoomByMembers(members.toString());
