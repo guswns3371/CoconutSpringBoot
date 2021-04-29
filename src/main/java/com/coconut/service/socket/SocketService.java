@@ -65,12 +65,22 @@ public class SocketService {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
+    @Transactional
     public void enterUsers(ChatRoomSocketDto dto) {
         String chatRoomId = dto.getChatRoomId();
         String userId = dto.getChatUserId();
         ArrayList<String> users = addUser(chatRoomId, userId);
 
         log.warn("유저=" + userId + " : " + chatRoomId + "번 채팅방 enter =" + enteredUserMap);
+
+        Optional<List<ChatHistory>> optionalChatHistoryList = chatHistoryRepository.findChatHistoriesByChatRoom_Id(Long.parseLong(chatRoomId));
+
+        // 채팅 기록 읽은 사람들 업데이트
+        if (optionalChatHistoryList.isPresent()) {
+            for (ChatHistory history : optionalChatHistoryList.get()) {
+                history.updateReadMembers(userId);
+            }
+        }
 
         messageSender.convertAndSend("/sub/chat/room/" + dto.getChatRoomId(), users);
     }

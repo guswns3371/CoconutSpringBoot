@@ -4,12 +4,16 @@ import com.coconut.client.dto.res.ChatHistoryResDto;
 import com.coconut.client.dto.res.ChatHistorySaveResDto;
 import com.coconut.domain.BaseTimeEntity;
 import com.coconut.domain.user.User;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.GsonBuilder;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Collections;
 
 @Getter
 @NoArgsConstructor
@@ -63,6 +67,25 @@ public class ChatHistory extends BaseTimeEntity {
 
     public String getMessageTypeKey() {
         return this.messageType.getKey();
+    }
+
+    public void updateReadMembers(String userId) {
+
+        String oldReadMembersString = this.readMembers;
+        ArrayList<String> resultList = new ArrayList<String>();
+        ArrayList<String> oldReadMembers = new GsonBuilder().create().fromJson(oldReadMembersString, new TypeToken<ArrayList<String>>(){}.getType());
+
+        oldReadMembers.add(userId);
+
+        for (String oldReadMember : oldReadMembers) {
+            if (!resultList.contains(oldReadMember)) {
+                resultList.add(oldReadMember);
+            }
+        }
+
+        Collections.sort(resultList);
+
+        this.readMembers = resultList.toString();
     }
 
     public ChatHistoryResDto toChatHistoryResDto() {
