@@ -1,12 +1,17 @@
 package com.coconut.service.chat;
 
+import com.coconut.client.dto.req.ChatRoomDataReqDto;
+import com.coconut.client.dto.req.ChatRoomListReqDto;
 import com.coconut.client.dto.req.ChatRoomSaveReqDto;
+import com.coconut.client.dto.req.UserChatRoomInfoReqDto;
 import com.coconut.client.dto.res.ChatHistoryResDto;
-import com.coconut.client.dto.res.ChatRoomSaveResDto;
+import com.coconut.client.dto.res.ChatRoomDataResDto;
 import com.coconut.client.dto.res.UserDataResDto;
 import com.coconut.domain.chat.*;
 import com.coconut.domain.user.User;
 import com.coconut.domain.user.UserRepository;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.GsonBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,16 +34,13 @@ public class ChatService {
     private final ChatHistoryRepository chatHistoryRepository;
 
     @Transactional
-    public ChatRoomSaveResDto makeChatRoom(ChatRoomSaveReqDto chatRoomSaveReqDto) {
-        log.warn("makeChatRoom");
-        log.warn("user id =" + chatRoomSaveReqDto.getChatUserId() + ", people=" + chatRoomSaveReqDto.getChatRoomMembers().toString());
-
+    public ChatRoomDataResDto makeChatRoom(ChatRoomSaveReqDto chatRoomSaveReqDto) {
         String myRoomName = null;
         String chatRoomId;
-        String myIndex = chatRoomSaveReqDto.getChatUserId();
-
+        String userId = chatRoomSaveReqDto.getChatUserId();
         ArrayList<String> members = chatRoomSaveReqDto.getChatRoomMembers();
         Collections.sort(members);
+
         ArrayList<User> users = new ArrayList<>();
         ArrayList<UserDataResDto> membersInfo;
         Optional<ChatRoom> optionalChatRoom = chatRoomRepository.findChatRoomByMembers(members.toString());
@@ -54,7 +56,7 @@ public class ChatService {
 
             myRoomName = userChatRoomList.stream()
                     .filter(it -> it.getChatRoom().getId().equals(Long.parseLong(chatRoomId)))
-                    .filter(it -> it.getUser().getId().equals(Long.parseLong(myIndex)))
+                    .filter(it -> it.getUser().getId().equals(Long.parseLong(userId)))
                     .collect(Collectors.toList())
                     .get(0)
                     .getChatRoomName();
@@ -64,8 +66,7 @@ public class ChatService {
                     .map(User::toUserDataResDto)
                     .collect(Collectors.toCollection(ArrayList::new));
 
-
-            return ChatRoomSaveResDto.builder()
+            return ChatRoomDataResDto.builder()
                     .chatRoomId(chatRoomId)
                     .chatRoomName(myRoomName)
                     .chatRoomMembers(members)
@@ -81,8 +82,8 @@ public class ChatService {
 
         chatRoomId = chatRoom.getId().toString();
 
-        for (String userId : members) {
-            userRepository.findUserById(Long.parseLong(userId)).ifPresent(users::add);
+        for (String memberId : members) {
+            userRepository.findUserById(Long.parseLong(memberId)).ifPresent(users::add);
         }
 
         if (users.size() == 0) {
@@ -101,7 +102,7 @@ public class ChatService {
                 chatRoomName = user.getName();
             }
 
-            if (user.getId().toString().equals(myIndex)) {
+            if (user.getId().toString().equals(userId)) {
                 myRoomName = chatRoomName;
             }
 
@@ -117,7 +118,7 @@ public class ChatService {
                 .map(User::toUserDataResDto)
                 .collect(Collectors.toCollection(ArrayList::new));
 
-        return ChatRoomSaveResDto.builder()
+        return ChatRoomDataResDto.builder()
                 .chatRoomId(chatRoomId)
                 .chatRoomName(myRoomName)
                 .chatRoomMembers(members)
@@ -126,9 +127,45 @@ public class ChatService {
     }
 
     @Transactional
-    public ArrayList<ChatHistoryResDto> getChatHistory(String id) {
-        log.warn("getChatHistory> chatRoomId="+id);
-        Optional<List<ChatHistory>> optionalChatHistory = chatHistoryRepository.findChatHistoriesByChatRoom_Id(Long.parseLong(id));
+    public ChatRoomDataResDto getChatRoomData(ChatRoomDataReqDto chatRoomDataReqDto) {
+        log.warn(chatRoomDataReqDto.toString());
+        String myRoomName;
+        String userId = chatRoomDataReqDto.getChatUserId();
+        String chatRoomId = chatRoomDataReqDto.getChatRoomId();
+        ArrayList<String> members = chatRoomDataReqDto.getChatRoomMembers();
+        Optional<UserChatRoom> optionalUserChatRoom = userChatRoomRepository.findUserChatRoomByChatRoom_IdAndUser_Id(Long.parseLong(chatRoomId),Long.parseLong(userId));
+
+        if (!optionalUserChatRoom.isPresent())
+            return null;
+
+        UserChatRoom userChatRoom = optionalUserChatRoom.get();
+        myRoomName = userChatRoom.getChatRoomName();
+
+        List<Long> memberIds =
+                new GsonBuilder().create().fromJson(members.toString(), new TypeToken<ArrayList<Long>>() {
+                }.getType());
+
+        Optional<ArrayList<User>> optionalUserArrayList = userRepository.findUserByIdIn(memberIds);
+
+        if (!optionalUserArrayList.isPresent())
+            return null;
+
+        ArrayList<UserDataResDto> membersInfo = optionalUserArrayList.get()
+                .stream()
+                .map(User::toUserDataResDto)
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        return ChatRoomDataResDto.builder()
+                .chatRoomId(chatRoomId)
+                .chatRoomName(myRoomName)
+                .chatRoomMembers(members)
+                .chatRoomMembersInfo(membersInfo)
+                .build();
+    }
+
+    @Transactional
+    public ArrayList<ChatHistoryResDto> getChatHistory(String chatRoomId) {
+        Optional<List<ChatHistory>> optionalChatHistory = chatHistoryRepository.findChatHistoriesByChatRoom_Id(Long.parseLong(chatRoomId));
 
         return optionalChatHistory.map(chatHistories -> chatHistories.stream()
                 .map(ChatHistory::toChatHistoryResDto)
@@ -136,4 +173,53 @@ public class ChatService {
                 .orElse(null);
 
     }
+
+    @Transactional
+    public ArrayList<ChatRoomListReqDto> getChatRoomLists(String userId) {
+        Optional<ArrayList<UserChatRoom>> optionalUserChatRooms = userChatRoomRepository.findUserChatRoomsByUser_Id(Long.parseLong(userId));
+
+        if (!optionalUserChatRooms.isPresent())
+            return null;
+
+        ArrayList<ChatRoomListReqDto> chatRoomListReqDtos = new ArrayList<>();
+        ArrayList<UserChatRoom> userChatRooms = optionalUserChatRooms.get();
+
+        for (UserChatRoom userChatRoom : userChatRooms) {
+            ChatRoom chatRoom = userChatRoom.getChatRoom();
+
+            if (chatRoom.getLastMessage() == null)
+                continue;
+
+            UserChatRoomInfoReqDto userChatRoomInfoReqDto =
+                    UserChatRoomInfoReqDto.builder()
+                            .chatRoomId(Long.toString(userChatRoom.getId()))
+                            .chatRoomName(userChatRoom.getChatRoomName())
+                            .unReads(Integer.toString(userChatRoom.getUnReads()))
+                            .chatRoomInfo(chatRoom.toChatRoomInfoReqDto())
+                            .build();
+
+            List<Long> memberIds =
+                    new GsonBuilder().create().fromJson(chatRoom.getMembers(), new TypeToken<ArrayList<Long>>() {
+                    }.getType());
+            Optional<ArrayList<User>> optionalUserArrayList = userRepository.findUserByIdIn(memberIds);
+
+            if (!optionalUserArrayList.isPresent())
+                continue;
+
+            ArrayList<UserDataResDto> userDataResDtoArrayList = optionalUserArrayList.get()
+                    .stream()
+                    .map(User::toUserDataResDto)
+                    .filter(it -> !it.getId().equals(Long.parseLong(userId)))
+                    .collect(Collectors.toCollection(ArrayList::new));
+
+            chatRoomListReqDtos.add(ChatRoomListReqDto.builder()
+                    .userChatRoomInfoReqDto(userChatRoomInfoReqDto)
+                    .userInfo(userDataResDtoArrayList)
+                    .build());
+        }
+
+        return chatRoomListReqDtos;
+    }
+
+
 }

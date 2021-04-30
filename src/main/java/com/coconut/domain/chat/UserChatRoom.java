@@ -40,17 +40,18 @@ public class UserChatRoom extends BaseTimeEntity {
     }
 
     // https://cornswrold.tistory.com/355
-    public void setUser(User user) {
+    private void setUser(User user) {
         this.user = user;
         if (!user.getChatRoomList().contains(this)) {
             user.getChatRoomList().add(this);
         }
     }
 
-    public void setChatRoom(ChatRoom chatRoom) {
+    private void setChatRoom(ChatRoom chatRoom) {
         this.chatRoom = chatRoom;
         if (!chatRoom.getUserList().contains(this)) {
             chatRoom.getUserList().add(this);
         }
     }
+
 }

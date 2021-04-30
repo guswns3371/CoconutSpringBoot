@@ -121,6 +121,8 @@ public class SocketService {
     public void sendMessage(ChatMessageSocketDto dto) {
         String userId  = dto.getChatUserId();
         String chatRoomId = dto.getChatRoomId();
+        String chatMessage = dto.getChatMessage();
+        ArrayList<String> readMembers = dto.getReadMembers();
 
         Optional<User> optionalUser = userRepository.findUserById(Long.parseLong(userId));
         Optional<ChatRoom> optionalChatRoom = chatRoomRepository.findChatRoomById(Long.parseLong(chatRoomId));
@@ -129,11 +131,11 @@ public class SocketService {
             return;
         }
 
+        Collections.sort(readMembers);
+
         User user = optionalUser.get();
         ChatRoom chatRoom = optionalChatRoom.get();
-        String chatMessage = dto.getChatMessage();
-        ArrayList<String> readMembers = dto.getReadMembers();
-        Collections.sort(readMembers);
+        chatRoom.updateLastMessage(chatMessage);
 
         ChatHistory chatHistory = chatHistoryRepository.save(
                 ChatHistory.builder()

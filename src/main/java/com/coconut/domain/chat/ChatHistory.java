@@ -51,14 +51,14 @@ public class ChatHistory extends BaseTimeEntity {
         setChatRoom(chatRoom);
     }
 
-    public void setUser(User user) {
+    private void setUser(User user) {
         this.user = user;
         if (!user.getChatHistoryList().contains(this)) {
             user.getChatHistoryList().add(this);
         }
     }
 
-    public void setChatRoom(ChatRoom chatRoom) {
+    private void setChatRoom(ChatRoom chatRoom) {
         this.chatRoom = chatRoom;
         if (!chatRoom.getChatHistoryList().contains(this)) {
             chatRoom.getChatHistoryList().add(this);
@@ -73,7 +73,8 @@ public class ChatHistory extends BaseTimeEntity {
 
         String oldReadMembersString = this.readMembers;
         ArrayList<String> resultList = new ArrayList<String>();
-        ArrayList<String> oldReadMembers = new GsonBuilder().create().fromJson(oldReadMembersString, new TypeToken<ArrayList<String>>(){}.getType());
+        ArrayList<String> oldReadMembers =
+                new GsonBuilder().create().fromJson(oldReadMembersString, new TypeToken<ArrayList<String>>(){}.getType());
 
         oldReadMembers.add(userId);
 

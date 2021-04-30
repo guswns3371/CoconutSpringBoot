@@ -1,11 +1,13 @@
 package com.coconut.domain.chat;
 
+import com.coconut.client.dto.req.ChatRoomInfoReqDto;
 import com.coconut.domain.BaseTimeEntity;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,4 +37,18 @@ public class ChatRoom extends BaseTimeEntity {
         this.lastMessage = lastMessage;
         this.members = members;
     }
+
+    public void updateLastMessage(String lastMessage) {
+        this.lastMessage = lastMessage;
+    }
+
+    public ChatRoomInfoReqDto toChatRoomInfoReqDto() {
+        return ChatRoomInfoReqDto.builder()
+                .id(id.toString())
+                .lastMessage(lastMessage)
+                .lastTime(getModifiedData().format(DateTimeFormatter.ofPattern("a h시 mm분")))
+                .members(members)
+                .build();
+    }
+
 }

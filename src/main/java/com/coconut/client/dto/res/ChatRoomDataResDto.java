@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 @NoArgsConstructor
 @Getter
-public class ChatRoomSaveResDto {
+public class ChatRoomDataResDto {
 
     /**
      *     @SerializedName("chatRoomId") var chatRoomId : String,
@@ -23,7 +23,7 @@ public class ChatRoomSaveResDto {
     private ArrayList<UserDataResDto> chatRoomMembersInfo;
 
     @Builder
-    public ChatRoomSaveResDto(String chatRoomId, String chatRoomName, ArrayList<String> chatRoomMembers, ArrayList<UserDataResDto> chatRoomMembersInfo) {
+    public ChatRoomDataResDto(String chatRoomId, String chatRoomName, ArrayList<String> chatRoomMembers, ArrayList<UserDataResDto> chatRoomMembersInfo) {
         this.chatRoomId = chatRoomId;
         this.chatRoomName = chatRoomName;
         this.chatRoomMembers = chatRoomMembers;
