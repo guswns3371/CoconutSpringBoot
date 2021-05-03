@@ -82,16 +82,18 @@ public class AuthService {
             } else {
                 isConfirmed = false;
                 String token = user.updateConfirmToken();
-                try {
-                    mailService.sendEmail(MailDto.builder()
-                            .address("gkguswns3371@gmail.com")
-                            //.address(user.getEmail()) : 테스트가 끝나면 이걸로 바꿔야 유저가 등록한 이메일로 메일이 간다.
-                            .title("Coconut 이메일 인증")
-                            .token(token)
-                            .build());
-                } catch (MessagingException e) {
-                    e.printStackTrace();
-                }
+                new Thread(() -> {
+                    try {
+                        mailService.sendEmail(MailDto.builder()
+                                .address("gkguswns3371@gmail.com")
+                                //.address(user.getEmail()) : 테스트가 끝나면 이걸로 바꿔야 유저가 등록한 이메일로 메일이 간다.
+                                .title("Coconut 이메일 인증")
+                                .token(token)
+                                .build());
+                    } catch (MessagingException e) {
+                        e.printStackTrace();
+                    }
+                }).start();
             }
         }
         return UserLoginResDto.builder()

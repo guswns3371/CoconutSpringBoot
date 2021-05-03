@@ -165,7 +165,7 @@ public class ChatService {
 
     @Transactional
     public ArrayList<ChatHistoryResDto> getChatHistory(String chatRoomId) {
-        Optional<List<ChatHistory>> optionalChatHistory = chatHistoryRepository.findChatHistoriesByChatRoom_Id(Long.parseLong(chatRoomId));
+        Optional<ArrayList<ChatHistory>> optionalChatHistory = chatHistoryRepository.findChatHistoriesByChatRoom_Id(Long.parseLong(chatRoomId));
 
         return optionalChatHistory.map(chatHistories -> chatHistories.stream()
                 .map(ChatHistory::toChatHistoryResDto)
@@ -176,7 +176,7 @@ public class ChatService {
 
     @Transactional
     public ArrayList<ChatRoomListReqDto> getChatRoomLists(String userId) {
-        Optional<ArrayList<UserChatRoom>> optionalUserChatRooms = userChatRoomRepository.findUserChatRoomsByUser_Id(Long.parseLong(userId));
+        Optional<ArrayList<UserChatRoom>> optionalUserChatRooms = userChatRoomRepository.findUserChatRoomsByUser_IdOrderByModifiedDataDesc(Long.parseLong(userId));
 
         if (!optionalUserChatRooms.isPresent())
             return null;
@@ -206,11 +206,21 @@ public class ChatService {
             if (!optionalUserArrayList.isPresent())
                 continue;
 
-            ArrayList<UserDataResDto> userDataResDtoArrayList = optionalUserArrayList.get()
-                    .stream()
-                    .map(User::toUserDataResDto)
-                    .filter(it -> !it.getId().equals(Long.parseLong(userId)))
-                    .collect(Collectors.toCollection(ArrayList::new));
+            ArrayList<User> users = optionalUserArrayList.get();
+            ArrayList<UserDataResDto> userDataResDtoArrayList;
+
+            if (users.size() == 1) {
+                userDataResDtoArrayList = users.stream()
+                        .map(User::toUserDataResDto)
+                        .collect(Collectors.toCollection(ArrayList::new));
+            } else {
+                userDataResDtoArrayList = optionalUserArrayList.get()
+                        .stream()
+                        .map(User::toUserDataResDto)
+                        .filter(it -> !it.getId().equals(Long.parseLong(userId)))
+                        .collect(Collectors.toCollection(ArrayList::new));
+            }
+
 
             chatRoomListReqDtos.add(ChatRoomListReqDto.builder()
                     .userChatRoomInfoReqDto(userChatRoomInfoReqDto)

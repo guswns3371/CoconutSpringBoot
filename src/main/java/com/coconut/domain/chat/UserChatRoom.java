@@ -54,4 +54,8 @@ public class UserChatRoom extends BaseTimeEntity {
         }
     }
 
+    public void updateUnReads(int unReads) {
+        this.unReads = unReads;
+    }
+
 }

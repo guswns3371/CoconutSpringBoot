@@ -6,6 +6,8 @@ import com.coconut.client.dto.res.ChatHistorySaveResDto;
 import com.coconut.domain.chat.*;
 import com.coconut.domain.user.User;
 import com.coconut.domain.user.UserRepository;
+import com.google.common.reflect.TypeToken;
+import com.google.gson.GsonBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -26,6 +29,7 @@ public class SocketService {
     private final UserRepository userRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatHistoryRepository chatHistoryRepository;
+    private final UserChatRoomRepository userChatRoomRepository;
 
     private ArrayList<String> addUser(String chatRoomId, String userId) {
         if (enteredUserMap.isEmpty() || !enteredUserMap.containsKey(chatRoomId)) {
@@ -73,13 +77,20 @@ public class SocketService {
 
         log.warn("유저=" + userId + " : " + chatRoomId + "번 채팅방 enter =" + enteredUserMap);
 
-        Optional<List<ChatHistory>> optionalChatHistoryList = chatHistoryRepository.findChatHistoriesByChatRoom_Id(Long.parseLong(chatRoomId));
+        Optional<ArrayList<ChatHistory>> optionalChatHistoryList = chatHistoryRepository.findChatHistoriesByChatRoom_Id(Long.parseLong(chatRoomId));
+        Optional<UserChatRoom> optionalUserChatRoom = userChatRoomRepository.findUserChatRoomByChatRoom_IdAndUser_Id(Long.parseLong(chatRoomId), Long.parseLong(userId));
 
         // 채팅 기록 읽은 사람들 업데이트
         if (optionalChatHistoryList.isPresent()) {
-            for (ChatHistory history : optionalChatHistoryList.get()) {
+            List<ChatHistory> chatHistoryList = optionalChatHistoryList.get();
+            chatHistoryList.parallelStream().forEach(history -> {
                 history.updateReadMembers(userId);
-            }
+            });
+        }
+
+        if (optionalUserChatRoom.isPresent()) {
+            UserChatRoom userChatRoom = optionalUserChatRoom.get();
+            userChatRoom.updateUnReads(0);
         }
 
         messageSender.convertAndSend("/sub/chat/room/" + dto.getChatRoomId(), users);
@@ -119,38 +130,73 @@ public class SocketService {
 
     @Transactional
     public void sendMessage(ChatMessageSocketDto dto) {
-        String userId  = dto.getChatUserId();
+        log.warn(dto.toString());
+        String userId = dto.getChatUserId();
         String chatRoomId = dto.getChatRoomId();
         String chatMessage = dto.getChatMessage();
+        ArrayList<String> chatRoomMembers = dto.getChatRoomMembers();
         ArrayList<String> readMembers = dto.getReadMembers();
 
-        Optional<User> optionalUser = userRepository.findUserById(Long.parseLong(userId));
-        Optional<ChatRoom> optionalChatRoom = chatRoomRepository.findChatRoomById(Long.parseLong(chatRoomId));
-
-        if (!optionalUser.isPresent() || !optionalChatRoom.isPresent()) {
+        Optional<UserChatRoom> optionalUserChatRoom = userChatRoomRepository.findUserChatRoomByChatRoom_IdAndUser_Id(Long.parseLong(chatRoomId), Long.parseLong(userId));
+        if (!optionalUserChatRoom.isPresent())
             return;
-        }
 
         Collections.sort(readMembers);
-
-        User user = optionalUser.get();
-        ChatRoom chatRoom = optionalChatRoom.get();
+        UserChatRoom userChatRoom = optionalUserChatRoom.get();
+        User user = userChatRoom.getUser();
+        ChatRoom chatRoom = userChatRoom.getChatRoom();
         chatRoom.updateLastMessage(chatMessage);
 
-        ChatHistory chatHistory = chatHistoryRepository.save(
-                ChatHistory.builder()
-                        .user(user)
-                        .chatRoom(chatRoom)
-                        .history(chatMessage)
-                        .messageType(MessageType.TEXT)
-                        .readMembers(readMembers.toString())
-                        .build()
-        );
+        ChatHistory chatHistory = ChatHistory.builder()
+                .user(user)
+                .chatRoom(chatRoom)
+                .history(chatMessage)
+                .messageType(MessageType.TEXT)
+                .readMembers(readMembers.toString())
+                .build();
 
-        ChatHistorySaveResDto resDto = chatHistory.toChatHistorySaveResDto();
-        log.warn(resDto.toString());
-
+        ChatHistorySaveResDto resDto = chatHistoryRepository.save(chatHistory).toChatHistorySaveResDto();
         messageSender.convertAndSend("/sub/chat/message/" + dto.getChatRoomId(), resDto);
+
+
+        ArrayList<String> unReadMembers = chatRoomMembers.stream()
+                .filter(it -> !readMembers.contains(it))
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        System.out.println("unReadMembers=" + unReadMembers);
+
+        for (String unReadMemberId : unReadMembers) {
+            System.out.println("/sub/chat/frag/" + unReadMemberId);
+            Optional<ArrayList<ChatHistory>> optionalChatHistories = chatHistoryRepository.findChatHistoriesByChatRoom_IdAndAndUser_Id(Long.parseLong(chatRoomId), Long.parseLong(unReadMemberId));
+            Optional<UserChatRoom> chatRoomOptional = userChatRoomRepository.findUserChatRoomByChatRoom_IdAndUser_Id(Long.parseLong(chatRoomId), Long.parseLong(unReadMemberId));
+
+            if (optionalChatHistories.isPresent() && chatRoomOptional.isPresent()) {
+                ArrayList<ChatHistory> chatHistories = optionalChatHistories.get();
+                AtomicInteger unReadNum = new AtomicInteger();
+
+                chatHistories.forEach(it -> {
+                    ArrayList<String> memberList = new GsonBuilder().create().fromJson(it.getReadMembers(), new TypeToken<ArrayList<String>>() {
+                    }.getType());
+                    System.out.println(memberList);
+                    System.out.println(unReadMemberId);
+                    if (!memberList.contains(unReadMemberId))
+                        unReadNum.getAndIncrement();
+
+                });
+                System.out.println(unReadNum.get());
+
+//                unReadNum.set((int) chatHistories.stream()
+//                        .<ArrayList<String>>map(it -> new GsonBuilder().create().fromJson(it.getReadMembers(), new TypeToken<ArrayList<String>>() {
+//                        }.getType()))
+//                        .filter(readMemberList -> !readMemberList.contains(unReadMemberId))
+//                        .count());
+
+                UserChatRoom room = chatRoomOptional.get();
+                room.updateUnReads(unReadNum.get());
+            }
+
+            messageSender.convertAndSend("/sub/chat/frag/" + unReadMemberId, " ");
+        }
     }
 
 }
