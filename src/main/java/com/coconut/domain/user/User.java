@@ -3,6 +3,7 @@ package com.coconut.domain.user;
 import com.coconut.client.dto.res.UserDataResDto;
 import com.coconut.domain.BaseTimeEntity;
 import com.coconut.domain.chat.ChatHistory;
+import com.coconut.domain.chat.UserChatHistory;
 import com.coconut.domain.chat.UserChatRoom;
 import com.coconut.service.utils.mail.TokenGenerator;
 import lombok.Builder;
@@ -46,6 +47,9 @@ public class User extends BaseTimeEntity {
     @Column
     private String confirmToken;
 
+    @Column
+    private String fcmToken;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role = Role.GUEST;
@@ -55,6 +59,9 @@ public class User extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<ChatHistory> chatHistoryList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<UserChatHistory> readHistoryList = new ArrayList<>();
 
 //    // 부모 정의 (셀프 참조)
 //    @ManyToOne(fetch = FetchType.LAZY)
@@ -66,7 +73,7 @@ public class User extends BaseTimeEntity {
 //    private List<User> subUsers;
 
     @Builder
-    public User(String userId, String name, String email, String password, String stateMessage, String profilePicture, String backgroundPicture, String confirmToken, Role role) {
+    public User(String userId, String name, String email, String password, String stateMessage, String profilePicture, String backgroundPicture, String confirmToken, Role role, String fcmToken) {
         this.userId = userId;
         this.name = name;
         this.email = email;
@@ -76,6 +83,7 @@ public class User extends BaseTimeEntity {
         this.backgroundPicture = backgroundPicture;
         this.confirmToken = confirmToken;
         this.role = role;
+        this.fcmToken = fcmToken;
     }
 
     public User update(User entity) {
@@ -89,14 +97,19 @@ public class User extends BaseTimeEntity {
             this.backgroundPicture = entity.getBackgroundPicture();
         if (entity.getStateMessage() != null)
             this.stateMessage = entity.getStateMessage();
+        if (entity.getFcmToken() != null)
+            this.fcmToken = entity.getFcmToken();
 
         return this;
     }
 
     public String updateConfirmToken() {
         this.confirmToken = new TokenGenerator().generateNewToken();
-
         return this.confirmToken;
+    }
+
+    public void updateFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
     }
 
     public String getRoleKey() {
@@ -111,7 +124,6 @@ public class User extends BaseTimeEntity {
         this.role = Role.GUEST;
     }
 
-
     public UserDataResDto toUserDataResDto() {
         return UserDataResDto.builder()
                 .id(id)
@@ -123,6 +135,7 @@ public class User extends BaseTimeEntity {
                 .stateMessage(stateMessage)
                 .build();
     }
+
     @Override
     public String toString() {
         return "User{" +
@@ -134,6 +147,8 @@ public class User extends BaseTimeEntity {
                 ", stateMessage='" + stateMessage + '\'' +
                 ", profilePicture='" + profilePicture + '\'' +
                 ", backgroundPicture='" + backgroundPicture + '\'' +
+                ", confirmToken='" + confirmToken + '\'' +
+                ", fcmToken='" + fcmToken + '\'' +
                 ", role=" + role +
                 '}';
     }

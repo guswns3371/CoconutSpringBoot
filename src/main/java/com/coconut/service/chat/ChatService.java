@@ -133,7 +133,7 @@ public class ChatService {
         String userId = chatRoomDataReqDto.getChatUserId();
         String chatRoomId = chatRoomDataReqDto.getChatRoomId();
         ArrayList<String> members = chatRoomDataReqDto.getChatRoomMembers();
-        Optional<UserChatRoom> optionalUserChatRoom = userChatRoomRepository.findUserChatRoomByChatRoom_IdAndUser_Id(Long.parseLong(chatRoomId),Long.parseLong(userId));
+        Optional<UserChatRoom> optionalUserChatRoom = userChatRoomRepository.findUserChatRoomByChatRoom_IdAndUser_Id(Long.parseLong(chatRoomId), Long.parseLong(userId));
 
         if (!optionalUserChatRoom.isPresent())
             return null;
@@ -167,11 +167,17 @@ public class ChatService {
     public ArrayList<ChatHistoryResDto> getChatHistory(String chatRoomId) {
         Optional<ArrayList<ChatHistory>> optionalChatHistory = chatHistoryRepository.findChatHistoriesByChatRoom_Id(Long.parseLong(chatRoomId));
 
-        return optionalChatHistory.map(chatHistories -> chatHistories.stream()
-                .map(ChatHistory::toChatHistoryResDto)
-                .collect(Collectors.toCollection(ArrayList::new)))
-                .orElse(null);
+        if (!optionalChatHistory.isPresent())
+            return null;
 
+        ArrayList<ChatHistory> chatHistories = optionalChatHistory.get();
+        chatHistories.forEach(chatHistory -> {
+            chatHistory.updateReadMembers(Integer.toString(chatHistory.getReadUserList().size()));
+        });
+
+        return chatHistories.stream()
+                .map(ChatHistory::toChatHistoryResDto)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     @Transactional
@@ -221,7 +227,6 @@ public class ChatService {
                         .collect(Collectors.toCollection(ArrayList::new));
             }
 
-
             chatRoomListReqDtos.add(ChatRoomListReqDto.builder()
                     .userChatRoomInfoReqDto(userChatRoomInfoReqDto)
                     .userInfo(userDataResDtoArrayList)
@@ -230,6 +235,4 @@ public class ChatService {
 
         return chatRoomListReqDtos;
     }
-
-
 }

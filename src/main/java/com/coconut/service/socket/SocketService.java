@@ -30,6 +30,7 @@ public class SocketService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatHistoryRepository chatHistoryRepository;
     private final UserChatRoomRepository userChatRoomRepository;
+    private final UserChatHistoryRepository userChatHistoryRepository;
 
     private ArrayList<String> addUser(String chatRoomId, String userId) {
         if (enteredUserMap.isEmpty() || !enteredUserMap.containsKey(chatRoomId)) {
@@ -77,17 +78,28 @@ public class SocketService {
 
         log.warn("유저=" + userId + " : " + chatRoomId + "번 채팅방 enter =" + enteredUserMap);
 
+        Optional<User> optionalUser = userRepository.findUserById(Long.parseLong(userId));
         Optional<ArrayList<ChatHistory>> optionalChatHistoryList = chatHistoryRepository.findChatHistoriesByChatRoom_Id(Long.parseLong(chatRoomId));
-        Optional<UserChatRoom> optionalUserChatRoom = userChatRoomRepository.findUserChatRoomByChatRoom_IdAndUser_Id(Long.parseLong(chatRoomId), Long.parseLong(userId));
 
         // 채팅 기록 읽은 사람들 업데이트
-        if (optionalChatHistoryList.isPresent()) {
+        if (optionalChatHistoryList.isPresent() && optionalUser.isPresent()) {
             List<ChatHistory> chatHistoryList = optionalChatHistoryList.get();
-            chatHistoryList.parallelStream().forEach(history -> {
-                history.updateReadMembers(userId);
-            });
+            User user = optionalUser.get();
+
+            for (ChatHistory history : chatHistoryList) {
+                boolean isExist = userChatHistoryRepository.existsUserChatHistoryByChatHistoryAndUser(history, user);
+                if (!isExist) {
+                    userChatHistoryRepository.save(UserChatHistory.builder()
+                            .chatHistory(history)
+                            .user(user)
+                            .build());
+                }
+            }
         }
 
+        Optional<UserChatRoom> optionalUserChatRoom = userChatRoomRepository.findUserChatRoomByChatRoom_IdAndUser_Id(Long.parseLong(chatRoomId), Long.parseLong(userId));
+
+        // 안읽은 메시지 0으로 설정
         if (optionalUserChatRoom.isPresent()) {
             UserChatRoom userChatRoom = optionalUserChatRoom.get();
             userChatRoom.updateUnReads(0);
@@ -134,68 +146,81 @@ public class SocketService {
         String userId = dto.getChatUserId();
         String chatRoomId = dto.getChatRoomId();
         String chatMessage = dto.getChatMessage();
-        ArrayList<String> chatRoomMembers = dto.getChatRoomMembers();
         ArrayList<String> readMembers = dto.getReadMembers();
 
         Optional<UserChatRoom> optionalUserChatRoom = userChatRoomRepository.findUserChatRoomByChatRoom_IdAndUser_Id(Long.parseLong(chatRoomId), Long.parseLong(userId));
         if (!optionalUserChatRoom.isPresent())
             return;
 
-        Collections.sort(readMembers);
         UserChatRoom userChatRoom = optionalUserChatRoom.get();
-        User user = userChatRoom.getUser();
-        ChatRoom chatRoom = userChatRoom.getChatRoom();
-        chatRoom.updateLastMessage(chatMessage);
 
-        ChatHistory chatHistory = ChatHistory.builder()
-                .user(user)
-                .chatRoom(chatRoom)
-                .history(chatMessage)
-                .messageType(MessageType.TEXT)
-                .readMembers(readMembers.toString())
-                .build();
+        ChatRoom socketChatRoom = userChatRoom.getChatRoom();
 
-        ChatHistorySaveResDto resDto = chatHistoryRepository.save(chatHistory).toChatHistorySaveResDto();
-        messageSender.convertAndSend("/sub/chat/message/" + dto.getChatRoomId(), resDto);
+        // 안읽은 메시지 0으로 설정
+        socketChatRoom.updateLastMessage(chatMessage);
 
-
-        ArrayList<String> unReadMembers = chatRoomMembers.stream()
-                .filter(it -> !readMembers.contains(it))
+        // 현재 채팅방속 유저들
+        ArrayList<User> users = userChatRoom.getChatRoom().getUserList().stream()
+                .map(UserChatRoom::getUser)
                 .collect(Collectors.toCollection(ArrayList::new));
 
-        System.out.println("unReadMembers=" + unReadMembers);
+        // 메시지를 보낸 유저
+        User socketUser = users.stream()
+                .filter(it -> it.getId().equals(Long.parseLong(userId)))
+                .collect(Collectors.toList()).get(0);
 
-        for (String unReadMemberId : unReadMembers) {
-            System.out.println("/sub/chat/frag/" + unReadMemberId);
-            Optional<ArrayList<ChatHistory>> optionalChatHistories = chatHistoryRepository.findChatHistoriesByChatRoom_IdAndAndUser_Id(Long.parseLong(chatRoomId), Long.parseLong(unReadMemberId));
-            Optional<UserChatRoom> chatRoomOptional = userChatRoomRepository.findUserChatRoomByChatRoom_IdAndUser_Id(Long.parseLong(chatRoomId), Long.parseLong(unReadMemberId));
+        // 채팅 기록 저장
+        ChatHistory savedHistory = chatHistoryRepository.save(ChatHistory.builder()
+                .user(socketUser)
+                .chatRoom(socketChatRoom)
+                .readMembers(Integer.toString(readMembers.size()))
+                .history(chatMessage)
+                .messageType(MessageType.TEXT)
+                .build());
 
-            if (optionalChatHistories.isPresent() && chatRoomOptional.isPresent()) {
-                ArrayList<ChatHistory> chatHistories = optionalChatHistories.get();
-                AtomicInteger unReadNum = new AtomicInteger();
+        ArrayList<User> ReadMembers = users.stream()
+                .filter(it -> readMembers.contains(it.getId().toString()))
+                .collect(Collectors.toCollection(ArrayList::new));
 
-                chatHistories.forEach(it -> {
-                    ArrayList<String> memberList = new GsonBuilder().create().fromJson(it.getReadMembers(), new TypeToken<ArrayList<String>>() {
-                    }.getType());
-                    System.out.println(memberList);
-                    System.out.println(unReadMemberId);
-                    if (!memberList.contains(unReadMemberId))
-                        unReadNum.getAndIncrement();
-
-                });
-                System.out.println(unReadNum.get());
-
-//                unReadNum.set((int) chatHistories.stream()
-//                        .<ArrayList<String>>map(it -> new GsonBuilder().create().fromJson(it.getReadMembers(), new TypeToken<ArrayList<String>>() {
-//                        }.getType()))
-//                        .filter(readMemberList -> !readMemberList.contains(unReadMemberId))
-//                        .count());
-
-                UserChatRoom room = chatRoomOptional.get();
-                room.updateUnReads(unReadNum.get());
+        // 메시지 읽음 표시
+        for (User readUser : ReadMembers) {
+            boolean isExist = userChatHistoryRepository.existsUserChatHistoryByChatHistoryAndUser(savedHistory, readUser);
+            if (!isExist) {
+                userChatHistoryRepository.save(UserChatHistory.builder()
+                        .chatHistory(savedHistory)
+                        .user(readUser)
+                        .build());
             }
+        }
 
-            messageSender.convertAndSend("/sub/chat/frag/" + unReadMemberId, " ");
+        ChatHistorySaveResDto resDto = savedHistory.toChatHistorySaveResDto();
+        messageSender.convertAndSend("/sub/chat/message/" + dto.getChatRoomId(), resDto);
+
+        ArrayList<User> unReadMembers = users.stream()
+                .filter(it -> !readMembers.contains(it.getId().toString()))
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        // 메시지를 읽지 않은 유저들
+        for (User unReadMember : unReadMembers) {
+            String unReadMemberId = unReadMember.getId().toString();
+
+            int totalHistoryCount = socketChatRoom.getChatHistoryList().size();
+
+            int readCount = (int) unReadMember.getReadHistoryList().stream()
+                    .map(UserChatHistory::getChatHistory)
+                    .filter(it -> it.getChatRoom().getId().equals(Long.parseLong(chatRoomId)))
+                    .count();
+
+            int unReadCount = totalHistoryCount-readCount;
+
+            // 안읽은 메시지 업데이트 & 알림
+            unReadMember.getChatRoomList().stream()
+                    .filter(it -> it.getChatRoom().equals(socketChatRoom))
+                    .forEach(userChatRoom1 -> {
+
+                        userChatRoom1.updateUnReads(unReadCount);
+                        messageSender.convertAndSend("/sub/chat/frag/" + unReadMemberId, " ");
+                    });
         }
     }
 

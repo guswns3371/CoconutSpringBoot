@@ -14,6 +14,7 @@ import javax.persistence.*;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -42,6 +43,9 @@ public class ChatHistory extends BaseTimeEntity {
     @JoinColumn(name = "chat_room_id")
     private ChatRoom chatRoom;
 
+    @OneToMany(mappedBy = "chatHistory", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private List<UserChatHistory> readUserList = new ArrayList<>();
+
     @Builder
     public ChatHistory(String history, String readMembers, MessageType messageType,  User user, ChatRoom chatRoom) {
         this.history = history;
@@ -69,24 +73,8 @@ public class ChatHistory extends BaseTimeEntity {
         return this.messageType.getKey();
     }
 
-    public void updateReadMembers(String userId) {
-
-        String oldReadMembersString = this.readMembers;
-        ArrayList<String> resultList = new ArrayList<String>();
-        ArrayList<String> oldReadMembers =
-                new GsonBuilder().create().fromJson(oldReadMembersString, new TypeToken<ArrayList<String>>(){}.getType());
-
-        oldReadMembers.add(userId);
-
-        for (String oldReadMember : oldReadMembers) {
-            if (!resultList.contains(oldReadMember)) {
-                resultList.add(oldReadMember);
-            }
-        }
-
-        Collections.sort(resultList);
-
-        this.readMembers = resultList.toString();
+    public void updateReadMembers(String readMembers) {
+        this.readMembers = readMembers;
     }
 
     public ChatHistoryResDto toChatHistoryResDto() {

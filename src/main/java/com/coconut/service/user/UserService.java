@@ -11,7 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -25,17 +27,23 @@ public class UserService {
     @Transactional
     public List<UserDataResDto> findAllUsers(Long id) {
         log.warn("findAllUsers> : id =" + id.toString());
+        Optional<User> user = userRepository.findUserById(id);
+
+        if (!user.isPresent())
+            return new ArrayList<UserDataResDto>(){{
+                add(UserDataResDto.builder()
+                        .err("존재하지 않은 유저 입니다.")
+                        .build());
+            }};
+
         List<User> userFindAll = userRepository.findAll();
 
         // 자기 자신
-        User me = userFindAll.stream()
-                .filter(user -> user.getId().equals(id))
-                .collect(Collectors.toList())
-                .get(0);
+        User me = user.get();
 
         // 자기 자신을 제외한 나머지 유저정보 리스트
         List<User> userList = userFindAll.stream()
-                .filter(user -> !user.getId().equals(id))
+                .filter(it -> !it.getId().equals(id))
                 .collect(Collectors.toList());
 
         // index 0에 자기 자신을 삽입한다.
