@@ -1,5 +1,6 @@
 package com.coconut.client;
 
+import com.coconut.client.dto.req.UserFcmUpdateReqDto;
 import com.coconut.client.dto.req.UserProfileUpdateReqDto;
 import com.coconut.client.dto.res.BaseResDto;
 import com.coconut.client.dto.res.UserDataResDto;
@@ -50,6 +51,11 @@ public class UserController {
                 .profileImage(profileImage)
                 .backImage(backImage)
                 .build());
+    }
+
+    @PostMapping("/api/auth/user/fcm")
+    public BaseResDto updateFcmToken(@RequestBody UserFcmUpdateReqDto reqDto) {
+        return userService.updateFcmToken(reqDto);
     }
 
 }

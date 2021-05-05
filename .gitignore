@@ -38,5 +38,5 @@ out/
 
 /src/main/resources/application-oauth.yml
 application-smtp.yml
-
+/src/main/resources/application.yml
 uploads/

@@ -1,5 +1,6 @@
 package com.coconut.service.user;
 
+import com.coconut.client.dto.req.UserFcmUpdateReqDto;
 import com.coconut.client.dto.req.UserProfileUpdateReqDto;
 import com.coconut.client.dto.res.BaseResDto;
 import com.coconut.client.dto.res.UserDataResDto;
@@ -87,6 +88,28 @@ public class UserService {
         return BaseResDto.builder()
                 .success(success)
                 .message(message)
+                .build();
+    }
+
+    @Transactional
+    public BaseResDto updateFcmToken(UserFcmUpdateReqDto reqDto) {
+        String userId = reqDto.getUserId();
+        String fcmToken = reqDto.getFcmToken();
+
+        Optional<User> optionalUser = userRepository.findUserById(Long.parseLong(userId));
+
+        if (!optionalUser.isPresent())
+            return BaseResDto.builder()
+                    .success(false)
+                    .message("존재하지 않은 유저입니다.")
+                    .build();
+
+        User user = optionalUser.get();
+        user.updateFcmToken(fcmToken);
+
+        return BaseResDto.builder()
+                .success(true)
+                .message("FCM Token 업데이트 성공")
                 .build();
     }
 }
