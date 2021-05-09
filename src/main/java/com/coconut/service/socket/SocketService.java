@@ -225,20 +225,22 @@ public class SocketService {
                         // fcm 알림
                         try {
                             String fcmToken = unReadMember.getFcmToken();
+                            if (fcmToken != null) {
+                                Map<String,String> data = new HashMap<>();
+                                data.put("roomId",socketChatRoom.getId().toString());
+                                data.put("roomPeople",roomMembers.toString());
+                                data.put("userImage",unReadMember.getProfilePicture());
+                                data.put("userName",unReadMember.getName());
+                                data.put("title",userChatRoom1.getChatRoomName());
+                                data.put("who",socketUser.getName());
+                                data.put("body",chatMessage);
 
-                            Map<String,String> data = new HashMap<>();
-                            data.put("roomId",socketChatRoom.getId().toString());
-                            data.put("roomPeople",roomMembers.toString());
-                            data.put("userImage",unReadMember.getProfilePicture());
-                            data.put("userName",unReadMember.getName());
-                            data.put("title",userChatRoom1.getChatRoomName());
-                            data.put("who",socketUser.getName());
-                            data.put("body",chatMessage);
+                                firebaseCloudMessageService.sendMessageTo(
+                                        fcmToken,
+                                        data,
+                                        FcmMessageDto.Notification.builder().build());
+                            }
 
-                            firebaseCloudMessageService.sendMessageTo(
-                                    fcmToken,
-                                    data,
-                                    FcmMessageDto.Notification.builder().build());
                         } catch (IOException e) {
                             e.printStackTrace();
                         } finally {
