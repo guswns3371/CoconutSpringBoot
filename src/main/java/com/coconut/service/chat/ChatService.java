@@ -135,7 +135,7 @@ public class ChatService {
         ArrayList<String> members = chatRoomDataReqDto.getChatRoomMembers();
         Optional<UserChatRoom> optionalUserChatRoom = userChatRoomRepository.findUserChatRoomByChatRoom_IdAndUser_Id(Long.parseLong(chatRoomId), Long.parseLong(userId));
 
-        if (!optionalUserChatRoom.isPresent())
+        if (optionalUserChatRoom.isEmpty())
             return null;
 
         UserChatRoom userChatRoom = optionalUserChatRoom.get();
@@ -147,7 +147,7 @@ public class ChatService {
 
         Optional<ArrayList<User>> optionalUserArrayList = userRepository.findUserByIdIn(memberIds);
 
-        if (!optionalUserArrayList.isPresent())
+        if (optionalUserArrayList.isEmpty())
             return null;
 
         ArrayList<UserDataResDto> membersInfo = optionalUserArrayList.get()
@@ -167,7 +167,7 @@ public class ChatService {
     public ArrayList<ChatHistoryResDto> getChatHistory(String chatRoomId) {
         Optional<ArrayList<ChatHistory>> optionalChatHistory = chatHistoryRepository.findChatHistoriesByChatRoom_Id(Long.parseLong(chatRoomId));
 
-        if (!optionalChatHistory.isPresent())
+        if (optionalChatHistory.isEmpty())
             return null;
 
         ArrayList<ChatHistory> chatHistories = optionalChatHistory.get();
@@ -184,7 +184,7 @@ public class ChatService {
     public ArrayList<ChatRoomListReqDto> getChatRoomLists(String userId) {
         Optional<ArrayList<UserChatRoom>> optionalUserChatRooms = userChatRoomRepository.findUserChatRoomsByUser_IdOrderByModifiedDataDesc(Long.parseLong(userId));
 
-        if (!optionalUserChatRooms.isPresent())
+        if (optionalUserChatRooms.isEmpty())
             return null;
 
         ArrayList<ChatRoomListReqDto> chatRoomListReqDtos = new ArrayList<>();

@@ -2,7 +2,9 @@ package com.coconut.service.socket;
 
 import com.coconut.client.dto.ChatMessageSocketDto;
 import com.coconut.client.dto.ChatRoomSocketDto;
+import com.coconut.client.dto.FcmMessageDto;
 import com.coconut.client.dto.res.ChatHistorySaveResDto;
+import com.coconut.config.fcm.FirebaseCloudMessageService;
 import com.coconut.domain.chat.*;
 import com.coconut.domain.user.User;
 import com.coconut.domain.user.UserRepository;
@@ -14,6 +16,7 @@ import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -26,6 +29,7 @@ public class SocketService {
     private static List<String> connectedUserList = Collections.synchronizedList(new ArrayList<>());
     private static Map<String, ArrayList<String>> enteredUserMap = Collections.synchronizedMap(new HashMap<>());
     private final SimpMessageSendingOperations messageSender;
+    private final FirebaseCloudMessageService firebaseCloudMessageService;
     private final UserRepository userRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final ChatHistoryRepository chatHistoryRepository;
@@ -146,17 +150,18 @@ public class SocketService {
         String userId = dto.getChatUserId();
         String chatRoomId = dto.getChatRoomId();
         String chatMessage = dto.getChatMessage();
+        ArrayList<String> roomMembers = dto.getChatRoomMembers();
         ArrayList<String> readMembers = dto.getReadMembers();
 
         Optional<UserChatRoom> optionalUserChatRoom = userChatRoomRepository.findUserChatRoomByChatRoom_IdAndUser_Id(Long.parseLong(chatRoomId), Long.parseLong(userId));
-        if (!optionalUserChatRoom.isPresent())
+        if (optionalUserChatRoom.isEmpty())
             return;
 
         UserChatRoom userChatRoom = optionalUserChatRoom.get();
 
         ChatRoom socketChatRoom = userChatRoom.getChatRoom();
 
-        // 안읽은 메시지 0으로 설정
+        // 안읽은 메시지 개수 업데이트
         socketChatRoom.updateLastMessage(chatMessage);
 
         // 현재 채팅방속 유저들
@@ -211,16 +216,38 @@ public class SocketService {
                     .filter(it -> it.getChatRoom().getId().equals(Long.parseLong(chatRoomId)))
                     .count();
 
-            int unReadCount = totalHistoryCount-readCount;
+            int unReadCount = totalHistoryCount - readCount;
 
-            // 안읽은 메시지 업데이트 & 알림
+
             unReadMember.getChatRoomList().stream()
                     .filter(it -> it.getChatRoom().equals(socketChatRoom))
                     .forEach(userChatRoom1 -> {
+                        // fcm 알림
+                        try {
+                            String fcmToken = unReadMember.getFcmToken();
 
-                        userChatRoom1.updateUnReads(unReadCount);
-                        messageSender.convertAndSend("/sub/chat/frag/" + unReadMemberId, " ");
+                            Map<String,String> data = new HashMap<>();
+                            data.put("roomId",socketChatRoom.getId().toString());
+                            data.put("roomPeople",roomMembers.toString());
+                            data.put("userImage",unReadMember.getProfilePicture());
+                            data.put("userName",unReadMember.getName());
+                            data.put("title",userChatRoom1.getChatRoomName());
+                            data.put("who",socketUser.getName());
+                            data.put("body",chatMessage);
+
+                            firebaseCloudMessageService.sendMessageTo(
+                                    fcmToken,
+                                    data,
+                                    FcmMessageDto.Notification.builder().build());
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } finally {
+                            // 안읽은 메시지 업데이트
+                            userChatRoom1.updateUnReads(unReadCount);
+                            messageSender.convertAndSend("/sub/chat/frag/" + unReadMemberId, " ");
+                        }
                     });
+
         }
     }
 
