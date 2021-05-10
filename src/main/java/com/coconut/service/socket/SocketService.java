@@ -8,8 +8,6 @@ import com.coconut.config.fcm.FirebaseCloudMessageService;
 import com.coconut.domain.chat.*;
 import com.coconut.domain.user.User;
 import com.coconut.domain.user.UserRepository;
-import com.google.common.reflect.TypeToken;
-import com.google.gson.GsonBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
@@ -18,7 +16,6 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -27,11 +24,10 @@ import java.util.stream.Collectors;
 public class SocketService {
 
     private static List<String> connectedUserList = Collections.synchronizedList(new ArrayList<>());
-    private static Map<String, ArrayList<String>> enteredUserMap = Collections.synchronizedMap(new HashMap<>());
+    private static final Map<String, ArrayList<String>> enteredUserMap = Collections.synchronizedMap(new HashMap<>());
     private final SimpMessageSendingOperations messageSender;
     private final FirebaseCloudMessageService firebaseCloudMessageService;
     private final UserRepository userRepository;
-    private final ChatRoomRepository chatRoomRepository;
     private final ChatHistoryRepository chatHistoryRepository;
     private final UserChatRoomRepository userChatRoomRepository;
     private final UserChatHistoryRepository userChatHistoryRepository;
@@ -161,7 +157,7 @@ public class SocketService {
 
         ChatRoom socketChatRoom = userChatRoom.getChatRoom();
 
-        // 안읽은 메시지 개수 업데이트
+        // 마지막 메시지 업데이트
         socketChatRoom.updateLastMessage(chatMessage);
 
         // 현재 채팅방속 유저들
@@ -207,7 +203,6 @@ public class SocketService {
 
         // 메시지를 읽지 않은 유저들
         for (User unReadMember : unReadMembers) {
-            String unReadMemberId = unReadMember.getId().toString();
 
             int totalHistoryCount = socketChatRoom.getChatHistoryList().size();
 
@@ -218,39 +213,45 @@ public class SocketService {
 
             int unReadCount = totalHistoryCount - readCount;
 
-
-            unReadMember.getChatRoomList().stream()
+            UserChatRoom unReadMemberUserChatRoom = unReadMember.getChatRoomList().stream()
                     .filter(it -> it.getChatRoom().equals(socketChatRoom))
-                    .forEach(userChatRoom1 -> {
-                        // fcm 알림
-                        try {
-                            String fcmToken = unReadMember.getFcmToken();
-                            if (fcmToken != null) {
-                                Map<String,String> data = new HashMap<>();
-                                data.put("roomId",socketChatRoom.getId().toString());
-                                data.put("roomPeople",roomMembers.toString());
-                                data.put("userImage",unReadMember.getProfilePicture());
-                                data.put("userName",unReadMember.getName());
-                                data.put("title",userChatRoom1.getChatRoomName());
-                                data.put("who",socketUser.getName());
-                                data.put("body",chatMessage);
+                    .collect(Collectors.toList())
+                    .get(0);
 
-                                firebaseCloudMessageService.sendMessageTo(
-                                        fcmToken,
-                                        data,
-                                        FcmMessageDto.Notification.builder().build());
-                            }
+            // 안읽은 메시지 수 업데이트
+            unReadMemberUserChatRoom.updateUnReads(unReadCount);
 
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } finally {
-                            // 안읽은 메시지 업데이트
-                            userChatRoom1.updateUnReads(unReadCount);
-                            messageSender.convertAndSend("/sub/chat/frag/" + unReadMemberId, " ");
-                        }
-                    });
+            // fcm 알림
+            try {
+                String fcmToken = unReadMember.getFcmToken();
 
+                if (fcmToken != null) {
+                    Map<String, String> data = new HashMap<>();
+                    data.put("roomId", socketChatRoom.getId().toString());
+                    data.put("roomPeople", roomMembers.toString());
+                    data.put("userImage", unReadMember.getProfilePicture());
+                    data.put("userName", unReadMember.getName());
+                    data.put("title", unReadMemberUserChatRoom.getChatRoomName());
+                    data.put("who", socketUser.getName());
+                    data.put("body", chatMessage);
+
+                    firebaseCloudMessageService.sendMessageTo(
+                            fcmToken,
+                            data);
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+
+        // 채팅방 목록 업데이트
+        // 안읽은 메시지 수 업데이트 & fcm 알림 후에 socket 으로 업데이트해야한다.
+        unReadMembers.stream()
+                .map(User::getId)
+                .forEach(unReadMemberId -> {
+                    messageSender.convertAndSend("/sub/chat/frag/" + unReadMemberId, "마지막 메시지=" + socketChatRoom.getLastMessage());
+                });
     }
 
 }

@@ -171,9 +171,7 @@ public class ChatService {
             return null;
 
         ArrayList<ChatHistory> chatHistories = optionalChatHistory.get();
-        chatHistories.forEach(chatHistory -> {
-            chatHistory.updateReadMembers(Integer.toString(chatHistory.getReadUserList().size()));
-        });
+        chatHistories.forEach(chatHistory -> chatHistory.updateReadMembers(Integer.toString(chatHistory.getReadUserList().size())));
 
         return chatHistories.stream()
                 .map(ChatHistory::toChatHistoryResDto)
@@ -209,7 +207,7 @@ public class ChatService {
                     }.getType());
             Optional<ArrayList<User>> optionalUserArrayList = userRepository.findUserByIdIn(memberIds);
 
-            if (!optionalUserArrayList.isPresent())
+            if (optionalUserArrayList.isEmpty())
                 continue;
 
             ArrayList<User> users = optionalUserArrayList.get();

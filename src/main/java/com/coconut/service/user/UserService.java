@@ -30,8 +30,8 @@ public class UserService {
         log.warn("findAllUsers> : id =" + id.toString());
         Optional<User> user = userRepository.findUserById(id);
 
-        if (!user.isPresent())
-            return new ArrayList<UserDataResDto>(){{
+        if (user.isEmpty())
+            return new ArrayList<UserDataResDto>() {{
                 add(UserDataResDto.builder()
                         .err("존재하지 않은 유저 입니다.")
                         .build());
@@ -98,7 +98,7 @@ public class UserService {
 
         Optional<User> optionalUser = userRepository.findUserById(Long.parseLong(userId));
 
-        if (!optionalUser.isPresent())
+        if (optionalUser.isEmpty())
             return BaseResDto.builder()
                     .success(false)
                     .message("존재하지 않은 유저입니다.")

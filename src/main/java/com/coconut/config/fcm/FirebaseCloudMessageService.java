@@ -21,8 +21,8 @@ public class FirebaseCloudMessageService {
     private final String API_URL = "https://fcm.googleapis.com/v1/projects/coconut-2ead8/messages:send";
     private final ObjectMapper objectMapper;
 
-    public void sendMessageTo(String targetToken, Map<String, String> data, FcmMessageDto.Notification notification) throws IOException {
-        String message = makeMessage(targetToken, data, notification);
+    public void sendMessageTo(String targetToken, Map<String, String> data) throws IOException {
+        String message = makeMessage(targetToken, data);
         OkHttpClient client = new OkHttpClient();
         RequestBody requestBody = RequestBody.create(message, MediaType.get("application/json; charset=utf-8"));
         Request request = new Request.Builder()
@@ -36,12 +36,11 @@ public class FirebaseCloudMessageService {
         System.out.println(response.body().string());
     }
 
-    private String makeMessage(String targetToken, Map<String, String> data, FcmMessageDto.Notification notification) throws JsonProcessingException {
+    private String makeMessage(String targetToken, Map<String, String> data) throws JsonProcessingException {
         FcmMessageDto fcmMessageDto = FcmMessageDto.builder()
                 .message(FcmMessageDto.Message.builder()
                         .token(targetToken)
                         .data(data)
-                        .notification(notification)
                         .build()
                 )
                 .validate_only(false)
