@@ -1,26 +1,23 @@
 package com.coconut.service.chat;
 
-import com.coconut.client.dto.req.ChatRoomDataReqDto;
-import com.coconut.client.dto.req.ChatRoomListReqDto;
-import com.coconut.client.dto.req.ChatRoomSaveReqDto;
-import com.coconut.client.dto.req.UserChatRoomInfoReqDto;
+import com.coconut.client.dto.req.*;
 import com.coconut.client.dto.res.ChatHistoryResDto;
 import com.coconut.client.dto.res.ChatRoomDataResDto;
 import com.coconut.client.dto.res.UserDataResDto;
 import com.coconut.domain.chat.*;
 import com.coconut.domain.user.User;
 import com.coconut.domain.user.UserRepository;
+import com.coconut.service.utils.file.FilesStorageService;
+import com.coconut.service.utils.file.PathNameBuilder;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.GsonBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -32,14 +29,18 @@ public class ChatService {
     private final ChatRoomRepository chatRoomRepository;
     private final UserChatRoomRepository userChatRoomRepository;
     private final ChatHistoryRepository chatHistoryRepository;
+    private final FilesStorageService storageService;
 
     @Transactional
     public ChatRoomDataResDto makeChatRoom(ChatRoomSaveReqDto chatRoomSaveReqDto) {
         String myRoomName = null;
         String chatRoomId;
         String userId = chatRoomSaveReqDto.getChatUserId();
-        ArrayList<String> members = chatRoomSaveReqDto.getChatRoomMembers();
-        Collections.sort(members);
+        ArrayList<String> members = chatRoomSaveReqDto.getChatRoomMembers()
+                .stream()
+                .distinct()
+                .sorted()
+                .collect(Collectors.toCollection(ArrayList::new));
 
         ArrayList<User> users = new ArrayList<>();
         ArrayList<UserDataResDto> membersInfo;
@@ -194,14 +195,6 @@ public class ChatService {
             if (chatRoom.getLastMessage() == null)
                 continue;
 
-            UserChatRoomInfoReqDto userChatRoomInfoReqDto =
-                    UserChatRoomInfoReqDto.builder()
-                            .chatRoomId(Long.toString(userChatRoom.getId()))
-                            .chatRoomName(userChatRoom.getChatRoomName())
-                            .unReads(Integer.toString(userChatRoom.getUnReads()))
-                            .chatRoomInfo(chatRoom.toChatRoomInfoReqDto())
-                            .build();
-
             List<Long> memberIds =
                     new GsonBuilder().create().fromJson(chatRoom.getMembers(), new TypeToken<ArrayList<Long>>() {
                     }.getType());
@@ -212,25 +205,74 @@ public class ChatService {
 
             ArrayList<User> users = optionalUserArrayList.get();
             ArrayList<UserDataResDto> userDataResDtoArrayList;
+            String chatRoomName;
 
             if (users.size() == 1) {
-                userDataResDtoArrayList = users.stream()
-                        .map(User::toUserDataResDto)
-                        .collect(Collectors.toCollection(ArrayList::new));
+                userDataResDtoArrayList = new ArrayList<UserDataResDto>() {{
+                    add(users.get(0).toUserDataResDto());
+                }};
+
+                chatRoomName = users.get(0).getName();
             } else {
                 userDataResDtoArrayList = optionalUserArrayList.get()
                         .stream()
-                        .map(User::toUserDataResDto)
                         .filter(it -> !it.getId().equals(Long.parseLong(userId)))
+                        .map(User::toUserDataResDto)
                         .collect(Collectors.toCollection(ArrayList::new));
+
+                chatRoomName = users.stream()
+                        .filter(it -> !it.getId().equals(Long.parseLong(userId)))
+                        .map(User::getName)
+                        .collect(Collectors.joining(", "));
             }
 
+            // 채팅방 이름 업데이트
+            userChatRoom.updateChatRoomName(chatRoomName);
+
+            UserChatRoomInfoReqDto userChatRoomInfoReqDto =
+                    UserChatRoomInfoReqDto.builder()
+                            .chatRoomId(Long.toString(userChatRoom.getId()))
+                            .chatRoomName(chatRoomName)
+                            .unReads(Integer.toString(userChatRoom.getUnReads()))
+                            .chatRoomInfo(chatRoom.toChatRoomInfoReqDto())
+                            .build();
+
             chatRoomListReqDtos.add(ChatRoomListReqDto.builder()
-                    .userChatRoomInfoReqDto(userChatRoomInfoReqDto)
                     .userInfo(userDataResDtoArrayList)
+                    .userChatRoomInfoReqDto(userChatRoomInfoReqDto)
                     .build());
         }
 
         return chatRoomListReqDtos;
+    }
+
+    @Transactional
+    public ArrayList<String> uploadChatImages(ChatUploadImageReqDto reqDto) {
+        log.warn(reqDto.toString());
+
+        String userId = reqDto.getUserId();
+        String chatRoomId = reqDto.getChatRoomId();
+        ArrayList<String> imagePathList = new ArrayList<>();
+
+        try {
+            Arrays.stream(reqDto.getImages()).forEach(file -> {
+                String imagePath = PathNameBuilder.builder()
+                        .userIndex(userId)
+                        .chatRoomIndex(chatRoomId)
+                        .fileOriginalName(file.getOriginalFilename())
+                        .build()
+                        .getChatImagePath();
+
+                storageService.save(file, imagePath);
+                imagePathList.add(imagePath);
+            });
+
+            return imagePathList;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }

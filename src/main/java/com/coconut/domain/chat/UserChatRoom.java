@@ -58,4 +58,8 @@ public class UserChatRoom extends BaseTimeEntity {
         this.unReads = unReads;
     }
 
+    public void updateChatRoomName(String chatRoomName) {
+        this.chatRoomName = chatRoomName;
+    }
+
 }

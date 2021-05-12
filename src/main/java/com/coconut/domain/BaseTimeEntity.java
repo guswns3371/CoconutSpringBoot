@@ -8,6 +8,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import javax.persistence.EntityListeners;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.PreUpdate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -21,4 +22,9 @@ public abstract class BaseTimeEntity {
     // @LastModifiedDate : 조회한 엔티티의 값을 변경할 떄의 시간이 자동 저장된다.
     @LastModifiedDate
     private LocalDateTime modifiedData;
+
+    @PreUpdate
+    public void onModifiedDateUpdate() {
+        modifiedData = LocalDateTime.now();
+    }
 }

@@ -2,7 +2,6 @@ package com.coconut.service.socket;
 
 import com.coconut.client.dto.ChatMessageSocketDto;
 import com.coconut.client.dto.ChatRoomSocketDto;
-import com.coconut.client.dto.FcmMessageDto;
 import com.coconut.client.dto.res.ChatHistorySaveResDto;
 import com.coconut.config.fcm.FirebaseCloudMessageService;
 import com.coconut.domain.chat.*;
@@ -12,8 +11,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -70,7 +70,8 @@ public class SocketService {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    @Transactional
+    // Isolation.SERIALIZABLE : 트랜잭션이 완료될 때까지 SELECT 문장이 사용하는 모든 데이터에 shared lock 이 걸린다
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public void enterUsers(ChatRoomSocketDto dto) {
         String chatRoomId = dto.getChatRoomId();
         String userId = dto.getChatUserId();
@@ -87,6 +88,7 @@ public class SocketService {
             User user = optionalUser.get();
 
             for (ChatHistory history : chatHistoryList) {
+                // hmm?
                 boolean isExist = userChatHistoryRepository.existsUserChatHistoryByChatHistoryAndUser(history, user);
                 if (!isExist) {
                     userChatHistoryRepository.save(UserChatHistory.builder()
@@ -143,25 +145,46 @@ public class SocketService {
     @Transactional
     public void sendMessage(ChatMessageSocketDto dto) {
         log.warn(dto.toString());
+
         String userId = dto.getChatUserId();
         String chatRoomId = dto.getChatRoomId();
         String chatMessage = dto.getChatMessage();
         ArrayList<String> roomMembers = dto.getChatRoomMembers();
         ArrayList<String> readMembers = dto.getReadMembers();
+        ArrayList<String> chatImages = dto.getChatImages();
+
+        MessageType messageType;
+        String stringChatImages;
+        String chatHistory;
+
+        if (dto.getMessageType().equals(MessageType.IMAGE.getKey())) {
+            chatMessage = "사진을 보냈습니다.";
+            messageType = MessageType.IMAGE;
+            stringChatImages = chatImages.toString();
+        } else {
+            messageType = MessageType.TEXT;
+            stringChatImages = null;
+        }
+
+        chatHistory = chatMessage;
 
         Optional<UserChatRoom> optionalUserChatRoom = userChatRoomRepository.findUserChatRoomByChatRoom_IdAndUser_Id(Long.parseLong(chatRoomId), Long.parseLong(userId));
         if (optionalUserChatRoom.isEmpty())
             return;
 
-        UserChatRoom userChatRoom = optionalUserChatRoom.get();
 
-        ChatRoom socketChatRoom = userChatRoom.getChatRoom();
+        UserChatRoom socketUserChatRoom = optionalUserChatRoom.get();
+
+        // modifiedDate 업데이트 (메시지 보낸 유저의 채팅방 목록 정렬 업데이트를 위함)
+        socketUserChatRoom.onModifiedDateUpdate();
+
+        ChatRoom socketChatRoom = socketUserChatRoom.getChatRoom();
 
         // 마지막 메시지 업데이트
         socketChatRoom.updateLastMessage(chatMessage);
 
         // 현재 채팅방속 유저들
-        ArrayList<User> users = userChatRoom.getChatRoom().getUserList().stream()
+        ArrayList<User> users = socketUserChatRoom.getChatRoom().getUserList().stream()
                 .map(UserChatRoom::getUser)
                 .collect(Collectors.toCollection(ArrayList::new));
 
@@ -175,8 +198,9 @@ public class SocketService {
                 .user(socketUser)
                 .chatRoom(socketChatRoom)
                 .readMembers(Integer.toString(readMembers.size()))
-                .history(chatMessage)
-                .messageType(MessageType.TEXT)
+                .history(chatHistory)
+                .chatImages(stringChatImages)
+                .messageType(messageType)
                 .build());
 
         ArrayList<User> ReadMembers = users.stream()
@@ -233,11 +257,9 @@ public class SocketService {
                     data.put("userName", unReadMember.getName());
                     data.put("title", unReadMemberUserChatRoom.getChatRoomName());
                     data.put("who", socketUser.getName());
-                    data.put("body", chatMessage);
+                    data.put("body", chatHistory);
 
-                    firebaseCloudMessageService.sendMessageTo(
-                            fcmToken,
-                            data);
+                    firebaseCloudMessageService.sendMessageTo(fcmToken, data);
                 }
 
             } catch (IOException e) {
@@ -249,9 +271,10 @@ public class SocketService {
         // 안읽은 메시지 수 업데이트 & fcm 알림 후에 socket 으로 업데이트해야한다.
         unReadMembers.stream()
                 .map(User::getId)
-                .forEach(unReadMemberId -> {
-                    messageSender.convertAndSend("/sub/chat/frag/" + unReadMemberId, "마지막 메시지=" + socketChatRoom.getLastMessage());
-                });
+                .forEach(unReadMemberId ->
+                        messageSender.convertAndSend(
+                                "/sub/chat/frag/" + unReadMemberId,
+                                "마지막 메시지=" + socketChatRoom.getLastMessage()));
     }
 
 }

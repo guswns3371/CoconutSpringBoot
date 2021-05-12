@@ -7,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum MessageType {
     TEXT("TEXT","텍스트"),
+    IMAGE("IMAGE","이미지"),
     FILE("FILE","파일");
 
     private final String key;

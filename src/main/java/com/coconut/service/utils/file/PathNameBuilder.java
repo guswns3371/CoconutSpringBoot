@@ -11,7 +11,6 @@ public class PathNameBuilder {
     private String fileOriginalName;
     private String chatRoomIndex;
 
-
     @Builder
     public PathNameBuilder(String userIndex, String fileOriginalName, String chatRoomIndex) {
         this.userIndex = userIndex;
@@ -20,15 +19,15 @@ public class PathNameBuilder {
     }
 
     public String getProfileImagePath() {
-        return "u"+userIndex+"_profileImage_"+fileOriginalName;
+        return "u" + userIndex + "_profileImage_" + fileOriginalName;
     }
 
     public String getBackgroundImagePath() {
-        return "u"+userIndex+"_backgroundImage_"+fileOriginalName;
+        return "u" + userIndex + "_backgroundImage_" + fileOriginalName;
     }
 
     public String getChatImagePath() {
-        return "u"+userIndex+"_c"+chatRoomIndex+"_ChatImage_"+fileOriginalName;
+        return "u" + userIndex + "_c" + chatRoomIndex + "_chatImage_" + fileOriginalName;
     }
 
 }

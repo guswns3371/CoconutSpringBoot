@@ -69,13 +69,10 @@ public class UserService {
         } else {
             try {
                 User entity = requestDto.toEntity();
-                storageService.save(requestDto.getProfileImage(),
-                        entity.getProfilePicture());
-                storageService.save(requestDto.getBackImage(),
-                        entity.getBackgroundPicture());
+                storageService.save(requestDto.getProfileImage(), entity.getProfilePicture());
+                storageService.save(requestDto.getBackImage(), entity.getBackgroundPicture());
 
                 user.update(entity);
-
                 success = true;
                 message = "프로필 업데이트 성공";
             } catch (Exception e) {

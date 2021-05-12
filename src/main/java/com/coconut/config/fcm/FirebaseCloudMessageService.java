@@ -13,6 +13,7 @@ import org.springframework.core.io.ClassPathResource;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @RequiredArgsConstructor
 @Configuration
@@ -33,7 +34,7 @@ public class FirebaseCloudMessageService {
                 .build();
         Response response = client.newCall(request)
                 .execute();
-        System.out.println(response.body().string());
+        System.out.println(Objects.requireNonNull(response.body()).string());
     }
 
     private String makeMessage(String targetToken, Map<String, String> data) throws JsonProcessingException {

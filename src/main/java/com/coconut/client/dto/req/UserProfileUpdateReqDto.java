@@ -11,21 +11,21 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor
 public class UserProfileUpdateReqDto {
     /**
-     *     var id : RequestBody?,
-     *     var userId : RequestBody?,
-     *     var name : RequestBody?,
-     *     var message : RequestBody?,
-     *     var profileImage : MultipartBody.Part?,
-     *     var backImage : MultipartBody.Part?
+     * var id : RequestBody?,
+     * var userId : RequestBody?,
+     * var name : RequestBody?,
+     * var message : RequestBody?,
+     * var profileImage : MultipartBody.Part?,
+     * var backImage : MultipartBody.Part?
      *
-     *     @Part("id") id : RequestBody?,
-     *     @Part("userId") userId : RequestBody?,
-     *     @Part("name") name : RequestBody?,
-     *     @Part("message") message : RequestBody?,
-     *     @Part images : Array<MultipartBody.Part?>?
-     *
-     *     prepareFilePart("profileImage",profileImage),
-     *     prepareFilePart("backImage",backImage))
+     * @Part("id") id : RequestBody?,
+     * @Part("userId") userId : RequestBody?,
+     * @Part("name") name : RequestBody?,
+     * @Part("message") message : RequestBody?,
+     * @Part images : Array<MultipartBody.Part?>?
+     * <p>
+     * prepareFilePart("profileImage",profileImage),
+     * prepareFilePart("backImage",backImage))
      */
 
     private String id;
@@ -53,12 +53,14 @@ public class UserProfileUpdateReqDto {
     public User toEntity() {
         String profileImagePath = null;
         String backImagePath = null;
+
         if (profileImage != null)
             profileImagePath = PathNameBuilder.builder()
                     .userIndex(id)
                     .fileOriginalName(profileImage.getOriginalFilename())
                     .build()
                     .getProfileImagePath();
+
         if (backImage != null)
             backImagePath = PathNameBuilder.builder()
                     .userIndex(id)

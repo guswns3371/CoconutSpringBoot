@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Getter
@@ -31,6 +30,9 @@ public class ChatHistory extends BaseTimeEntity {
     @Column
     private String readMembers;
 
+    @Column
+    private String chatImages;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private MessageType messageType = MessageType.TEXT;
@@ -47,9 +49,10 @@ public class ChatHistory extends BaseTimeEntity {
     private List<UserChatHistory> readUserList = new ArrayList<>();
 
     @Builder
-    public ChatHistory(String history, String readMembers, MessageType messageType,  User user, ChatRoom chatRoom) {
+    public ChatHistory(String history, String readMembers, String chatImages, MessageType messageType, User user, ChatRoom chatRoom) {
         this.history = history;
         this.readMembers = readMembers;
+        this.chatImages = chatImages;
         this.messageType = messageType;
         setUser(user);
         setChatRoom(chatRoom);
@@ -78,6 +81,14 @@ public class ChatHistory extends BaseTimeEntity {
     }
 
     public ChatHistoryResDto toChatHistoryResDto() {
+
+        ArrayList<String> chatImagesString = null;
+        if (chatImages != null) {
+            chatImagesString =
+                    new GsonBuilder().create().fromJson(chatImages, new TypeToken<ArrayList<String>>() {
+                    }.getType());
+        }
+
         return ChatHistoryResDto.builder()
                 .userInfo(user.toUserDataResDto())
                 .chatRoomId(chatRoom.getId().toString())
@@ -85,11 +96,20 @@ public class ChatHistory extends BaseTimeEntity {
                 .readMembers(readMembers)
                 .time(getCreatedData().format(DateTimeFormatter.ofPattern("a h시 mm분")))
                 .history(history)
+                .chatImages(chatImagesString)
                 .messageType(getMessageTypeKey())
                 .build();
     }
 
     public ChatHistorySaveResDto toChatHistorySaveResDto() {
+
+        ArrayList<String> chatImagesString = null;
+        if (chatImages != null) {
+            chatImagesString =
+                    new GsonBuilder().create().fromJson(chatImages, new TypeToken<ArrayList<String>>() {
+                    }.getType());
+        }
+
         return ChatHistorySaveResDto.builder()
                 .userInfo(user.toUserDataResDto())
                 .chatRoomId(chatRoom.getId().toString())
@@ -97,6 +117,7 @@ public class ChatHistory extends BaseTimeEntity {
                 .readMembers(readMembers)
                 .time(getCreatedData().format(DateTimeFormatter.ofPattern("a h시 mm분")))
                 .history(history)
+                .chatImages(chatImagesString)
                 .messageType(getMessageTypeKey())
                 .build();
     }

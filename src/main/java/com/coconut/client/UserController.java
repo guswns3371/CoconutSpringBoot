@@ -34,7 +34,7 @@ public class UserController {
                     MediaType.APPLICATION_JSON_VALUE
             }
             )
-    // @RequestPart(value = "id", required = false) : required = false해줘야 null 값이 들어와도 코드가 진행된다.
+    // @RequestPart(value = "id", required = false) : required = false 해줘야 null 값이 들어와도 코드가 진행된다.
     public BaseResDto profileUpdate(
             @RequestPart(value = "id", required = false) String id,
             @RequestPart(value = "userId", required = false) String userId,
