@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Entity
 @NoArgsConstructor
@@ -42,16 +44,31 @@ public class UserChatRoom extends BaseTimeEntity {
     // https://cornswrold.tistory.com/355
     private void setUser(User user) {
         this.user = user;
-        if (!user.getChatRoomList().contains(this)) {
-            user.getChatRoomList().add(this);
+        if (!user.getUserChatRoomList().contains(this)) {
+            user.getUserChatRoomList().add(this);
         }
     }
 
     private void setChatRoom(ChatRoom chatRoom) {
         this.chatRoom = chatRoom;
-        if (!chatRoom.getUserList().contains(this)) {
-            chatRoom.getUserList().add(this);
+        if (!chatRoom.getUserChatRoomList().contains(this)) {
+            chatRoom.getUserChatRoomList().add(this);
         }
+    }
+
+    public String getCurrentChatRoomName(String userId) {
+
+        if (this.chatRoomName != null)
+            return this.chatRoomName;
+
+        if (this.chatRoom.getUsers().size() == 1)
+            return this.chatRoom.getUsers().get(0).getName();
+
+        return this.chatRoom.getUsers().stream()
+                .filter(it -> !it.getId().equals(Long.parseLong(userId)))
+                .map(User::getName)
+                .collect(Collectors.joining(", "));
+
     }
 
     public void updateUnReads(int unReads) {

@@ -14,6 +14,7 @@ import javax.persistence.*;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor
@@ -30,7 +31,7 @@ public class ChatHistory extends BaseTimeEntity {
     @Column
     private String readMembers;
 
-    @Column
+    @Column(length = 800)
     private String chatImages;
 
     @Enumerated(EnumType.STRING)
@@ -46,7 +47,7 @@ public class ChatHistory extends BaseTimeEntity {
     private ChatRoom chatRoom;
 
     @OneToMany(mappedBy = "chatHistory", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<UserChatHistory> readUserList = new ArrayList<>();
+    private List<UserChatHistory> userChatHistoryList = new ArrayList<>();
 
     @Builder
     public ChatHistory(String history, String readMembers, String chatImages, MessageType messageType, User user, ChatRoom chatRoom) {
@@ -80,6 +81,12 @@ public class ChatHistory extends BaseTimeEntity {
         this.readMembers = readMembers;
     }
 
+    public ArrayList<User> getReadUsers() {
+        return this.userChatHistoryList.stream()
+                .map(UserChatHistory::getUser)
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
     public ChatHistoryResDto toChatHistoryResDto() {
 
         ArrayList<String> chatImagesString = null;
@@ -94,7 +101,7 @@ public class ChatHistory extends BaseTimeEntity {
                 .chatRoomId(chatRoom.getId().toString())
                 .chatUserId(user.getId().toString())
                 .readMembers(readMembers)
-                .time(getCreatedData().format(DateTimeFormatter.ofPattern("a h시 mm분")))
+                .time(getCreatedData().format(DateTimeFormatter.ofPattern("a h: mm")))
                 .history(history)
                 .chatImages(chatImagesString)
                 .messageType(getMessageTypeKey())
@@ -115,7 +122,7 @@ public class ChatHistory extends BaseTimeEntity {
                 .chatRoomId(chatRoom.getId().toString())
                 .chatUserId(user.getId().toString())
                 .readMembers(readMembers)
-                .time(getCreatedData().format(DateTimeFormatter.ofPattern("a h시 mm분")))
+                .time(getCreatedData().format(DateTimeFormatter.ofPattern("a h: mm")))
                 .history(history)
                 .chatImages(chatImagesString)
                 .messageType(getMessageTypeKey())

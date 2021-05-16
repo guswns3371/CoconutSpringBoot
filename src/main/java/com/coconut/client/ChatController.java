@@ -40,6 +40,16 @@ public class ChatController {
         return chatService.getChatRoomLists(userId);
     }
 
+    @PostMapping("/api/chat/room/name")
+    public boolean changeChatRoomName(@RequestBody ChatRoomNameChangeReqDto reqDto) {
+        return chatService.changeChatRoomName(reqDto);
+    }
+
+    @PostMapping("/api/chat/room/exit")
+    public boolean exitChatRoom(@RequestBody ChatRoomExitReqDto reqDto) {
+        return chatService.exitChatRoom(reqDto);
+    }
+
     @PostMapping(
             value = "/api/chat/upload/image" ,
             consumes = {

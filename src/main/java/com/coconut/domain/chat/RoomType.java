@@ -5,11 +5,9 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum MessageType {
-    TEXT("TEXT","텍스트"),
-    IMAGE("IMAGE","이미지"),
-    FILE("FILE","파일"),
-    INFO("INFO","알림");
+public enum RoomType {
+    GROUP("GROUP","그룹채팅"),
+    ME("ME","나와의채팅");
 
     private final String key;
     private final String title;

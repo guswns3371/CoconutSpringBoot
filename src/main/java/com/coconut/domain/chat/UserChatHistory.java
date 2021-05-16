@@ -32,15 +32,15 @@ public class UserChatHistory {
 
     public void setUser(User user) {
         this.user = user;
-        if (!user.getReadHistoryList().contains(this)){
-            user.getReadHistoryList().add(this);
+        if (!user.getUserChatHistoryList().contains(this)){
+            user.getUserChatHistoryList().add(this);
         }
     }
 
     public void setChatHistory(ChatHistory chatHistory) {
         this.chatHistory = chatHistory;
-        if (!chatHistory.getReadUserList().contains(this)) {
-            chatHistory.getReadUserList().add(this);
+        if (!chatHistory.getUserChatHistoryList().contains(this)) {
+            chatHistory.getUserChatHistoryList().add(this);
         }
     }
 }

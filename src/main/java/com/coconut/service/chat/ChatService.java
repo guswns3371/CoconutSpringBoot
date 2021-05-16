@@ -2,6 +2,7 @@ package com.coconut.service.chat;
 
 import com.coconut.client.dto.req.*;
 import com.coconut.client.dto.res.ChatHistoryResDto;
+import com.coconut.client.dto.res.ChatHistorySaveResDto;
 import com.coconut.client.dto.res.ChatRoomDataResDto;
 import com.coconut.client.dto.res.UserDataResDto;
 import com.coconut.domain.chat.*;
@@ -9,10 +10,9 @@ import com.coconut.domain.user.User;
 import com.coconut.domain.user.UserRepository;
 import com.coconut.service.utils.file.FilesStorageService;
 import com.coconut.service.utils.file.PathNameBuilder;
-import com.google.common.reflect.TypeToken;
-import com.google.gson.GsonBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
 import org.springframework.transaction.annotation.Transactional;
@@ -30,19 +30,16 @@ public class ChatService {
     private final UserChatRoomRepository userChatRoomRepository;
     private final ChatHistoryRepository chatHistoryRepository;
     private final FilesStorageService storageService;
+    private final UserChatHistoryRepository userChatHistoryRepository;
+    private final SimpMessageSendingOperations messageSender;
 
     @Transactional
     public ChatRoomDataResDto makeChatRoom(ChatRoomSaveReqDto chatRoomSaveReqDto) {
         String myRoomName = null;
         String chatRoomId;
         String userId = chatRoomSaveReqDto.getChatUserId();
-        ArrayList<String> members = chatRoomSaveReqDto.getChatRoomMembers()
-                .stream()
-                .distinct()
-                .sorted()
-                .collect(Collectors.toCollection(ArrayList::new));
+        ArrayList<String> members = chatRoomSaveReqDto.getDistinctChatRoomMembers();
 
-        ArrayList<User> users = new ArrayList<>();
         ArrayList<UserDataResDto> membersInfo;
         Optional<ChatRoom> optionalChatRoom = chatRoomRepository.findChatRoomByMembers(members.toString());
 
@@ -53,17 +50,18 @@ public class ChatService {
 
             chatRoomId = chatRoom.getId().toString();
 
-            ArrayList<UserChatRoom> userChatRoomList = new ArrayList<>(chatRoom.getUserList());
+            UserChatRoom userChatRoom = chatRoom.getUserChatRoom(userId);
 
-            myRoomName = userChatRoomList.stream()
-                    .filter(it -> it.getChatRoom().getId().equals(Long.parseLong(chatRoomId)))
-                    .filter(it -> it.getUser().getId().equals(Long.parseLong(userId)))
-                    .collect(Collectors.toList())
-                    .get(0)
-                    .getChatRoomName();
+            if (userChatRoom == null) {
+                Optional<User> user = userRepository.findUserById(Long.parseLong(userId));
+                userChatRoom = userChatRoomRepository.save(UserChatRoom.builder()
+                        .user(user.get())
+                        .chatRoom(chatRoom)
+                        .build());
+            }
+            myRoomName = userChatRoom.getCurrentChatRoomName(userId);
 
-            membersInfo = userChatRoomList.stream()
-                    .map(UserChatRoom::getUser)
+            membersInfo = chatRoom.getUsers().stream()
                     .map(User::toUserDataResDto)
                     .collect(Collectors.toCollection(ArrayList::new));
 
@@ -77,43 +75,37 @@ public class ChatService {
 
         // 채팅방 생성
         log.warn("채팅방 만들기");
+        RoomType roomType = (members.size() == 1 && members.get(0).equals(userId)) ? RoomType.ME : RoomType.GROUP;
         ChatRoom chatRoom = chatRoomRepository.save(ChatRoom.builder()
+                .roomType(roomType)
                 .members(members.toString())
                 .build());
 
         chatRoomId = chatRoom.getId().toString();
 
-        for (String memberId : members) {
-            userRepository.findUserById(Long.parseLong(memberId)).ifPresent(users::add);
-        }
+        List<Long> membersLong = members.stream().map(Long::parseLong).collect(Collectors.toList());
+        Optional<ArrayList<User>> optionalUserArrayList = userRepository.findUserByIdIn(membersLong);
 
-        if (users.size() == 0) {
-            log.warn("존재하지 않은 유저들");
+        if (optionalUserArrayList.isEmpty())
             return null;
-        }
 
+        ArrayList<User> users = optionalUserArrayList.get();
         for (User user : users) {
-            String chatRoomName = users.stream()
-                    .map(User::getName)
-                    .filter(name -> !name.contains(user.getName()))
-                    .collect(Collectors.joining(", "));
-
-            // 자신과의 채팅방인 경우
-            if (users.size() == 1) {
-                chatRoomName = user.getName();
-            }
-
-            if (user.getId().toString().equals(userId)) {
-                myRoomName = chatRoomName;
-            }
-
             userChatRoomRepository.save(
                     UserChatRoom.builder()
                             .chatRoom(chatRoom)
                             .user(user)
-                            .chatRoomName(chatRoomName)
                             .build());
         }
+
+        myRoomName = users.stream()
+                .filter(it -> !it.getId().equals(Long.parseLong(userId)))
+                .map(User::getName)
+                .collect(Collectors.joining(", "));
+
+        // 자신과의 채팅방인 경우
+        if (users.size() == 1)
+            myRoomName = users.get(0).getName();
 
         membersInfo = users.stream()
                 .map(User::toUserDataResDto)
@@ -130,6 +122,7 @@ public class ChatService {
     @Transactional
     public ChatRoomDataResDto getChatRoomData(ChatRoomDataReqDto chatRoomDataReqDto) {
         log.warn(chatRoomDataReqDto.toString());
+
         String myRoomName;
         String userId = chatRoomDataReqDto.getChatUserId();
         String chatRoomId = chatRoomDataReqDto.getChatRoomId();
@@ -140,12 +133,10 @@ public class ChatService {
             return null;
 
         UserChatRoom userChatRoom = optionalUserChatRoom.get();
-        myRoomName = userChatRoom.getChatRoomName();
+        myRoomName = userChatRoom.getCurrentChatRoomName(userId);
 
-        List<Long> memberIds =
-                new GsonBuilder().create().fromJson(members.toString(), new TypeToken<ArrayList<Long>>() {
-                }.getType());
-
+        ChatRoom chatRoom = userChatRoom.getChatRoom();
+        List<Long> memberIds = chatRoom.getChatMembers();
         Optional<ArrayList<User>> optionalUserArrayList = userRepository.findUserByIdIn(memberIds);
 
         if (optionalUserArrayList.isEmpty())
@@ -172,7 +163,7 @@ public class ChatService {
             return null;
 
         ArrayList<ChatHistory> chatHistories = optionalChatHistory.get();
-        chatHistories.forEach(chatHistory -> chatHistory.updateReadMembers(Integer.toString(chatHistory.getReadUserList().size())));
+        chatHistories.forEach(chatHistory -> chatHistory.updateReadMembers(Integer.toString(chatHistory.getUserChatHistoryList().size())));
 
         return chatHistories.stream()
                 .map(ChatHistory::toChatHistoryResDto)
@@ -195,9 +186,7 @@ public class ChatService {
             if (chatRoom.getLastMessage() == null)
                 continue;
 
-            List<Long> memberIds =
-                    new GsonBuilder().create().fromJson(chatRoom.getMembers(), new TypeToken<ArrayList<Long>>() {
-                    }.getType());
+            List<Long> memberIds = chatRoom.getChatMembers();
             Optional<ArrayList<User>> optionalUserArrayList = userRepository.findUserByIdIn(memberIds);
 
             if (optionalUserArrayList.isEmpty())
@@ -207,27 +196,20 @@ public class ChatService {
             ArrayList<UserDataResDto> userDataResDtoArrayList;
             String chatRoomName;
 
+            // 채팅방 이름이 존재할 경우, 존재하는 이름으로 설정
+            chatRoomName = userChatRoom.getCurrentChatRoomName(userId);
+
             if (users.size() == 1) {
                 userDataResDtoArrayList = new ArrayList<UserDataResDto>() {{
                     add(users.get(0).toUserDataResDto());
                 }};
-
-                chatRoomName = users.get(0).getName();
             } else {
                 userDataResDtoArrayList = optionalUserArrayList.get()
                         .stream()
                         .filter(it -> !it.getId().equals(Long.parseLong(userId)))
                         .map(User::toUserDataResDto)
                         .collect(Collectors.toCollection(ArrayList::new));
-
-                chatRoomName = users.stream()
-                        .filter(it -> !it.getId().equals(Long.parseLong(userId)))
-                        .map(User::getName)
-                        .collect(Collectors.joining(", "));
             }
-
-            // 채팅방 이름 업데이트
-            userChatRoom.updateChatRoomName(chatRoomName);
 
             UserChatRoomInfoReqDto userChatRoomInfoReqDto =
                     UserChatRoomInfoReqDto.builder()
@@ -261,7 +243,8 @@ public class ChatService {
                         .chatRoomIndex(chatRoomId)
                         .fileOriginalName(file.getOriginalFilename())
                         .build()
-                        .getChatImagePath();
+                        .getChatImagePath()
+                        .replaceAll(" ", "");
 
                 storageService.save(file, imagePath);
                 imagePathList.add(imagePath);
@@ -274,5 +257,92 @@ public class ChatService {
         }
 
         return null;
+    }
+
+    @Transactional
+    public boolean changeChatRoomName(ChatRoomNameChangeReqDto reqDto) {
+        String chatRoomName = reqDto.getChatRoomName();
+        String chatRoomId = reqDto.getChatRoomId();
+        String userId = reqDto.getUserId();
+
+        Optional<UserChatRoom> optionalUserChatRoom = userChatRoomRepository.findUserChatRoomByChatRoom_IdAndUser_Id(
+                Long.parseLong(chatRoomId), Long.parseLong(userId)
+        );
+
+        if (optionalUserChatRoom.isEmpty())
+            return false;
+
+        UserChatRoom userChatRoom = optionalUserChatRoom.get();
+
+        String roomName = (chatRoomName.equals("")) ? null : chatRoomName;
+
+        userChatRoom.updateChatRoomName(roomName);
+        return true;
+    }
+
+    @Transactional
+    public boolean exitChatRoom(ChatRoomExitReqDto reqDto) {
+        String chatRoomId = reqDto.getChatRoomId();
+        String userId = reqDto.getUserId();
+
+        Optional<ChatRoom> optionalChatRoom = chatRoomRepository.findChatRoomById(Long.parseLong(chatRoomId));
+
+        if (optionalChatRoom.isEmpty())
+            return false;
+        ChatRoom chatRoom = optionalChatRoom.get();
+
+        User exitUser = chatRoom.getUsers().stream()
+                .filter(it -> it.getId().equals(Long.parseLong(userId)))
+                .collect(Collectors.toList()).get(0);
+
+        // 채팅방 멤버에서 삭제
+        chatRoom.exitChatRoom(userId);
+
+        // 해당 채팅방에서 읽은 메시지 삭제
+        userChatHistoryRepository.deleteUserChatHistoriesByChatHistory_ChatRoom_IdAndUser_Id(
+                Long.parseLong(chatRoomId), Long.parseLong(userId)
+        );
+
+        // UserChatRoom 삭제
+        Optional<UserChatRoom> optionalUserChatRoom = userChatRoomRepository.findUserChatRoomByChatRoom_IdAndUser_Id(
+                Long.parseLong(chatRoomId), Long.parseLong(userId));
+        if (optionalUserChatRoom.isPresent()) {
+            UserChatRoom userChatRoom = optionalUserChatRoom.get();
+
+            // 1대다 단방향 매핑 관계에 있다면 -> join column ArrayList 에 존재하는 관계도 제거해야한다.
+            userChatRoom.getUser().getUserChatRoomList().removeIf(it -> it.getChatRoom().getId().equals(Long.parseLong(chatRoomId)));
+            userChatRoom.getChatRoom().getUserChatRoomList().removeIf(it -> it.getUser().getId().equals(Long.parseLong(userId)));
+            userChatRoomRepository.delete(userChatRoom);
+
+            if (chatRoom.getChatMembers().size() > 2) {
+                // 채팅 기록 저장
+                ChatHistory savedHistory = chatHistoryRepository.save(ChatHistory.builder()
+                        .user(exitUser)
+                        .chatRoom(chatRoom)
+                        .history(exitUser.getName() + "님이 채팅방을 나가셨습니다.")
+                        .messageType(MessageType.INFO)
+                        .build());
+
+                ChatHistorySaveResDto resDto = savedHistory.toChatHistorySaveResDto();
+                // 채팅방에 기록 남기기
+                messageSender.convertAndSend("/sub/chat/message/" + chatRoom.getId(), resDto);
+
+                // 채팅방에 없는 사람들에게 알리기
+                chatRoom.getUsers().stream()
+                        .map(User::getId)
+                        .forEach(userId1 -> {
+                            messageSender.convertAndSend("/sub/chat/frag/" + userId1, "유저=" + userId + " 나감");
+                        });
+            } else if (chatRoom.getChatMembers().size() == 1){
+                // 총 인원이 1명인 채팅방을 나갈 때, 모든 채팅 기록 삭제
+                userChatRoom.getUser().getChatHistoryList().removeIf(it -> it.getChatRoom().getId().equals(Long.parseLong(chatRoomId)));
+                userChatRoom.getChatRoom().getChatHistoryList().removeIf(it -> it.getUser().getId().equals(Long.parseLong(userId)));
+                chatHistoryRepository.deleteChatHistoriesByChatRoom_IdAndUser_Id(
+                        Long.parseLong(chatRoomId), Long.parseLong(userId)
+                );
+            }
+        }
+
+        return true;
     }
 }

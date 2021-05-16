@@ -3,6 +3,7 @@ package com.coconut.domain.user;
 import com.coconut.client.dto.res.UserDataResDto;
 import com.coconut.domain.BaseTimeEntity;
 import com.coconut.domain.chat.ChatHistory;
+import com.coconut.domain.chat.ChatRoom;
 import com.coconut.domain.chat.UserChatHistory;
 import com.coconut.domain.chat.UserChatRoom;
 import com.coconut.service.utils.mail.TokenGenerator;
@@ -13,6 +14,7 @@ import lombok.NoArgsConstructor;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor
@@ -55,13 +57,13 @@ public class User extends BaseTimeEntity {
     private Role role = Role.GUEST;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<UserChatRoom> chatRoomList = new ArrayList<>();
+    private List<UserChatRoom> userChatRoomList = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<ChatHistory> chatHistoryList = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<UserChatHistory> readHistoryList = new ArrayList<>();
+    private List<UserChatHistory> userChatHistoryList = new ArrayList<>();
 
 //    // 부모 정의 (셀프 참조)
 //    @ManyToOne(fetch = FetchType.LAZY)
@@ -122,6 +124,27 @@ public class User extends BaseTimeEntity {
 
     public void disapproveUser() {
         this.role = Role.GUEST;
+    }
+
+    public UserChatRoom getUserChatRoom(String chatRoomId) {
+        return this.userChatRoomList.stream()
+                .filter(it -> it.getUser().equals(this))
+                .filter(it -> it.getChatRoom().getId().equals(Long.parseLong(chatRoomId)))
+                .collect(Collectors.toList())
+                .get(0);
+    }
+
+    public int getReadMessageCount(String chatRoomId) {
+        return (int) this.userChatHistoryList.stream()
+                .map(UserChatHistory::getChatHistory)
+                .filter(it -> it.getChatRoom().getId().equals(Long.parseLong(chatRoomId)))
+                .count();
+    }
+
+    public ArrayList<ChatRoom> getChatRooms() {
+        return this.userChatRoomList.stream()
+                .map(UserChatRoom::getChatRoom)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public UserDataResDto toUserDataResDto() {
