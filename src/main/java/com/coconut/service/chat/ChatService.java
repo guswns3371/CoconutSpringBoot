@@ -225,6 +225,9 @@ public class ChatService {
                     .build());
         }
 
+        if (chatRoomListReqDtos.size() == 0)
+            return null;
+
         return chatRoomListReqDtos;
     }
 
@@ -295,14 +298,6 @@ public class ChatService {
                 .filter(it -> it.getId().equals(Long.parseLong(userId)))
                 .collect(Collectors.toList()).get(0);
 
-        // 채팅방 멤버에서 삭제
-        chatRoom.exitChatRoom(userId);
-
-        // 해당 채팅방에서 읽은 메시지 삭제
-        userChatHistoryRepository.deleteUserChatHistoriesByChatHistory_ChatRoom_IdAndUser_Id(
-                Long.parseLong(chatRoomId), Long.parseLong(userId)
-        );
-
         // UserChatRoom 삭제
         Optional<UserChatRoom> optionalUserChatRoom = userChatRoomRepository.findUserChatRoomByChatRoom_IdAndUser_Id(
                 Long.parseLong(chatRoomId), Long.parseLong(userId));
@@ -315,6 +310,11 @@ public class ChatService {
             userChatRoomRepository.delete(userChatRoom);
 
             if (chatRoom.getChatMembers().size() > 2) {
+
+                // 채팅방 멤버에서 삭제
+                chatRoom.exitChatRoom(userId);
+
+
                 // 채팅 기록 저장
                 ChatHistory savedHistory = chatHistoryRepository.save(ChatHistory.builder()
                         .user(exitUser)
@@ -333,7 +333,13 @@ public class ChatService {
                         .forEach(userId1 -> {
                             messageSender.convertAndSend("/sub/chat/frag/" + userId1, "유저=" + userId + " 나감");
                         });
-            } else if (chatRoom.getChatMembers().size() == 1){
+
+            } else if (chatRoom.getChatMembers().size() == 2) {
+
+                // 2명인 경우 tuple만 삭제하고 연관관계는 남긴다.
+//                userChatRoom.getChatRoom().getUserChatRoomList().add(userChatRoom);
+            } else if (chatRoom.getChatMembers().size() == 1) {
+
                 // 총 인원이 1명인 채팅방을 나갈 때, 모든 채팅 기록 삭제
                 userChatRoom.getUser().getChatHistoryList().removeIf(it -> it.getChatRoom().getId().equals(Long.parseLong(chatRoomId)));
                 userChatRoom.getChatRoom().getChatHistoryList().removeIf(it -> it.getUser().getId().equals(Long.parseLong(userId)));
@@ -341,7 +347,13 @@ public class ChatService {
                         Long.parseLong(chatRoomId), Long.parseLong(userId)
                 );
             }
+
+            // 해당 채팅방에서 읽은 메시지 삭제
+            userChatHistoryRepository.deleteUserChatHistoriesByChatHistory_ChatRoom_IdAndUser_Id(
+                    Long.parseLong(chatRoomId), Long.parseLong(userId)
+            );
         }
+
 
         return true;
     }
