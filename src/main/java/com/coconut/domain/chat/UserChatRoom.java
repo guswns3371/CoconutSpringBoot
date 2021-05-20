@@ -25,6 +25,10 @@ public class UserChatRoom extends BaseTimeEntity {
     @Column
     private int unReads;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AbleType ableType = AbleType.ENABLE;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
@@ -57,18 +61,16 @@ public class UserChatRoom extends BaseTimeEntity {
     }
 
     public String getCurrentChatRoomName(String userId) {
-
         if (this.chatRoomName != null)
             return this.chatRoomName;
 
-        if (this.chatRoom.getUsers().size() == 1)
+        else if (this.chatRoom.getUsers().size() == 1)
             return this.chatRoom.getUsers().get(0).getName();
 
         return this.chatRoom.getUsers().stream()
                 .filter(it -> !it.getId().equals(Long.parseLong(userId)))
                 .map(User::getName)
                 .collect(Collectors.joining(", "));
-
     }
 
     public void updateUnReads(int unReads) {
@@ -79,4 +81,7 @@ public class UserChatRoom extends BaseTimeEntity {
         this.chatRoomName = chatRoomName;
     }
 
+    public void disableChatRoom() { this.ableType = AbleType.DISABLE; }
+
+    public void enableChatRoom() { this.ableType = AbleType.ENABLE; }
 }

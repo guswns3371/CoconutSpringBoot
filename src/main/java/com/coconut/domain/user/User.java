@@ -65,15 +65,6 @@ public class User extends BaseTimeEntity {
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<UserChatHistory> userChatHistoryList = new ArrayList<>();
 
-//    // 부모 정의 (셀프 참조)
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "SUPER_USER_ID")
-//    private User superUser;
-//
-//    // 자식 정의
-//    @OneToMany(fetch = FetchType.LAZY,mappedBy = "superUser", cascade = CascadeType.ALL)
-//    private List<User> subUsers;
-
     @Builder
     public User(String userId, String name, String email, String password, String stateMessage, String profilePicture, String backgroundPicture, String confirmToken, Role role, String fcmToken) {
         this.userId = userId;

@@ -23,8 +23,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SocketService {
 
-    private static List<String> connectedUserList = Collections.synchronizedList(new ArrayList<>());
-    private static final Map<String, ArrayList<String>> enteredUserMap = Collections.synchronizedMap(new HashMap<>());
+    public static List<String> connectedUserList = Collections.synchronizedList(new ArrayList<>());
+    public static Map<String, ArrayList<String>> enteredUserMap = Collections.synchronizedMap(new HashMap<>());
+
     private final SimpMessageSendingOperations messageSender;
     private final FirebaseCloudMessageService firebaseCloudMessageService;
     private final UserRepository userRepository;
@@ -177,11 +178,15 @@ public class SocketService {
         // modifiedDate 업데이트 (메시지 보낸 유저의 채팅방 목록 정렬 업데이트를 위함)
         socketUserChatRoom.onModifiedDateUpdate();
 
+
         ChatRoom socketChatRoom = socketUserChatRoom.getChatRoom();
         // 마지막 메시지 업데이트
         socketChatRoom.updateLastMessage(chatMessage);
         // 현재 채팅방속 유저들
         ArrayList<User> users = socketChatRoom.getUsers();
+        // 보낸 사람 채팅방 보이게 하기
+        if (users.size() == 2)
+            socketUserChatRoom.enableChatRoom();
 
         // 메시지를 보낸 유저
         User socketUser = users.stream()
@@ -220,26 +225,25 @@ public class SocketService {
                 .filter(it -> !readMembers.contains(it.getId().toString()))
                 .collect(Collectors.toCollection(ArrayList::new));
 
+        // 받는 사람 채팅방을 보이게 한다
+        if (unReadMembers.size() == 1)
+            unReadMembers.get(0).getUserChatRoom(socketChatRoom.getId().toString()).enableChatRoom();
+
         int totalHistoryCount, readCount, unReadCount;
         String unReadMemberChatRoomName;
+
         // 메시지를 읽지 않은 유저들
         for (User unReadMember : unReadMembers) {
 
             UserChatRoom unReadMemberUserChatRoom = unReadMember.getUserChatRoom(socketChatRoom.getId().toString());
-            // 현재 채팅방을 나간 유저에 한하여 UserChatRoom 을 다시 만든다.
-            if (unReadMemberUserChatRoom == null) {
-                unReadMemberUserChatRoom = userChatRoomRepository.save(UserChatRoom.builder()
-                        .chatRoom(socketChatRoom)
-                        .user(unReadMember)
-                        .build());
-            }
 
+            // 안읽은 메시지 수 업데이트
             totalHistoryCount = socketChatRoom.getChatHistoryList().size();
             readCount = unReadMember.getReadMessageCount(chatRoomId);
             unReadCount = totalHistoryCount - readCount;
-
-            // 안읽은 메시지 수 업데이트
             unReadMemberUserChatRoom.updateUnReads(unReadCount);
+
+            // 채팅방 이름
             unReadMemberChatRoomName = unReadMemberUserChatRoom.getCurrentChatRoomName(unReadMember.getId().toString());
 
             // fcm 알림

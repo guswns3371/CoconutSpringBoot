@@ -39,10 +39,9 @@ public class ChatService {
         String chatRoomId;
         String userId = chatRoomSaveReqDto.getChatUserId();
         ArrayList<String> members = chatRoomSaveReqDto.getDistinctChatRoomMembers();
-
         ArrayList<UserDataResDto> membersInfo;
-        Optional<ChatRoom> optionalChatRoom = chatRoomRepository.findChatRoomByMembers(members.toString());
 
+        Optional<ChatRoom> optionalChatRoom = chatRoomRepository.findChatRoomByMembers(members.toString());
         // 채팅방이 이미 만들어져 있는 경우
         if (optionalChatRoom.isPresent()) {
             log.warn("이미 존재하는 채팅방");
@@ -183,7 +182,7 @@ public class ChatService {
         for (UserChatRoom userChatRoom : userChatRooms) {
             ChatRoom chatRoom = userChatRoom.getChatRoom();
 
-            if (chatRoom.getLastMessage() == null)
+            if (chatRoom.getLastMessage() == null || userChatRoom.getAbleType().equals(AbleType.DISABLE))
                 continue;
 
             List<Long> memberIds = chatRoom.getChatMembers();
@@ -304,6 +303,12 @@ public class ChatService {
         if (optionalUserChatRoom.isPresent()) {
             UserChatRoom userChatRoom = optionalUserChatRoom.get();
 
+            // 2명만 있는 채팅방의 경우, UserChatRoom을 숨긴다
+            if (chatRoom.getChatMembers().size() == 2) {
+                userChatRoom.disableChatRoom();
+                return true;
+            }
+
             // 1대다 단방향 매핑 관계에 있다면 -> join column ArrayList 에 존재하는 관계도 제거해야한다.
             userChatRoom.getUser().getUserChatRoomList().removeIf(it -> it.getChatRoom().getId().equals(Long.parseLong(chatRoomId)));
             userChatRoom.getChatRoom().getUserChatRoomList().removeIf(it -> it.getUser().getId().equals(Long.parseLong(userId)));
@@ -313,7 +318,6 @@ public class ChatService {
 
                 // 채팅방 멤버에서 삭제
                 chatRoom.exitChatRoom(userId);
-
 
                 // 채팅 기록 저장
                 ChatHistory savedHistory = chatHistoryRepository.save(ChatHistory.builder()
@@ -334,10 +338,6 @@ public class ChatService {
                             messageSender.convertAndSend("/sub/chat/frag/" + userId1, "유저=" + userId + " 나감");
                         });
 
-            } else if (chatRoom.getChatMembers().size() == 2) {
-
-                // 2명인 경우 tuple만 삭제하고 연관관계는 남긴다.
-//                userChatRoom.getChatRoom().getUserChatRoomList().add(userChatRoom);
             } else if (chatRoom.getChatMembers().size() == 1) {
 
                 // 총 인원이 1명인 채팅방을 나갈 때, 모든 채팅 기록 삭제
