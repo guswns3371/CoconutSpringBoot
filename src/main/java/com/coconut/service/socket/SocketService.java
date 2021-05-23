@@ -229,16 +229,16 @@ public class SocketService {
         if (unReadMembers.size() == 1)
             unReadMembers.get(0).getUserChatRoom(socketChatRoom.getId().toString()).enableChatRoom();
 
-        int totalHistoryCount, readCount, unReadCount;
-        String unReadMemberChatRoomName;
-
-        // 메시지를 읽지 않은 유저들
-        for (User unReadMember : unReadMembers) {
+        unReadMembers.forEach(unReadMember -> {
+            int totalHistoryCount, readCount, unReadCount;
+            String unReadMemberChatRoomName;
 
             UserChatRoom unReadMemberUserChatRoom = unReadMember.getUserChatRoom(socketChatRoom.getId().toString());
 
             // 안읽은 메시지 수 업데이트
-            totalHistoryCount = socketChatRoom.getChatHistoryList().size();
+            totalHistoryCount = (int) socketChatRoom.getChatHistoryList().stream()
+                    .filter(it -> !it.getMessageType().equals(MessageType.INFO)).count();
+
             readCount = unReadMember.getReadMessageCount(chatRoomId);
             unReadCount = totalHistoryCount - readCount;
             unReadMemberUserChatRoom.updateUnReads(unReadCount);
@@ -265,11 +265,11 @@ public class SocketService {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
+        });
 
         // 채팅방 목록 업데이트
         // 안읽은 메시지 수 업데이트 & fcm 알림 후에 socket 으로 업데이트해야한다.
-        unReadMembers.stream()
+        unReadMembers.parallelStream()
                 .map(User::getId)
                 .forEach(unReadMemberId ->
                         messageSender.convertAndSend(

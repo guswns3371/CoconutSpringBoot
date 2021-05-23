@@ -51,8 +51,13 @@ public class ChatRoom extends BaseTimeEntity {
         this.lastMessage = lastMessage;
     }
 
-    public List<Long> getChatMembers() {
+    public List<Long> getLongChatMembers() {
         return new GsonBuilder().create().fromJson(this.members, new TypeToken<ArrayList<Long>>() {
+        }.getType());
+    }
+
+    public List<String> getStringChatMembers() {
+        return new GsonBuilder().create().fromJson(this.members, new TypeToken<ArrayList<String>>() {
         }.getType());
     }
 
@@ -75,15 +80,19 @@ public class ChatRoom extends BaseTimeEntity {
     }
 
     public void exitChatRoom(String exitUserId) {
-        List<Long> members =
-                new GsonBuilder().create().fromJson(this.members, new TypeToken<ArrayList<Long>>() {
-                }.getType());
-
+        List<String> members = getStringChatMembers();
         if (members.size() > 2)
             this.members = members.stream()
-                    .filter(it -> !it.equals(Long.parseLong(exitUserId)))
+                    .filter(it -> !it.equals(exitUserId))
                     .collect(Collectors.toCollection(ArrayList::new))
                     .toString();
+    }
+
+    public void inviteMembers(ArrayList<String> members) {
+        List<String> existMembers = getStringChatMembers();
+        existMembers.addAll(members);
+        existMembers = existMembers.stream().sorted().distinct().collect(Collectors.toList());
+        this.members = existMembers.toString();
     }
 
     public ChatRoomInfoReqDto toChatRoomInfoReqDto() {

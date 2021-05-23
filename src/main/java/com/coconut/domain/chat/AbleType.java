@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum AbleType {
-    ENABLE("ENABLE","À¯È¿"),
-    DISABLE("DISABLE","¹«È¿");
+    ENABLE("ENABLE", "ìœ íš¨"),
+    DISABLE("DISABLE", "ë¬´íš¨");
 
     private final String key;
     private final String title;

@@ -123,9 +123,9 @@ public class ChatService {
         log.warn(chatRoomDataReqDto.toString());
 
         String myRoomName;
+        ArrayList<String> members;
         String userId = chatRoomDataReqDto.getChatUserId();
         String chatRoomId = chatRoomDataReqDto.getChatRoomId();
-        ArrayList<String> members = chatRoomDataReqDto.getChatRoomMembers();
         Optional<UserChatRoom> optionalUserChatRoom = userChatRoomRepository.findUserChatRoomByChatRoom_IdAndUser_Id(Long.parseLong(chatRoomId), Long.parseLong(userId));
 
         if (optionalUserChatRoom.isEmpty())
@@ -135,8 +135,9 @@ public class ChatService {
         myRoomName = userChatRoom.getCurrentChatRoomName(userId);
 
         ChatRoom chatRoom = userChatRoom.getChatRoom();
-        List<Long> memberIds = chatRoom.getChatMembers();
+        List<Long> memberIds = chatRoom.getLongChatMembers();
         Optional<ArrayList<User>> optionalUserArrayList = userRepository.findUserByIdIn(memberIds);
+        members = memberIds.stream().map(Object::toString).collect(Collectors.toCollection(ArrayList::new));
 
         if (optionalUserArrayList.isEmpty())
             return null;
@@ -185,7 +186,7 @@ public class ChatService {
             if (chatRoom.getLastMessage() == null || userChatRoom.getAbleType().equals(AbleType.DISABLE))
                 continue;
 
-            List<Long> memberIds = chatRoom.getChatMembers();
+            List<Long> memberIds = chatRoom.getLongChatMembers();
             Optional<ArrayList<User>> optionalUserArrayList = userRepository.findUserByIdIn(memberIds);
 
             if (optionalUserArrayList.isEmpty())
@@ -300,11 +301,12 @@ public class ChatService {
         // UserChatRoom 삭제
         Optional<UserChatRoom> optionalUserChatRoom = userChatRoomRepository.findUserChatRoomByChatRoom_IdAndUser_Id(
                 Long.parseLong(chatRoomId), Long.parseLong(userId));
+
         if (optionalUserChatRoom.isPresent()) {
             UserChatRoom userChatRoom = optionalUserChatRoom.get();
 
             // 2명만 있는 채팅방의 경우, UserChatRoom을 숨긴다
-            if (chatRoom.getChatMembers().size() == 2) {
+            if (chatRoom.getLongChatMembers().size() == 2) {
                 userChatRoom.disableChatRoom();
                 return true;
             }
@@ -314,7 +316,7 @@ public class ChatService {
             userChatRoom.getChatRoom().getUserChatRoomList().removeIf(it -> it.getUser().getId().equals(Long.parseLong(userId)));
             userChatRoomRepository.delete(userChatRoom);
 
-            if (chatRoom.getChatMembers().size() > 2) {
+            if (chatRoom.getLongChatMembers().size() > 2) {
 
                 // 채팅방 멤버에서 삭제
                 chatRoom.exitChatRoom(userId);
@@ -323,7 +325,7 @@ public class ChatService {
                 ChatHistory savedHistory = chatHistoryRepository.save(ChatHistory.builder()
                         .user(exitUser)
                         .chatRoom(chatRoom)
-                        .history(exitUser.getName() + "님이 채팅방을 나가셨습니다.")
+                        .history("'" + exitUser.getName() + "' 님이 채팅방을 나가셨습니다.")
                         .messageType(MessageType.INFO)
                         .build());
 
@@ -338,7 +340,7 @@ public class ChatService {
                             messageSender.convertAndSend("/sub/chat/frag/" + userId1, "유저=" + userId + " 나감");
                         });
 
-            } else if (chatRoom.getChatMembers().size() == 1) {
+            } else if (chatRoom.getLongChatMembers().size() == 1) {
 
                 // 총 인원이 1명인 채팅방을 나갈 때, 모든 채팅 기록 삭제
                 userChatRoom.getUser().getChatHistoryList().removeIf(it -> it.getChatRoom().getId().equals(Long.parseLong(chatRoomId)));
@@ -347,14 +349,96 @@ public class ChatService {
                         Long.parseLong(chatRoomId), Long.parseLong(userId)
                 );
             }
-
-            // 해당 채팅방에서 읽은 메시지 삭제
-            userChatHistoryRepository.deleteUserChatHistoriesByChatHistory_ChatRoom_IdAndUser_Id(
-                    Long.parseLong(chatRoomId), Long.parseLong(userId)
-            );
         }
 
 
         return true;
+    }
+
+    @Transactional
+    public ChatRoomDataResDto inviteUser(ChatRoomDataReqDto reqDto) {
+        String userId = reqDto.getChatUserId();
+        String chatRoomId = reqDto.getChatRoomId();
+        ArrayList<String> members;
+        ArrayList<UserDataResDto> membersInfo;
+        String myRoomName;
+
+        Optional<ChatRoom> optionalChatRoom = chatRoomRepository.findChatRoomById(Long.parseLong(chatRoomId));
+
+        if (optionalChatRoom.isEmpty())
+            return null;
+
+        ChatRoom chatRoom = optionalChatRoom.get();
+
+        // members 에 추가하기
+        chatRoom.inviteMembers(reqDto.getChatRoomMembers());
+        members = new ArrayList<>(chatRoom.getStringChatMembers());
+
+        Optional<ArrayList<User>> optionalUserArrayList = userRepository.findUserByIdIn(chatRoom.getLongChatMembers());
+
+        if (optionalUserArrayList.isEmpty())
+            return null;
+
+        ArrayList<User> users = optionalUserArrayList.get();
+
+        // 초대한 유저
+        User hostUser = users.stream()
+                .filter(it -> it.getId().equals(Long.parseLong(userId)))
+                .collect(Collectors.toList()).get(0);
+
+        // 초대 받은 유저들
+        ArrayList<User> guestUsers = users.stream()
+                .filter(it -> reqDto.getChatRoomMembers().contains(it.getId().toString()))
+                .filter(it -> !it.getId().equals(Long.parseLong(userId)))
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        String guestNames = guestUsers.stream()
+                .map(User::getName)
+                .collect(Collectors.joining(", "));
+
+        // 초대한 유저의 UserChatRoom 을 만든다
+        guestUsers.forEach(user -> {
+            userChatRoomRepository.save(
+                    UserChatRoom.builder()
+                            .chatRoom(chatRoom)
+                            .user(user)
+                            .build());
+        });
+
+        myRoomName = users.stream()
+                .map(User::getName)
+                .collect(Collectors.joining(", "));
+
+        membersInfo = users.stream()
+                .map(User::toUserDataResDto)
+                .collect(Collectors.toCollection(ArrayList::new));
+
+        // 채팅 기록 저장
+        ChatHistory savedHistory = chatHistoryRepository.save(ChatHistory.builder()
+                .user(hostUser)
+                .chatRoom(chatRoom)
+                .history("'" + hostUser.getName() + "'님이 '" + guestNames + "' 님을 초대하였습니다.")
+                .messageType(MessageType.INFO)
+                .build());
+
+        ChatHistorySaveResDto resDto = savedHistory.toChatHistorySaveResDto();
+
+        // 채팅방에 기록 남기기
+        messageSender.convertAndSend("/sub/chat/message/" + chatRoom.getId(), resDto);
+
+        // 초대 알림
+        users.removeAll(guestUsers);
+        users.stream().map(User::getId)
+                .forEach(id -> {
+                    messageSender.convertAndSend("/sub/chat/frag/" + id, "유저=" + id + " 초대됨");
+                });
+
+
+        return ChatRoomDataResDto.builder()
+                .chatRoomId(chatRoomId)
+                .chatRoomName(myRoomName)
+                .chatRoomMembers(members)
+                .chatRoomMembersInfo(membersInfo)
+                .build();
     }
 }

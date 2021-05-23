@@ -30,6 +30,11 @@ public class ChatController {
         return chatService.getChatRoomData(chatRoomDataReqDto);
     }
 
+    @PostMapping("/api/chat/room/invite")
+    public ChatRoomDataResDto inviteUser(@RequestBody ChatRoomDataReqDto chatRoomDataReqDto) {
+        return chatService.inviteUser(chatRoomDataReqDto);
+    }
+
     @GetMapping("/api/chat/{chatRoomId}")
     public ArrayList<ChatHistoryResDto> getChatHistory(@PathVariable String chatRoomId) {
         return chatService.getChatHistory(chatRoomId);
