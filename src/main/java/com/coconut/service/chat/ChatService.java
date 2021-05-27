@@ -35,7 +35,7 @@ public class ChatService {
 
     @Transactional
     public ChatRoomDataResDto makeChatRoom(ChatRoomSaveReqDto chatRoomSaveReqDto) {
-        String myRoomName = null;
+        String myRoomName;
         String chatRoomId;
         String userId = chatRoomSaveReqDto.getChatUserId();
         ArrayList<String> members = chatRoomSaveReqDto.getDistinctChatRoomMembers();
@@ -325,7 +325,7 @@ public class ChatService {
                 ChatHistory savedHistory = chatHistoryRepository.save(ChatHistory.builder()
                         .user(exitUser)
                         .chatRoom(chatRoom)
-                        .history("'" + exitUser.getName() + "' 님이 채팅방을 나가셨습니다.")
+                        .history("'" + exitUser.getName() + "' 님이 채팅방을 나갔습니다.")
                         .messageType(MessageType.INFO)
                         .build());
 
@@ -334,7 +334,7 @@ public class ChatService {
                 messageSender.convertAndSend("/sub/chat/message/" + chatRoom.getId(), resDto);
 
                 // 채팅방에 없는 사람들에게 알리기
-                chatRoom.getUsers().stream()
+                chatRoom.getUsers().stream().parallel()
                         .map(User::getId)
                         .forEach(userId1 -> {
                             messageSender.convertAndSend("/sub/chat/frag/" + userId1, "유저=" + userId + " 나감");
@@ -396,6 +396,19 @@ public class ChatService {
                 .map(User::getName)
                 .collect(Collectors.joining(", "));
 
+        // 채팅 기록 저장
+        ChatHistory savedHistory = chatHistoryRepository.save(ChatHistory.builder()
+                .user(hostUser)
+                .chatRoom(chatRoom)
+                .history("'" + hostUser.getName() + "'님이 '" + guestNames + "' 님을 초대하였습니다.")
+                .messageType(MessageType.INFO)
+                .build());
+
+        ChatHistorySaveResDto resDto = savedHistory.toChatHistorySaveResDto();
+
+        // 채팅방에 기록 남기기
+        messageSender.convertAndSend("/sub/chat/message/" + chatRoom.getId(), resDto);
+
         // 초대한 유저의 UserChatRoom 을 만든다
         guestUsers.forEach(user -> {
             userChatRoomRepository.save(
@@ -413,22 +426,10 @@ public class ChatService {
                 .map(User::toUserDataResDto)
                 .collect(Collectors.toCollection(ArrayList::new));
 
-        // 채팅 기록 저장
-        ChatHistory savedHistory = chatHistoryRepository.save(ChatHistory.builder()
-                .user(hostUser)
-                .chatRoom(chatRoom)
-                .history("'" + hostUser.getName() + "'님이 '" + guestNames + "' 님을 초대하였습니다.")
-                .messageType(MessageType.INFO)
-                .build());
-
-        ChatHistorySaveResDto resDto = savedHistory.toChatHistorySaveResDto();
-
-        // 채팅방에 기록 남기기
-        messageSender.convertAndSend("/sub/chat/message/" + chatRoom.getId(), resDto);
-
         // 초대 알림
         users.removeAll(guestUsers);
-        users.stream().map(User::getId)
+        users.stream().parallel()
+                .map(User::getId)
                 .forEach(id -> {
                     messageSender.convertAndSend("/sub/chat/frag/" + id, "유저=" + id + " 초대됨");
                 });

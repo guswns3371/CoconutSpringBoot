@@ -119,7 +119,6 @@ public class User extends BaseTimeEntity {
 
     public UserChatRoom getUserChatRoom(String chatRoomId) {
         return this.userChatRoomList.stream()
-                .filter(it -> it.getUser().equals(this))
                 .filter(it -> it.getChatRoom().getId().equals(Long.parseLong(chatRoomId)))
                 .collect(Collectors.toList())
                 .get(0);

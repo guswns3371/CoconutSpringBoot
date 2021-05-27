@@ -88,8 +88,7 @@ public class SocketService {
             List<ChatHistory> chatHistoryList = optionalChatHistoryList.get();
             User user = optionalUser.get();
 
-            for (ChatHistory history : chatHistoryList) {
-                // hmm?
+            chatHistoryList.forEach(history ->{
                 boolean isExist = userChatHistoryRepository.existsUserChatHistoryByChatHistoryAndUser(history, user);
                 if (!isExist && !history.getMessageType().equals(MessageType.INFO)) {
                     userChatHistoryRepository.save(UserChatHistory.builder()
@@ -97,10 +96,11 @@ public class SocketService {
                             .user(user)
                             .build());
                 }
-            }
+            });
         }
 
-        Optional<UserChatRoom> optionalUserChatRoom = userChatRoomRepository.findUserChatRoomByChatRoom_IdAndUser_Id(Long.parseLong(chatRoomId), Long.parseLong(userId));
+        Optional<UserChatRoom> optionalUserChatRoom =
+                userChatRoomRepository.findUserChatRoomByChatRoom_IdAndUser_Id(Long.parseLong(chatRoomId), Long.parseLong(userId));
 
         // 안읽은 메시지 0으로 설정
         if (optionalUserChatRoom.isPresent()) {
@@ -169,7 +169,8 @@ public class SocketService {
 
         chatHistory = chatMessage;
 
-        Optional<UserChatRoom> optionalUserChatRoom = userChatRoomRepository.findUserChatRoomByChatRoom_IdAndUser_Id(Long.parseLong(chatRoomId), Long.parseLong(userId));
+        Optional<UserChatRoom> optionalUserChatRoom =
+                userChatRoomRepository.findUserChatRoomByChatRoom_IdAndUser_Id(Long.parseLong(chatRoomId), Long.parseLong(userId));
         if (optionalUserChatRoom.isEmpty())
             return;
 
@@ -182,6 +183,7 @@ public class SocketService {
         ChatRoom socketChatRoom = socketUserChatRoom.getChatRoom();
         // 마지막 메시지 업데이트
         socketChatRoom.updateLastMessage(chatMessage);
+
         // 현재 채팅방속 유저들
         ArrayList<User> users = socketChatRoom.getUsers();
         // 보낸 사람 채팅방 보이게 하기
@@ -203,12 +205,15 @@ public class SocketService {
                 .messageType(messageType)
                 .build());
 
+        ChatHistorySaveResDto resDto = savedHistory.toChatHistorySaveResDto();
+        messageSender.convertAndSend("/sub/chat/message/" + dto.getChatRoomId(), resDto);
+
         ArrayList<User> ReadMembers = users.stream()
                 .filter(it -> readMembers.contains(it.getId().toString()))
                 .collect(Collectors.toCollection(ArrayList::new));
 
         // 메시지 읽음 표시
-        for (User readUser : ReadMembers) {
+        ReadMembers.forEach(readUser -> {
             boolean isExist = userChatHistoryRepository.existsUserChatHistoryByChatHistoryAndUser(savedHistory, readUser);
             if (!isExist && !savedHistory.getMessageType().equals(MessageType.INFO)) {
                 userChatHistoryRepository.save(UserChatHistory.builder()
@@ -216,65 +221,54 @@ public class SocketService {
                         .user(readUser)
                         .build());
             }
-        }
-
-        ChatHistorySaveResDto resDto = savedHistory.toChatHistorySaveResDto();
-        messageSender.convertAndSend("/sub/chat/message/" + dto.getChatRoomId(), resDto);
+        });
 
         ArrayList<User> unReadMembers = users.stream()
                 .filter(it -> !readMembers.contains(it.getId().toString()))
                 .collect(Collectors.toCollection(ArrayList::new));
 
-        // 받는 사람 채팅방을 보이게 한다
+        // 2인 채팅방인 경우받는 사람 채팅방을 보이게 한다
         if (unReadMembers.size() == 1)
             unReadMembers.get(0).getUserChatRoom(socketChatRoom.getId().toString()).enableChatRoom();
 
         unReadMembers.forEach(unReadMember -> {
-            int totalHistoryCount, readCount, unReadCount;
-            String unReadMemberChatRoomName;
+            // fcm 토큰
+            String fcmToken = unReadMember.getFcmToken();
 
-            UserChatRoom unReadMemberUserChatRoom = unReadMember.getUserChatRoom(socketChatRoom.getId().toString());
-
-            // 안읽은 메시지 수 업데이트
-            totalHistoryCount = (int) socketChatRoom.getChatHistoryList().stream()
-                    .filter(it -> !it.getMessageType().equals(MessageType.INFO)).count();
-
-            readCount = unReadMember.getReadMessageCount(chatRoomId);
-            unReadCount = totalHistoryCount - readCount;
-            unReadMemberUserChatRoom.updateUnReads(unReadCount);
-
+            UserChatRoom unReadMemberUserChatRoom =
+                    unReadMember.getUserChatRoom(socketChatRoom.getId().toString());
             // 채팅방 이름
-            unReadMemberChatRoomName = unReadMemberUserChatRoom.getCurrentChatRoomName(unReadMember.getId().toString());
+            String unReadMemberChatRoomName =
+                    unReadMemberUserChatRoom.getCurrentChatRoomName(unReadMember.getId().toString());
+            // 안읽은 메시지 개수
+            unReadMemberUserChatRoom.addUnReads();
 
-            // fcm 알림
-            try {
-                String fcmToken = unReadMember.getFcmToken();
+            new Thread(() -> {
+                // fcm 알림
+                try {
+                    if (fcmToken != null) {
+                        Map<String, String> data = new HashMap<>();
+                        data.put("roomId", socketChatRoom.getId().toString());
+                        data.put("roomPeople", roomMembers.toString());
+                        data.put("userImage", socketUser.getProfilePicture());
+                        data.put("userName", socketUser.getName());
+                        data.put("chatRoomName", unReadMemberChatRoomName);
+                        data.put("chatMessage", chatHistory);
 
-                if (fcmToken != null) {
-                    Map<String, String> data = new HashMap<>();
-                    data.put("roomId", socketChatRoom.getId().toString());
-                    data.put("roomPeople", roomMembers.toString());
-                    data.put("userImage", socketUser.getProfilePicture());
-                    data.put("userName", socketUser.getName());
-                    data.put("chatRoomName", unReadMemberChatRoomName);
-                    data.put("chatMessage", chatHistory);
+                        firebaseCloudMessageService.sendMessageTo(fcmToken, data);
+                    }
 
-                    firebaseCloudMessageService.sendMessageTo(fcmToken, data);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    // 채팅방 목록 업데이트
+                    messageSender.convertAndSend(
+                            "/sub/chat/frag/" + unReadMember.getId(),
+                            "마지막 메시지=" + socketChatRoom.getLastMessage());
                 }
+            }).start();
 
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         });
 
-        // 채팅방 목록 업데이트
-        // 안읽은 메시지 수 업데이트 & fcm 알림 후에 socket 으로 업데이트해야한다.
-        unReadMembers.parallelStream()
-                .map(User::getId)
-                .forEach(unReadMemberId ->
-                        messageSender.convertAndSend(
-                                "/sub/chat/frag/" + unReadMemberId,
-                                "마지막 메시지=" + socketChatRoom.getLastMessage()));
     }
-
 }
