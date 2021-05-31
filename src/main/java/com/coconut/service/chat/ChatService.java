@@ -334,10 +334,12 @@ public class ChatService {
                 messageSender.convertAndSend("/sub/chat/message/" + chatRoom.getId(), resDto);
 
                 // 채팅방에 없는 사람들에게 알리기
-                chatRoom.getUsers().stream().parallel()
+                chatRoom.getUsers().stream()
                         .map(User::getId)
                         .forEach(userId1 -> {
-                            messageSender.convertAndSend("/sub/chat/frag/" + userId1, "유저=" + userId + " 나감");
+                            new Thread(() -> {
+                                messageSender.convertAndSend("/sub/chat/frag/" + userId1, "유저=" + userId + " 나감");
+                            }).start();
                         });
 
             } else if (chatRoom.getLongChatMembers().size() == 1) {

@@ -96,6 +96,9 @@ dependencies {
     // okhttp
     implementation group: 'com.squareup.okhttp3', name: 'okhttp', version: '4.2.2'
 
+    // jsoup for crawling
+    compile group: 'org.jsoup', name: 'jsoup', version: '1.11.3'
+
 }
 
 test {
