@@ -38,6 +38,5 @@ out/
 
 /src/main/resources/application-oauth.yml
 application-smtp.yml
-/src/main/resources/application.yml
 uploads/
 /src/main/resources/firebase/firebase_service_key.json

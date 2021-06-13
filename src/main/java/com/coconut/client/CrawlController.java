@@ -1,8 +1,6 @@
 package com.coconut.client;
 
-import com.coconut.client.dto.CovidStatDto;
-import com.coconut.client.dto.MusicDto;
-import com.coconut.client.dto.NewsDto;
+import com.coconut.client.dto.*;
 import com.coconut.service.crawling.CrawlService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,5 +30,15 @@ public class CrawlController {
     @GetMapping("/api/crawl/music")
     public List<MusicDto> getMusicTopList() throws IOException {
         return crawlService.getMusicTopList();
+    }
+
+    @GetMapping("/api/crawl/notice")
+    public List<NoticeDto> getSeoulTechList() throws IOException {
+        return crawlService.getSeoulTechList();
+    }
+
+    @GetMapping("/api/crawl/job")
+    public List<JobDto> getJobList() throws IOException {
+        return crawlService.getJobList();
     }
 }

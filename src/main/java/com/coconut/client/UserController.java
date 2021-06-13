@@ -22,25 +22,25 @@ public class UserController {
 
     @GetMapping("/api/account/{id}")
     public List<UserDataResDto> findAllUsers(@PathVariable String id) {
-        log.warn("UserController> findAllUsers> id="+id);
+        log.warn("UserController> findAllUsers> id=" + id);
         return userService.findAllUsers(Long.parseLong(id));
     }
 
     // https://blogs.perficient.com/2020/07/27/requestbody-and-multipart-on-spring-boot/
     @PostMapping(
-            value = "/api/account/edit" ,
+            value = "/api/account/edit",
             consumes = {
                     MediaType.MULTIPART_FORM_DATA_VALUE,
                     MediaType.APPLICATION_JSON_VALUE
             }
-            )
+    )
     // @RequestPart(value = "id", required = false) : required = false 해줘야 null 값이 들어와도 코드가 진행된다.
     public BaseResDto profileUpdate(
             @RequestPart(value = "id", required = false) String id,
             @RequestPart(value = "userId", required = false) String userId,
             @RequestPart(value = "name", required = false) String name,
-            @RequestPart(value = "message",required = false) String message,
-            @RequestPart(value = "profileImage",required = false) MultipartFile profileImage,
+            @RequestPart(value = "message", required = false) String message,
+            @RequestPart(value = "profileImage", required = false) MultipartFile profileImage,
             @RequestPart(value = "backImage", required = false) MultipartFile backImage
     ) {
         return userService.profileUpdate(UserProfileUpdateReqDto.builder()
