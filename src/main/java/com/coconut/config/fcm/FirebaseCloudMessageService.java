@@ -1,6 +1,6 @@
 package com.coconut.config.fcm;
 
-import com.coconut.client.dto.FcmMessageDto;
+import com.coconut.api.dto.FcmMessageDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.auth.oauth2.GoogleCredentials;

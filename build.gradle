@@ -50,6 +50,12 @@ dependencies {
     testCompile('org.springframework.boot:spring-boot-starter-test')
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
 
+    // JUnit4 추가
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation("org.junit.vintage:junit-vintage-engine") {
+        exclude group: "org.hamcrest", module: "hamcrest-core"
+    }
+
     // lombok
     // annotationProcessor : gradle 버전이 올라감에 따라 롬복설정이 변하였기에 설정해준다.
     annotationProcessor("org.projectlombok:lombok")
@@ -77,7 +83,6 @@ dependencies {
     // 메일
     compile('org.springframework.boot:spring-boot-starter-mail')
     compile('org.springframework.boot:spring-boot-starter-thymeleaf')
-
     // Bcrypt 패스워드 암호화
     implementation group: 'org.mindrot', name: 'jbcrypt', version: '0.3m'
 
@@ -98,6 +103,11 @@ dependencies {
 
     // jsoup for crawling
     compile group: 'org.jsoup', name: 'jsoup', version: '1.11.3'
+
+    // Swagger 2
+    implementation group: 'io.springfox', name: 'springfox-swagger2', version: '2.9.2'
+    implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.9.2'
+
 
 }
 

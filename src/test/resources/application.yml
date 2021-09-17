@@ -1,0 +1,28 @@
+# 테스트 코드 실행시 main/application.yml 대신 해당 파일의 영향을 받는다
+spring:
+  profiles:
+    include: oauth,smtp
+  # datasource, jpa 관련 설정이 없어도 스프링 부트가 메모리 모드 테스트용 데이터베이스를 실행한다. (주석 처리하고 실행해봐)
+  datasource:
+    # jdbc:h2:mem:test -> 메모리 모드의 테스트용 데이터베이스를 사용한다
+    # main 의 h2 데이터베이스를 종료해도 동작한다
+    url: jdbc:h2:mem:test
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      hibernate:
+        show_sql: true
+        format_sql: true
+        use_sql_comments: true
+        default_batch_fetch_size: 100
+    show-sql: true
+    generate-ddl: true
+
+logging.level:
+  org.hibernate.SQL: trace
+  org.hibernate.type: trace

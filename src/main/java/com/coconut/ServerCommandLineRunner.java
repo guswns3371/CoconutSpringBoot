@@ -14,13 +14,8 @@ public class ServerCommandLineRunner implements CommandLineRunner {
     @Resource
     private final FilesStorageService storageService;
 
-//    private final SocketIOServer socketIOServer; // @SocketConfig
-
     @Override
     public void run(String... args) throws Exception {
         storageService.init();
-//        socketIOServer.start();
-//        Thread.sleep(Integer.MAX_VALUE);
-//        socketIOServer.stop();
     }
 }

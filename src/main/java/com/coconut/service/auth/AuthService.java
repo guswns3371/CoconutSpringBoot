@@ -1,10 +1,10 @@
 package com.coconut.service.auth;
 
-import com.coconut.client.dto.MailDto;
-import com.coconut.client.dto.req.*;
-import com.coconut.client.dto.res.OAuthUserLoginResDto;
-import com.coconut.client.dto.res.UserLoginResDto;
-import com.coconut.client.dto.res.UserSaveResDto;
+import com.coconut.api.dto.MailDto;
+import com.coconut.api.dto.req.*;
+import com.coconut.api.dto.res.OAuthUserLoginResDto;
+import com.coconut.api.dto.res.UserLoginResDto;
+import com.coconut.api.dto.res.UserSaveResDto;
 import com.coconut.domain.user.Role;
 import com.coconut.domain.user.User;
 import com.coconut.domain.user.UserRepository;

@@ -1,7 +1,7 @@
 package com.coconut.domain.chat;
 
-import com.coconut.client.dto.res.ChatHistoryResDto;
-import com.coconut.client.dto.res.ChatHistorySaveResDto;
+import com.coconut.api.dto.res.ChatHistoryResDto;
+import com.coconut.api.dto.res.ChatHistorySaveResDto;
 import com.coconut.domain.BaseTimeEntity;
 import com.coconut.domain.user.User;
 import com.google.common.reflect.TypeToken;

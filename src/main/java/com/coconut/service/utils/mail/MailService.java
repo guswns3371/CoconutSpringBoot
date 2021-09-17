@@ -1,7 +1,7 @@
 package com.coconut.service.utils.mail;
 
-import com.coconut.client.dto.MailDto;
-import lombok.AllArgsConstructor;
+import com.coconut.api.dto.MailDto;
+import lombok.RequiredArgsConstructor;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -14,11 +14,11 @@ import javax.mail.internet.MimeMessage;
 
 // https://victorydntmd.tistory.com/342
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class MailService {
 
-    private JavaMailSender mailSender;
-    private SpringTemplateEngine templateEngine;
+    private final JavaMailSender mailSender;
+    private final SpringTemplateEngine templateEngine;
 
     public void sendEmail(MailDto mailDto) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();

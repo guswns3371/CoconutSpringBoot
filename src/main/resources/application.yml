@@ -30,9 +30,12 @@ spring:
   jpa:
     properties:
       hibernate:
-        ddl-auto: update
-        format-sql: true
         dialect: org.hibernate.dialect.MySQL5InnoDBDialect
+        ddl-auto: update
+        show_sql: true
+        format_sql: true
+        use_sql_comments: true
+        default_batch_fetch_size: 100
     show-sql: true
     generate-ddl: true
     open-in-view: false
@@ -61,3 +64,9 @@ spring:
       max-file-size: 5MB
       max-request-size: 10MB
       enabled: true
+
+logging.level:
+  org.hibernate.type.descriptor.sql: error
+  org.springframework:
+    security: error
+  root: info

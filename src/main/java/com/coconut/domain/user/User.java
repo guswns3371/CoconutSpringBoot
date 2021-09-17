@@ -1,6 +1,6 @@
 package com.coconut.domain.user;
 
-import com.coconut.client.dto.res.UserDataResDto;
+import com.coconut.api.dto.res.UserDataResDto;
 import com.coconut.domain.BaseTimeEntity;
 import com.coconut.domain.chat.ChatHistory;
 import com.coconut.domain.chat.ChatRoom;
@@ -31,7 +31,7 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false)
     private String name;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @Column

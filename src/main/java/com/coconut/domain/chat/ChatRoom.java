@@ -1,6 +1,6 @@
 package com.coconut.domain.chat;
 
-import com.coconut.client.dto.req.ChatRoomInfoReqDto;
+import com.coconut.api.dto.req.ChatRoomInfoReqDto;
 import com.coconut.domain.BaseTimeEntity;
 import com.coconut.domain.user.User;
 import com.google.common.reflect.TypeToken;

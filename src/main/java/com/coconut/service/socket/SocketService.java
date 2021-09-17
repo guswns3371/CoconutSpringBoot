@@ -1,8 +1,8 @@
 package com.coconut.service.socket;
 
-import com.coconut.client.dto.ChatMessageSocketDto;
-import com.coconut.client.dto.ChatRoomSocketDto;
-import com.coconut.client.dto.res.ChatHistorySaveResDto;
+import com.coconut.api.dto.ChatMessageSocketDto;
+import com.coconut.api.dto.ChatRoomSocketDto;
+import com.coconut.api.dto.res.ChatHistorySaveResDto;
 import com.coconut.config.fcm.FirebaseCloudMessageService;
 import com.coconut.domain.chat.*;
 import com.coconut.domain.user.User;

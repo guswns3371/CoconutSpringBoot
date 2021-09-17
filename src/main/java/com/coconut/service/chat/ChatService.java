@@ -1,10 +1,10 @@
 package com.coconut.service.chat;
 
-import com.coconut.client.dto.req.*;
-import com.coconut.client.dto.res.ChatHistoryResDto;
-import com.coconut.client.dto.res.ChatHistorySaveResDto;
-import com.coconut.client.dto.res.ChatRoomDataResDto;
-import com.coconut.client.dto.res.UserDataResDto;
+import com.coconut.api.dto.req.*;
+import com.coconut.api.dto.res.ChatHistoryResDto;
+import com.coconut.api.dto.res.ChatHistorySaveResDto;
+import com.coconut.api.dto.res.ChatRoomDataResDto;
+import com.coconut.api.dto.res.UserDataResDto;
 import com.coconut.domain.chat.*;
 import com.coconut.domain.user.User;
 import com.coconut.domain.user.UserRepository;
