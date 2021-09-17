@@ -36,7 +36,10 @@ out/
 ### VS Code ###
 .vscode/
 
-/src/main/resources/application-oauth.yml
 application-smtp.yml
+application-oauth.yml
+firebase_service_key.json
 uploads/
 /src/main/resources/firebase/firebase_service_key.json
+/src/test/resources/application-oauth.yml
+/src/main/resources/application-oauth.yml
