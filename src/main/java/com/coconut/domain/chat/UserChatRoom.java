@@ -8,7 +8,6 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Entity
 @NoArgsConstructor
@@ -17,6 +16,7 @@ public class UserChatRoom extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_chat_room_id")
     private Long id;
 
     @Column

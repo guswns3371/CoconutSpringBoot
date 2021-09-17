@@ -3,7 +3,7 @@ package com.coconut.api;
 import com.coconut.api.dto.req.*;
 import com.coconut.api.dto.res.ChatHistoryResDto;
 import com.coconut.api.dto.res.ChatRoomDataResDto;
-import com.coconut.service.chat.ChatService;
+import com.coconut.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;

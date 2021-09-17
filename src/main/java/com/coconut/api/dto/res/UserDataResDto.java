@@ -64,7 +64,7 @@ public class UserDataResDto {
     public static UserDataResDto toDto(User entity) {
         return UserDataResDto.builder()
                 .id(entity.getId())
-                .userId(entity.getUserId())
+                .userId(entity.getUId())
                 .name(entity.getName())
                 .email(entity.getEmail())
                 .stateMessage(entity.getStateMessage())
