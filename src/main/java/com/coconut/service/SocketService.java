@@ -1,4 +1,4 @@
-package com.coconut.service.socket;
+package com.coconut.service;
 
 import com.coconut.api.dto.ChatMessageSocketDto;
 import com.coconut.api.dto.ChatRoomSocketDto;

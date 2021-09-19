@@ -1,5 +1,6 @@
 package com.coconut.domain.user;
 
+import com.coconut.api.dto.req.UserSaveReqDto;
 import com.coconut.api.dto.res.UserDataResDto;
 import com.coconut.domain.BaseTimeEntity;
 import com.coconut.domain.chat.ChatHistory;
@@ -23,10 +24,8 @@ public class User extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Long id;
-
-    @Column
-    private String userId;
 
     @Column(nullable = false)
     private String name;
@@ -34,26 +33,15 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false, unique = true)
     private String email;
 
-    @Column
+    private String uId;
     private String password;
-
-    @Column
     private String stateMessage;
-
-    @Column
     private String profilePicture;
-
-    @Column
     private String backgroundPicture;
-
-    @Column
     private String confirmToken;
-
-    @Column
     private String fcmToken;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
     private Role role = Role.GUEST;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -66,8 +54,8 @@ public class User extends BaseTimeEntity {
     private List<UserChatHistory> userChatHistoryList = new ArrayList<>();
 
     @Builder
-    public User(String userId, String name, String email, String password, String stateMessage, String profilePicture, String backgroundPicture, String confirmToken, Role role, String fcmToken) {
-        this.userId = userId;
+    public User(String uId, String name, String email, String password, String stateMessage, String profilePicture, String backgroundPicture, String confirmToken, Role role, String fcmToken) {
+        this.uId = uId;
         this.name = name;
         this.email = email;
         this.password = password;
@@ -80,8 +68,8 @@ public class User extends BaseTimeEntity {
     }
 
     public User update(User entity) {
-        if (entity.getUserId() != null)
-            this.userId = entity.getUserId();
+        if (entity.getUId() != null)
+            this.uId = entity.getUId();
         if (entity.name != null)
             this.name = entity.getName();
         if (entity.profilePicture != null)
@@ -140,7 +128,7 @@ public class User extends BaseTimeEntity {
     public UserDataResDto toUserDataResDto() {
         return UserDataResDto.builder()
                 .id(id)
-                .userId(userId)
+                .userId(uId)
                 .email(email)
                 .name(name)
                 .profilePicture(profilePicture)
@@ -149,11 +137,20 @@ public class User extends BaseTimeEntity {
                 .build();
     }
 
+    public UserSaveReqDto toUserSaveReqDto() {
+        return UserSaveReqDto.builder()
+                .email(email)
+                .name(name)
+                .password(password)
+                .userId(uId)
+                .build();
+    }
+
     @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
-                ", userId='" + userId + '\'' +
+                ", userId='" + uId + '\'' +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +

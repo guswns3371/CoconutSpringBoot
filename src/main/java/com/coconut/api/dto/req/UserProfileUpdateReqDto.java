@@ -69,7 +69,7 @@ public class UserProfileUpdateReqDto {
                     .getBackgroundImagePath();
 
         return User.builder()
-                .userId(userId)
+                .uId(userId)
                 .name(name)
                 .stateMessage(message)
                 .profilePicture(profileImagePath)

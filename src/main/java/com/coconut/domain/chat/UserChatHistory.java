@@ -14,6 +14,7 @@ public class UserChatHistory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_chat_history_id")
     private Long id;
 
     @ManyToOne

@@ -2,7 +2,7 @@ package com.coconut.api;
 
 import com.coconut.api.dto.ChatMessageSocketDto;
 import com.coconut.api.dto.ChatRoomSocketDto;
-import com.coconut.service.socket.SocketService;
+import com.coconut.service.SocketService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.handler.annotation.MessageMapping;
