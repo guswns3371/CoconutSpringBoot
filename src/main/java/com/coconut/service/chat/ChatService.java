@@ -1,4 +1,4 @@
-package com.coconut.service;
+package com.coconut.service.chat;
 
 import com.coconut.api.dto.req.*;
 import com.coconut.api.dto.res.ChatHistoryResDto;

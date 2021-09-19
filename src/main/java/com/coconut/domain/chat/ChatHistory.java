@@ -23,7 +23,6 @@ public class ChatHistory extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "chat_history_id")
     private Long id;
 
     @Column

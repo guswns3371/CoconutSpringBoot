@@ -1,4 +1,4 @@
-package com.coconut.service;
+package com.coconut.service.crawling;
 
 import com.coconut.api.dto.*;
 import lombok.RequiredArgsConstructor;
