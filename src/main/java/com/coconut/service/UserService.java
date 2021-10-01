@@ -31,7 +31,7 @@ public class UserService {
     }
 
     public boolean checkByEmail(String email) {
-        return userRepository.findByEmail(email).isPresent();
+        return userRepository.existsByEmail(email);
     }
 
     @Transactional

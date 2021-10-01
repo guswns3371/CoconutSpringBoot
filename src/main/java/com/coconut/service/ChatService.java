@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class ChatService {
 
     private final UserRepository userRepository;
@@ -172,7 +173,7 @@ public class ChatService {
 
     @Transactional
     public ArrayList<ChatRoomListReqDto> getChatRoomLists(String userId) {
-        Optional<ArrayList<UserChatRoom>> optionalUserChatRooms = userChatRoomRepository.findUserChatRoomsByUser_IdOrderByModifiedDataDesc(Long.parseLong(userId));
+        Optional<ArrayList<UserChatRoom>> optionalUserChatRooms = userChatRoomRepository.findUserChatRoomsByUser_IdOrderByModifiedDateDesc(Long.parseLong(userId));
 
         if (optionalUserChatRooms.isEmpty())
             return null;

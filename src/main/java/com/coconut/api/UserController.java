@@ -53,9 +53,9 @@ public class UserController {
                 .collect(Collectors.toList());
     }
 
-    @PostMapping("/register/{email}")
-    public UserSaveResDto emailCheck(@PathVariable String email) {
-        boolean emailCheck = userService.checkByEmail(email);
+    @PostMapping("/email-check")
+    public UserSaveResDto emailCheck(@RequestBody UserEmailCheckReqDto reqDto) {
+        boolean emailCheck = userService.checkByEmail(reqDto.getEmail());
         return UserSaveResDto.builder()
                 .isEmailOk(!emailCheck)
                 .build();

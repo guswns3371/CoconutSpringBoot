@@ -11,6 +11,6 @@ public interface ChatHistoryRepository extends JpaRepository<ChatHistory, Long> 
 
     Optional<ArrayList<ChatHistory>> findChatHistoriesByChatRoom_IdAndAndUser_Id(Long chatRoomId, Long userId);
 
-    Optional<Boolean> deleteChatHistoriesByChatRoom_IdAndUser_Id(Long chatRoomId, Long userId);
+    void deleteChatHistoriesByChatRoom_IdAndUser_Id(Long chatRoomId, Long userId);
 
 }

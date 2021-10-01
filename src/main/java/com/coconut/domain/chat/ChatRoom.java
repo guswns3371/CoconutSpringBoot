@@ -28,7 +28,7 @@ public class ChatRoom extends BaseTimeEntity {
     @Column
     private String lastMessage;
 
-    @Column
+    @Column(unique = true)
     private String members;
 
     @Enumerated(EnumType.STRING)
@@ -101,7 +101,7 @@ public class ChatRoom extends BaseTimeEntity {
                 .id(id.toString())
                 .lastMessage(lastMessage)
                 .roomType(roomType.getKey())
-                .lastTime(getModifiedData().format(DateTimeFormatter.ofPattern("a h: mm")))
+                .lastTime(getModifiedDate().format(DateTimeFormatter.ofPattern("a h: mm")))
                 .members(members)
                 .build();
     }
