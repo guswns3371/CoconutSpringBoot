@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -16,15 +18,16 @@ public class ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
 
     @Transactional
-    public Long save(ChatRoom chatRoom) {
-        if (validateDuplicateChatRoom(chatRoom)) {
-            throw new IllegalStateException("이미 존재하는 채팅방입니다.");
-        }
-        return chatRoomRepository.save(chatRoom).getId();
+    public ChatRoom save(ChatRoom chatRoom) {
+        return chatRoomRepository.save(chatRoom);
     }
 
-    private boolean validateDuplicateChatRoom(ChatRoom chatRoom) {
-        return chatRoomRepository.existsChatRoomByMembers(chatRoom.getMembers());
+    public boolean existsChatRoomByMembers(String members) {
+        return chatRoomRepository.existsChatRoomByMembers(members);
+    }
+
+    public Optional<ChatRoom> findByMembers(String members) {
+        return chatRoomRepository.findChatRoomByMembers(members);
     }
 
     @Transactional

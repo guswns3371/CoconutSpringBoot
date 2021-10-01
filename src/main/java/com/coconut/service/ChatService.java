@@ -174,12 +174,12 @@ public class ChatService {
     @Transactional
     public ArrayList<ChatRoomListReqDto> getChatRoomLists(String userId) {
         Optional<ArrayList<UserChatRoom>> optionalUserChatRooms = userChatRoomRepository.findUserChatRoomsByUser_IdOrderByModifiedDateDesc(Long.parseLong(userId));
-
-        if (optionalUserChatRooms.isEmpty())
+        if (optionalUserChatRooms.isEmpty()){
             return null;
-
+        }
         ArrayList<ChatRoomListReqDto> chatRoomListReqDtos = new ArrayList<>();
         ArrayList<UserChatRoom> userChatRooms = optionalUserChatRooms.get();
+        log.error(userChatRooms.size()+"");
 
         for (UserChatRoom userChatRoom : userChatRooms) {
             ChatRoom chatRoom = userChatRoom.getChatRoom();

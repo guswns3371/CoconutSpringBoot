@@ -61,13 +61,12 @@ public class UserChatRoom extends BaseTimeEntity {
     }
 
     public String getCurrentChatRoomName(String userId) {
-        if (this.chatRoomName != null)
-            return this.chatRoomName;
-
-        else if (this.chatRoom.getUsers().size() == 1)
-            return this.chatRoom.getUsers().get(0).getName();
-
-        return this.chatRoom.getUsers().stream()
+        if (chatRoomName != null) {
+            return chatRoomName;
+        } else if (chatRoom.getUsers().size() == 1) {
+            return chatRoom.getUsers().get(0).getName();
+        }
+        return chatRoom.getUsers().stream()
                 .filter(it -> !it.getId().equals(Long.parseLong(userId)))
                 .map(User::getName)
                 .collect(Collectors.joining(", "));
@@ -85,7 +84,11 @@ public class UserChatRoom extends BaseTimeEntity {
         this.chatRoomName = chatRoomName;
     }
 
-    public void disableChatRoom() { this.ableType = AbleType.DISABLE; }
+    public void disableChatRoom() {
+        this.ableType = AbleType.DISABLE;
+    }
 
-    public void enableChatRoom() { this.ableType = AbleType.ENABLE; }
+    public void enableChatRoom() {
+        this.ableType = AbleType.ENABLE;
+    }
 }

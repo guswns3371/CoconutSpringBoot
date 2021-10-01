@@ -1,7 +1,9 @@
 package com.coconut.service;
 
+import com.coconut.domain.chat.ChatRoom;
 import com.coconut.domain.chat.UserChatRoom;
 import com.coconut.domain.chat.UserChatRoomRepository;
+import com.coconut.domain.user.User;
 import com.coconut.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -23,6 +27,28 @@ public class UserChatRoomService {
     @Transactional
     public UserChatRoom save(UserChatRoom userChatRoom) {
         return userChatRoomRepository.save(userChatRoom);
+    }
+
+    /**
+     * 트랜잭션 안에서 User 엔티티를 가져와 UserChatRoom 에 세팅해줘야 한다.
+     * 영속성 컨택스트에 없는 User 객체로 UserChatRoom 을 생성할 경우
+     * failed to lazily initialize a collection of role 에러 발생
+     *
+     * -> UserChatRoom 을 생성할 때, 지연로딩 세팅된 user.getUserChatRoomList() 을 다루기 때문이다.
+     */
+    @Transactional
+    public void saveAll(List<Long> userIds, ChatRoom chatRoom) {
+        Optional<ArrayList<User>> optionalUsers = userRepository.findUserByIdIn(userIds);
+        if (optionalUsers.isEmpty()) {
+            throw new IllegalStateException("존재하지 않는 유저들 입니다.");
+        }
+        ArrayList<UserChatRoom> userChatRooms = optionalUsers.get().stream()
+                .map(user -> UserChatRoom.builder()
+                        .chatRoom(chatRoom)
+                        .user(user)
+                        .build())
+                .collect(Collectors.toCollection(ArrayList::new));
+        userChatRoomRepository.saveAll(userChatRooms);
     }
 
     public Optional<ArrayList<UserChatRoom>> findAllByUserId(Long userId) {
