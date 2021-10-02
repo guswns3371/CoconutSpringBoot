@@ -11,8 +11,6 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
 
     Optional<ChatRoom> findChatRoomByMembers(String members);
 
-    Optional<ChatRoom> findChatRoomById(Long chatRoomId);
-
     boolean existsChatRoomByMembers(String members);
 
     @Modifying
@@ -22,4 +20,6 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
     @Modifying
     @Query("update ChatRoom cr set cr.lastMessage =: message where cr.id =: id")
     void updateLastMessage(@Param("id") Long chatRoomId, @Param("message") String message);
+
+
 }

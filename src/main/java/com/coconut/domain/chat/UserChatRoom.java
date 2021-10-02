@@ -5,8 +5,10 @@ import com.coconut.domain.user.User;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 @Entity
@@ -39,10 +41,10 @@ public class UserChatRoom extends BaseTimeEntity {
 
     @Builder
     public UserChatRoom(String chatRoomName, int unReads, User user, ChatRoom chatRoom) {
-        this.chatRoomName = chatRoomName;
-        this.unReads = unReads;
         setUser(user);
         setChatRoom(chatRoom);
+        this.unReads = unReads;
+        this.chatRoomName = chatRoomName;
     }
 
     // https://cornswrold.tistory.com/355
@@ -61,12 +63,16 @@ public class UserChatRoom extends BaseTimeEntity {
     }
 
     public String getCurrentChatRoomName() {
-        if (chatRoomName != null) {
+        if (StringUtils.hasText(chatRoomName)) {
             return chatRoomName;
-        } else if (chatRoom.getUsers().size() == 1) {
-            return chatRoom.getUsers().get(0).getName();
         }
-        return chatRoom.getUsers().stream()
+
+        ArrayList<User> users = chatRoom.getUsers();
+        if (users.size() == 1) {
+            return users.get(0).getName();
+        }
+
+        return users.stream()
                 .filter(it -> !it.equals(user))
                 .map(User::getName)
                 .collect(Collectors.joining(", "));

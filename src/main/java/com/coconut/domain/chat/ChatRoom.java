@@ -2,14 +2,13 @@ package com.coconut.domain.chat;
 
 import com.coconut.domain.BaseTimeEntity;
 import com.coconut.domain.user.User;
-import com.google.common.reflect.TypeToken;
-import com.google.gson.GsonBuilder;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,13 +50,14 @@ public class ChatRoom extends BaseTimeEntity {
     }
 
     public List<Long> getLongChatMembers() {
-        return new GsonBuilder().create().fromJson(this.members, new TypeToken<ArrayList<Long>>() {
-        }.getType());
+        List<String> members = getStringChatMembers();
+        return members.stream()
+                .map(Long::parseLong)
+                .collect(Collectors.toList());
     }
 
     public List<String> getStringChatMembers() {
-        return new GsonBuilder().create().fromJson(this.members, new TypeToken<ArrayList<String>>() {
-        }.getType());
+        return Arrays.asList(members.substring(1, members.length() - 1).split(", "));
     }
 
     public UserChatRoom getUserChatRoom(String userId) {
@@ -66,7 +66,7 @@ public class ChatRoom extends BaseTimeEntity {
                 .filter(it -> it.getUser().getId().equals(Long.parseLong(userId)))
                 .collect(Collectors.toCollection(ArrayList::new));
 
-        if (userChatRooms.size() == 0)
+        if (userChatRooms.isEmpty())
             return null;
 
         return userChatRooms.get(0);

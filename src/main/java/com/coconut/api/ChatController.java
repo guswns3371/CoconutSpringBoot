@@ -53,10 +53,8 @@ public class ChatController {
             throw new IllegalStateException("존재하지 않는 유저들 입니다.");
         }
         ArrayList<User> users = optionalUsers.get();
-
         // 채팅방 이름
         String roomName = (users.size() == 1) ? users.get(0).getName() : chatRoomName(users, Long.parseLong(userId));
-
         // 채팅방이 이미 존재하는 경우
         Optional<ChatRoom> optionalChatRoom = chatRoomService.findByMembers(members.toString());
         if (optionalChatRoom.isPresent()) {
@@ -67,9 +65,9 @@ public class ChatController {
                     .chatRoomMembersInfo(getUserData(users))
                     .build();
         }
-
-        // 채팅방 생성
+        // 채팅방 종류
         RoomType roomType = (members.size() == 1 && members.get(0).equals(userId)) ? RoomType.ME : RoomType.GROUP;
+        // 채팅방 생성
         ChatRoom chatRoom = chatRoomService.save(ChatRoom.builder()
                 .roomType(roomType)
                 .members(members.toString())
@@ -102,17 +100,17 @@ public class ChatController {
     @GetMapping("/room/list/{userId}")
     public ArrayList<ChatRoomListReqDto> getChatRoomLists(@PathVariable Long userId) {
         ArrayList<ChatRoomListReqDto> chatRoomListReqDtoList = new ArrayList<>();
-        ArrayList<UserDataResDto> userDataResDtoList = new ArrayList<>();
+        ArrayList<UserDataResDto> userDataResDtoList;
         UserChatRoomInfoReqDto userChatRoomInfoReqDto;
 
         // UserChatRoom 목록 가져오기
-        Optional<ArrayList<UserChatRoom>> optionalUserChatRooms = userChatRoomService.findAllByUserId(userId);
-        if (optionalUserChatRooms.isEmpty()) {
+        ArrayList<UserChatRoom> userChatRooms = userChatRoomService.findAllByUserId(userId);
+        if (userChatRooms.isEmpty()) {
             return null;
         }
 
         // UserChatRoom 리스트
-        for (UserChatRoom userChatRoom : optionalUserChatRooms.get()) {
+        for (UserChatRoom userChatRoom : userChatRooms) {
             // DISABLE 인 채팅방은 목록에 담지 않는다.
             if (userChatRoom.getAbleType().equals(AbleType.DISABLE)) {
                 continue;
@@ -122,33 +120,28 @@ public class ChatController {
             if (!StringUtils.hasText(chatRoom.getLastMessage())) {
                 continue;
             }
-
             // 채팅방속 유저 목록
-            ArrayList<User> users = chatRoom.getUsers();
-
-            // User response dto
-            if (chatRoom.getRoomType().equals(RoomType.ME)) {
-                // 자신과의 채팅방인 경우
-                userDataResDtoList.add(new UserDataResDto(users.get(0)));
-            } else if (chatRoom.getRoomType().equals(RoomType.GROUP)) {
-                // 그룹 채팅방인 경우
-                userDataResDtoList = users.stream()
-                        .filter(user1 -> !user1.getId().equals(userId))
-                        .map(UserDataResDto::new)
-                        .collect(Collectors.toCollection(ArrayList::new));
+            ArrayList<User> users = userService.findUsersByChatRoomId(chatRoom.getId());
+            // 유저가 없는 채팅방은 목록에 담지 않는다.
+            if (users.isEmpty()) {
+                continue;
             }
-
-            // UserChatRoom response dto
+            // UserChatRoom 정보
             userChatRoomInfoReqDto = new UserChatRoomInfoReqDto(userChatRoom);
-
-            // ChatRoomListReqDto 리스트
+            // 사용자 정보
+            userDataResDtoList = getUserData(users);
+            if (chatRoom.getRoomType().equals(RoomType.GROUP)) {
+                // 그룹 채팅방인 경우 본인의 정보를 삭제한다.
+                userDataResDtoList.removeIf(it -> it.getId().equals(userId));
+            }
+            // ChatRoomListReqDto 정보 추가
             chatRoomListReqDtoList.add(ChatRoomListReqDto.builder()
                     .userChatRoomInfoReqDto(userChatRoomInfoReqDto)
                     .userInfos(userDataResDtoList)
                     .build());
         }
 
-        if (chatRoomListReqDtoList.size() == 0) {
+        if (chatRoomListReqDtoList.isEmpty()) {
             return null;
         }
 
@@ -156,8 +149,22 @@ public class ChatController {
     }
 
     @PostMapping("/room/info")
-    public ChatRoomDataResDto getChatRoomData(@RequestBody ChatRoomDataReqDto chatRoomDataReqDto) {
-        return chatService.getChatRoomData(chatRoomDataReqDto);
+    public ChatRoomDataResDto getChatRoomData(@RequestBody ChatRoomDataReqDto reqDto) {
+        UserChatRoom userChatRoom = userChatRoomService.findById(Long.parseLong(reqDto.getChatRoomId()));
+        Optional<ArrayList<User>> optionalUsers = userService.findUsersByIds(userChatRoom.getChatRoom().getLongChatMembers());
+
+        if (optionalUsers.isEmpty()) {
+            return null;
+        }
+
+        return ChatRoomDataResDto.builder()
+                .chatRoomId(userChatRoom.getId().toString())
+                .chatRoomName(userChatRoom.getChatRoomName())
+                .chatRoomMembers(new ArrayList<>(userChatRoom.getChatRoom().getStringChatMembers()))
+                .chatRoomMembersInfo(optionalUsers.get().stream()
+                        .map(UserDataResDto::new)
+                        .collect(Collectors.toCollection(ArrayList::new)))
+                .build();
     }
 
     @PostMapping("/room/invite")

@@ -1,5 +1,7 @@
 package com.coconut.service;
 
+import com.coconut.domain.chat.ChatRoom;
+import com.coconut.domain.chat.ChatRoomRepository;
 import com.coconut.domain.user.User;
 import com.coconut.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +20,7 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final ChatRoomRepository chatRoomRepository;
 
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
@@ -33,6 +36,14 @@ public class UserService {
 
     public Optional<ArrayList<User>> findUsersByIds(List<Long> ids) {
         return userRepository.findUserByIdIn(ids);
+    }
+
+    public ArrayList<User> findUsersByChatRoomId(Long chatRoomId) {
+        Optional<ChatRoom> optionalChatRoom = chatRoomRepository.findById(chatRoomId);
+        if (optionalChatRoom.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return optionalChatRoom.get().getUsers();
     }
 
     public boolean checkByEmail(String email) {

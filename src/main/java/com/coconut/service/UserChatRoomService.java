@@ -33,7 +33,7 @@ public class UserChatRoomService {
      * 트랜잭션 안에서 User 엔티티를 가져와 UserChatRoom 에 세팅해줘야 한다.
      * 영속성 컨택스트에 없는 User 객체로 UserChatRoom 을 생성할 경우
      * failed to lazily initialize a collection of role 에러 발생
-     *
+     * <p>
      * -> UserChatRoom 을 생성할 때, 지연로딩 세팅된 user.getUserChatRoomList() 을 다루기 때문이다.
      */
     @Transactional
@@ -42,16 +42,30 @@ public class UserChatRoomService {
         if (optionalUsers.isEmpty()) {
             throw new IllegalStateException("존재하지 않는 유저들 입니다.");
         }
+
         ArrayList<UserChatRoom> userChatRooms = optionalUsers.get().stream()
                 .map(user -> UserChatRoom.builder()
                         .chatRoom(chatRoom)
                         .user(user)
                         .build())
                 .collect(Collectors.toCollection(ArrayList::new));
+
         userChatRoomRepository.saveAll(userChatRooms);
     }
 
-    public Optional<ArrayList<UserChatRoom>> findAllByUserId(Long userId) {
+    public UserChatRoom findById(Long userChatRoomId) {
+        Optional<UserChatRoom> optionalUserChatRoom = userChatRoomRepository.findById(userChatRoomId);
+        if (optionalUserChatRoom.isEmpty()){
+            throw new IllegalStateException("존재하지 않는 UserChatRoom");
+        }
+        UserChatRoom userChatRoom = optionalUserChatRoom.get();
+        userChatRoom.updateChatRoomName(userChatRoom.getCurrentChatRoomName());
+        return userChatRoom;
+    }
+
+    public ArrayList<UserChatRoom> findAllByUserId(Long userId) {
+        ArrayList<UserChatRoom> userChatRooms = userChatRoomRepository.findUserChatRoomsByUser_IdOrderByModifiedDateDesc(userId);
+        userChatRooms.forEach(it -> it.updateChatRoomName(it.getCurrentChatRoomName()));
         return userChatRoomRepository.findUserChatRoomsByUser_IdOrderByModifiedDateDesc(userId);
     }
 

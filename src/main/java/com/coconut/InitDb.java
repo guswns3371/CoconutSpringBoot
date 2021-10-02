@@ -29,16 +29,17 @@ public class InitDb {
         private final EncryptHelper encryptHelper;
 
         public void dbInit1() {
-            for (int i = 1; i < 10; i++) {
-                User user = User.builder()
-                        .email("test" + i + "@gmail.com")
-                        .name("테스트" + i)
-                        .usrId("test" + i)
+            String[] names = {"baemin", "naver", "line", "seoultech", "kakao"};
+            String[] koreanNames = {"배민", "네이버", "라인", "과기대", "카카오"};
+            for (int i = 0; i < names.length; i++) {
+                em.persist(User.builder()
+                        .email(names[i] + "@gmail.com")
+                        .name(koreanNames[i])
+                        .usrId(names[i])
+                        .profilePicture(names[i] + ".png")
                         .role(Role.USER)
                         .password(encryptHelper.encrypt("1"))
-                        .build();
-
-                em.persist(user);
+                        .build());
             }
 
         }
