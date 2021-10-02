@@ -239,7 +239,7 @@ public class SocketService {
                     unReadMember.getUserChatRoom(socketChatRoom.getId().toString());
             // 채팅방 이름
             String unReadMemberChatRoomName =
-                    unReadMemberUserChatRoom.getCurrentChatRoomName(unReadMember.getId().toString());
+                    unReadMemberUserChatRoom.getCurrentChatRoomName();
             // 안읽은 메시지 개수
             unReadMemberUserChatRoom.addUnReads();
 

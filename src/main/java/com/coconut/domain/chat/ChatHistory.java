@@ -2,6 +2,7 @@ package com.coconut.domain.chat;
 
 import com.coconut.api.dto.res.ChatHistoryResDto;
 import com.coconut.api.dto.res.ChatHistorySaveResDto;
+import com.coconut.api.dto.res.UserDataResDto;
 import com.coconut.domain.BaseTimeEntity;
 import com.coconut.domain.user.User;
 import com.google.common.reflect.TypeToken;
@@ -98,7 +99,7 @@ public class ChatHistory extends BaseTimeEntity {
         }
 
         return ChatHistoryResDto.builder()
-                .userInfo(user.toUserDataResDto())
+                .userInfo(new UserDataResDto(user))
                 .chatRoomId(chatRoom.getId().toString())
                 .chatUserId(user.getId().toString())
                 .readMembers(readMembers)
@@ -119,7 +120,7 @@ public class ChatHistory extends BaseTimeEntity {
         }
 
         return ChatHistorySaveResDto.builder()
-                .userInfo(user.toUserDataResDto())
+                .userInfo(new UserDataResDto(user))
                 .chatRoomId(chatRoom.getId().toString())
                 .chatUserId(user.getId().toString())
                 .readMembers(readMembers)

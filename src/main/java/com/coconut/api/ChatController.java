@@ -4,8 +4,10 @@ import com.coconut.api.dto.req.*;
 import com.coconut.api.dto.res.ChatHistoryResDto;
 import com.coconut.api.dto.res.ChatRoomDataResDto;
 import com.coconut.api.dto.res.UserDataResDto;
+import com.coconut.domain.chat.AbleType;
 import com.coconut.domain.chat.ChatRoom;
 import com.coconut.domain.chat.RoomType;
+import com.coconut.domain.chat.UserChatRoom;
 import com.coconut.domain.user.User;
 import com.coconut.service.*;
 import com.coconut.service.utils.file.FilesStorageService;
@@ -13,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -92,8 +95,64 @@ public class ChatController {
 
     private ArrayList<UserDataResDto> getUserData(ArrayList<User> users) {
         return users.stream()
-                .map(User::toUserDataResDto)
+                .map(UserDataResDto::new)
                 .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    @GetMapping("/room/list/{userId}")
+    public ArrayList<ChatRoomListReqDto> getChatRoomLists(@PathVariable Long userId) {
+        ArrayList<ChatRoomListReqDto> chatRoomListReqDtoList = new ArrayList<>();
+        ArrayList<UserDataResDto> userDataResDtoList = new ArrayList<>();
+        UserChatRoomInfoReqDto userChatRoomInfoReqDto;
+
+        // UserChatRoom 목록 가져오기
+        Optional<ArrayList<UserChatRoom>> optionalUserChatRooms = userChatRoomService.findAllByUserId(userId);
+        if (optionalUserChatRooms.isEmpty()) {
+            return null;
+        }
+
+        // UserChatRoom 리스트
+        for (UserChatRoom userChatRoom : optionalUserChatRooms.get()) {
+            // DISABLE 인 채팅방은 목록에 담지 않는다.
+            if (userChatRoom.getAbleType().equals(AbleType.DISABLE)) {
+                continue;
+            }
+            ChatRoom chatRoom = userChatRoom.getChatRoom();
+            // LastMessage 가 없는 채팅방은 목록에 담지 않는다.
+            if (!StringUtils.hasText(chatRoom.getLastMessage())) {
+                continue;
+            }
+
+            // 채팅방속 유저 목록
+            ArrayList<User> users = chatRoom.getUsers();
+
+            // User response dto
+            if (chatRoom.getRoomType().equals(RoomType.ME)) {
+                // 자신과의 채팅방인 경우
+                userDataResDtoList.add(new UserDataResDto(users.get(0)));
+            } else if (chatRoom.getRoomType().equals(RoomType.GROUP)) {
+                // 그룹 채팅방인 경우
+                userDataResDtoList = users.stream()
+                        .filter(user1 -> !user1.getId().equals(userId))
+                        .map(UserDataResDto::new)
+                        .collect(Collectors.toCollection(ArrayList::new));
+            }
+
+            // UserChatRoom response dto
+            userChatRoomInfoReqDto = new UserChatRoomInfoReqDto(userChatRoom);
+
+            // ChatRoomListReqDto 리스트
+            chatRoomListReqDtoList.add(ChatRoomListReqDto.builder()
+                    .userChatRoomInfoReqDto(userChatRoomInfoReqDto)
+                    .userInfos(userDataResDtoList)
+                    .build());
+        }
+
+        if (chatRoomListReqDtoList.size() == 0) {
+            return null;
+        }
+
+        return chatRoomListReqDtoList;
     }
 
     @PostMapping("/room/info")
@@ -109,12 +168,6 @@ public class ChatController {
     @GetMapping("/{chatRoomId}")
     public ArrayList<ChatHistoryResDto> getChatHistory(@PathVariable String chatRoomId) {
         return chatService.getChatHistory(chatRoomId);
-    }
-
-    @GetMapping("/room/list/{userId}")
-    public ArrayList<ChatRoomListReqDto> getChatRoomLists(@PathVariable String userId) {
-
-        return chatService.getChatRoomLists(userId);
     }
 
     @PostMapping("/room/name")

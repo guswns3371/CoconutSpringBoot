@@ -60,17 +60,19 @@ public class UserChatRoom extends BaseTimeEntity {
         }
     }
 
-    public String getCurrentChatRoomName(String userId) {
+    public String getCurrentChatRoomName() {
         if (chatRoomName != null) {
             return chatRoomName;
         } else if (chatRoom.getUsers().size() == 1) {
             return chatRoom.getUsers().get(0).getName();
         }
         return chatRoom.getUsers().stream()
-                .filter(it -> !it.getId().equals(Long.parseLong(userId)))
+                .filter(it -> !it.equals(user))
                 .map(User::getName)
                 .collect(Collectors.joining(", "));
     }
+
+
 
     public void updateUnReads(int unReads) {
         this.unReads = unReads;

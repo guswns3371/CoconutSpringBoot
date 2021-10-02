@@ -6,21 +6,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.io.Serializable;
 
 @Entity
 @NoArgsConstructor
 @Getter
-@IdClass(UserChatHistoryId.class)
 public class UserChatHistory {
 
     @Id
-    @Column(name = "user_id", insertable = false, updatable = false)
-    private Long userId;
-
-    @Id
-    @Column(name = "chat_history_id", insertable = false, updatable = false)
-    private Long chatHistoryId;
+    @GeneratedValue
+    @Column(name = "user_chat_history_id")
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -52,7 +47,4 @@ public class UserChatHistory {
 
 }
 
-class UserChatHistoryId implements Serializable {
-    private Long userId;
-    private Long chatHistoryId;
-}
+

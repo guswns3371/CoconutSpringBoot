@@ -52,7 +52,7 @@ public class UserChatRoomService {
     }
 
     public Optional<ArrayList<UserChatRoom>> findAllByUserId(Long userId) {
-        return userChatRoomRepository.findAllByUser_Id(userId);
+        return userChatRoomRepository.findUserChatRoomsByUser_IdOrderByModifiedDateDesc(userId);
     }
 
     public Optional<ArrayList<UserChatRoom>> findAllByChatRoomId(Long chatRoomId) {

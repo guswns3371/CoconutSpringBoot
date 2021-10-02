@@ -22,15 +22,15 @@ public class ChatRoomListReqDto {
     private String unReads;
     private String chatRoomName;
     private ChatRoomInfoReqDto chatRoomInfo;
-    private ArrayList<UserDataResDto> userInfo;
+    private ArrayList<UserDataResDto> userInfos;
 
     @Builder
-    public ChatRoomListReqDto(UserChatRoomInfoReqDto userChatRoomInfoReqDto, ArrayList<UserDataResDto> userInfo) {
+    public ChatRoomListReqDto(UserChatRoomInfoReqDto userChatRoomInfoReqDto, ArrayList<UserDataResDto> userInfos) {
         this.chatRoomId = userChatRoomInfoReqDto.getChatRoomId();
         this.unReads = userChatRoomInfoReqDto.getUnReads();
         this.chatRoomName = userChatRoomInfoReqDto.getChatRoomName();
         this.chatRoomInfo = userChatRoomInfoReqDto.getChatRoomInfo();
-        this.userInfo = userInfo;
+        this.userInfos = userInfos;
     }
 
     @Override
@@ -40,7 +40,7 @@ public class ChatRoomListReqDto {
                 ", unReads='" + unReads + '\'' +
                 ", chatRoomName='" + chatRoomName + '\'' +
                 ", chatRoomInfo=" + chatRoomInfo +
-                ", userInfo=" + userInfo +
+                ", userInfo=" + userInfos +
                 '}';
     }
 }

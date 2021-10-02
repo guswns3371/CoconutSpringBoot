@@ -59,10 +59,10 @@ public class ChatService {
                         .chatRoom(chatRoom)
                         .build());
             }
-            myRoomName = userChatRoom.getCurrentChatRoomName(userId);
+            myRoomName = userChatRoom.getCurrentChatRoomName();
 
             membersInfo = chatRoom.getUsers().stream()
-                    .map(User::toUserDataResDto)
+                    .map(UserDataResDto::new)
                     .collect(Collectors.toCollection(ArrayList::new));
 
             return ChatRoomDataResDto.builder()
@@ -108,7 +108,7 @@ public class ChatService {
             myRoomName = users.get(0).getName();
 
         membersInfo = users.stream()
-                .map(User::toUserDataResDto)
+                .map(UserDataResDto::new)
                 .collect(Collectors.toCollection(ArrayList::new));
 
         return ChatRoomDataResDto.builder()
@@ -133,7 +133,7 @@ public class ChatService {
             return null;
 
         UserChatRoom userChatRoom = optionalUserChatRoom.get();
-        myRoomName = userChatRoom.getCurrentChatRoomName(userId);
+        myRoomName = userChatRoom.getCurrentChatRoomName();
 
         ChatRoom chatRoom = userChatRoom.getChatRoom();
         List<Long> memberIds = chatRoom.getLongChatMembers();
@@ -145,7 +145,7 @@ public class ChatService {
 
         ArrayList<UserDataResDto> membersInfo = optionalUserArrayList.get()
                 .stream()
-                .map(User::toUserDataResDto)
+                .map(UserDataResDto::new)
                 .collect(Collectors.toCollection(ArrayList::new));
 
         return ChatRoomDataResDto.builder()
@@ -198,17 +198,17 @@ public class ChatService {
             String chatRoomName;
 
             // 채팅방 이름이 존재할 경우, 존재하는 이름으로 설정
-            chatRoomName = userChatRoom.getCurrentChatRoomName(userId);
+            chatRoomName = userChatRoom.getCurrentChatRoomName();
 
             if (users.size() == 1) {
                 userDataResDtoArrayList = new ArrayList<UserDataResDto>() {{
-                    add(users.get(0).toUserDataResDto());
+                    add(new UserDataResDto(users.get(0)));
                 }};
             } else {
                 userDataResDtoArrayList = optionalUserArrayList.get()
                         .stream()
                         .filter(it -> !it.getId().equals(Long.parseLong(userId)))
-                        .map(User::toUserDataResDto)
+                        .map(UserDataResDto::new)
                         .collect(Collectors.toCollection(ArrayList::new));
             }
 
@@ -217,11 +217,11 @@ public class ChatService {
                             .chatRoomId(Long.toString(userChatRoom.getId()))
                             .chatRoomName(chatRoomName)
                             .unReads(Integer.toString(userChatRoom.getUnReads()))
-                            .chatRoomInfo(chatRoom.toChatRoomInfoReqDto())
+                            .chatRoomInfo(new ChatRoomInfoReqDto(chatRoom))
                             .build();
 
             chatRoomListReqDtos.add(ChatRoomListReqDto.builder()
-                    .userInfo(userDataResDtoArrayList)
+                    .userInfos(userDataResDtoArrayList)
                     .userChatRoomInfoReqDto(userChatRoomInfoReqDto)
                     .build());
         }
@@ -426,7 +426,7 @@ public class ChatService {
                 .collect(Collectors.joining(", "));
 
         membersInfo = users.stream()
-                .map(User::toUserDataResDto)
+                .map(UserDataResDto::new)
                 .collect(Collectors.toCollection(ArrayList::new));
 
         // 초대 알림

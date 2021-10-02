@@ -61,16 +61,14 @@ public class UserDataResDto {
         this.status = status;
     }
 
-    public static UserDataResDto toDto(User entity) {
-        return UserDataResDto.builder()
-                .id(entity.getId())
-                .userId(entity.getUId())
-                .name(entity.getName())
-                .email(entity.getEmail())
-                .stateMessage(entity.getStateMessage())
-                .profilePicture(entity.getProfilePicture())
-                .backgroundPicture(entity.getBackgroundPicture())
-                .build();
+    public UserDataResDto(User entity) {
+        this.id = entity.getId();
+        this.userId = entity.getUsrId();
+        this.name = entity.getName();
+        this.email = entity.getEmail();
+        this.stateMessage = entity.getStateMessage();
+        this.profilePicture = entity.getProfilePicture();
+        this.backgroundPicture = entity.getBackgroundPicture();
     }
 
     @Override

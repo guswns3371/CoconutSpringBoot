@@ -3,10 +3,10 @@ package com.coconut.api.dto.req;
 import com.coconut.domain.user.Role;
 import com.coconut.domain.user.User;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Getter
+@Data
 @NoArgsConstructor
 public class UserSaveReqDto {
 
@@ -33,20 +33,11 @@ public class UserSaveReqDto {
     public User toEntity(String hashedPassword) {
         return User.builder()
                 .email(email)
-                .uId(userId)
+                .usrId(userId)
                 .name(name)
                 .password(hashedPassword)
                 .role(Role.GUEST) // 일반적인 방법으로 회원가입하면 이메일을 인증해야 USER 권한을 얻는다.
                 .build();
     }
 
-    @Override
-    public String toString() {
-        return "UserSaveRequestDto{" +
-                "email='" + email + '\'' +
-                ", userId='" + userId + '\'' +
-                ", name='" + name + '\'' +
-                ", password='" + password + '\'' +
-                '}';
-    }
 }

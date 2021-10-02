@@ -49,7 +49,7 @@ public class UserController {
         Collections.swap(all, 0, userIndex);
 
         return all.stream()
-                .map(UserDataResDto::toDto)
+                .map(UserDataResDto::new)
                 .collect(Collectors.toList());
     }
 
@@ -67,7 +67,7 @@ public class UserController {
         User user = User.builder()
                 .email(requestDto.getEmail())
                 .name(requestDto.getName())
-                .uId(requestDto.getUserId())
+                .usrId(requestDto.getUserId())
                 .role(Role.GUEST)
                 .password(encryptHelper.encrypt(requestDto.getPassword()))
                 .build();
