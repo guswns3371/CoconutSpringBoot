@@ -1,10 +1,11 @@
 package com.coconut.api.dto.req;
 
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
-@AllArgsConstructor
+@NoArgsConstructor
 public class UserEmailVerifyReqDto {
     /**
      *     @SerializedName("email") val email : String,
@@ -14,4 +15,9 @@ public class UserEmailVerifyReqDto {
     private String email;
     private String secretToken;
 
+    @Builder
+    public UserEmailVerifyReqDto(String email, String secretToken) {
+        this.email = email;
+        this.secretToken = secretToken;
+    }
 }

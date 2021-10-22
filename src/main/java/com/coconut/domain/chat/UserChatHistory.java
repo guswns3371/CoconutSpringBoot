@@ -13,15 +13,15 @@ import javax.persistence.*;
 public class UserChatHistory {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_chat_history_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "chat_history_id")
     private ChatHistory chatHistory;
 
@@ -33,7 +33,7 @@ public class UserChatHistory {
 
     public void setUser(User user) {
         this.user = user;
-        if (!user.getUserChatHistoryList().contains(this)) {
+        if (!user.getUserChatHistoryList().contains(this)){
             user.getUserChatHistoryList().add(this);
         }
     }
@@ -44,12 +44,4 @@ public class UserChatHistory {
             chatHistory.getUserChatHistoryList().add(this);
         }
     }
-
-    public void remove() {
-        user.getUserChatHistoryList().remove(this);
-        chatHistory.getUserChatHistoryList().remove(this);
-    }
-
 }
-
-

@@ -1,6 +1,6 @@
 package com.coconut;
 
-import com.coconut.utils.file.FilesStorageService;
+import com.coconut.service.utils.file.FilesStorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;

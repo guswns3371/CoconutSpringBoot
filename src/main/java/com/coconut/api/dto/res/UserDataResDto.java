@@ -3,10 +3,10 @@ package com.coconut.api.dto.res;
 import com.coconut.domain.user.User;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Data
+@Getter
 @NoArgsConstructor
 public class UserDataResDto {
     /**
@@ -61,14 +61,29 @@ public class UserDataResDto {
         this.status = status;
     }
 
-    public UserDataResDto(User entity) {
-        this.id = entity.getId();
-        this.userId = entity.getUsrId();
-        this.name = entity.getName();
-        this.email = entity.getEmail();
-        this.stateMessage = entity.getStateMessage();
-        this.profilePicture = entity.getProfilePicture();
-        this.backgroundPicture = entity.getBackgroundPicture();
+    public static UserDataResDto toDto(User entity) {
+        return UserDataResDto.builder()
+                .id(entity.getId())
+                .userId(entity.getUId())
+                .name(entity.getName())
+                .email(entity.getEmail())
+                .stateMessage(entity.getStateMessage())
+                .profilePicture(entity.getProfilePicture())
+                .backgroundPicture(entity.getBackgroundPicture())
+                .build();
     }
 
+    @Override
+    public String toString() {
+        return "UserDataResDto{" +
+                "id=" + id +
+                ", userId='" + userId + '\'' +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", stateMessage='" + stateMessage + '\'' +
+                ", profilePicture='" + profilePicture + '\'' +
+                ", backgroundPicture='" + backgroundPicture + '\'' +
+                ", err='" + err + '\'' +
+                '}';
+    }
 }

@@ -6,9 +6,9 @@ import com.coconut.api.dto.res.*;
 import com.coconut.domain.user.Role;
 import com.coconut.domain.user.User;
 import com.coconut.service.UserService;
-import com.coconut.utils.encrypt.EncryptHelper;
-import com.coconut.utils.file.FilesStorageService;
-import com.coconut.utils.mail.MailService;
+import com.coconut.service.utils.encrypt.EncryptHelper;
+import com.coconut.service.utils.file.FilesStorageService;
+import com.coconut.service.utils.mail.MailService;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -49,13 +49,13 @@ public class UserController {
         Collections.swap(all, 0, userIndex);
 
         return all.stream()
-                .map(UserDataResDto::new)
+                .map(UserDataResDto::toDto)
                 .collect(Collectors.toList());
     }
 
-    @PostMapping("/email-check")
-    public UserSaveResDto emailCheck(@RequestBody UserEmailCheckReqDto reqDto) {
-        boolean emailCheck = userService.checkByEmail(reqDto.getEmail());
+    @PostMapping("/register/{email}")
+    public UserSaveResDto emailCheck(@PathVariable String email) {
+        boolean emailCheck = userService.checkByEmail(email);
         return UserSaveResDto.builder()
                 .isEmailOk(!emailCheck)
                 .build();
@@ -67,7 +67,7 @@ public class UserController {
         User user = User.builder()
                 .email(requestDto.getEmail())
                 .name(requestDto.getName())
-                .usrId(requestDto.getUserId())
+                .uId(requestDto.getUserId())
                 .role(Role.GUEST)
                 .password(encryptHelper.encrypt(requestDto.getPassword()))
                 .build();

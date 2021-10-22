@@ -3,7 +3,6 @@ package com.coconut.api;
 import com.coconut.api.dto.req.*;
 import com.coconut.api.dto.res.ChatHistoryResDto;
 import com.coconut.api.dto.res.ChatRoomDataResDto;
-import com.coconut.service.ChatHistoryService;
 import com.coconut.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,34 +15,48 @@ import java.util.ArrayList;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/chats")
+@RequestMapping("/api/chat")
 public class ChatController {
 
     private final ChatService chatService;
-    private final ChatHistoryService chatHistoryService;
 
-    @PostMapping()
-    public ChatRoomDataResDto makeChatRoom(@RequestBody ChatRoomSaveReqDto reqDto) {
-        return chatService.makeChatRoom(reqDto);
+    @PostMapping("/room/make")
+    public ChatRoomDataResDto makeChatRoom(@RequestBody ChatRoomSaveReqDto chatRoomSaveReqDto) {
+        return chatService.makeChatRoom(chatRoomSaveReqDto);
     }
 
-    @GetMapping("/users/{userId}")
-    public ArrayList<ChatRoomListReqDto> getChatRoomLists(@PathVariable Long userId) {
+    @PostMapping("/room/info")
+    public ChatRoomDataResDto getChatRoomData(@RequestBody ChatRoomDataReqDto chatRoomDataReqDto) {
+        return chatService.getChatRoomData(chatRoomDataReqDto);
+    }
+
+    @PostMapping("/room/invite")
+    public ChatRoomDataResDto inviteUser(@RequestBody ChatRoomDataReqDto chatRoomDataReqDto) {
+        return chatService.inviteUser(chatRoomDataReqDto);
+    }
+
+    @GetMapping("/{chatRoomId}")
+    public ArrayList<ChatHistoryResDto> getChatHistory(@PathVariable String chatRoomId) {
+        return chatService.getChatHistory(chatRoomId);
+    }
+
+    @GetMapping("/room/list/{userId}")
+    public ArrayList<ChatRoomListReqDto> getChatRoomLists(@PathVariable String userId) {
         return chatService.getChatRoomLists(userId);
     }
 
-    @GetMapping("/{id}")
-    public ChatRoomDataResDto getChatRoomData(@PathVariable Long id, @RequestParam("userId") Long userId) {
-        return chatService.getChatRoomData(id, userId);
+    @PostMapping("/room/name")
+    public boolean changeChatRoomName(@RequestBody ChatRoomNameChangeReqDto reqDto) {
+        return chatService.changeChatRoomName(reqDto);
     }
 
-    @GetMapping("/history/{id}")
-    public ArrayList<ChatHistoryResDto> getChatHistory(@PathVariable Long id) {
-        return chatService.getChatHistory(id);
+    @PostMapping("/room/exit")
+    public boolean exitChatRoom(@RequestBody ChatRoomExitReqDto reqDto) {
+        return chatService.exitChatRoom(reqDto);
     }
 
     @PostMapping(
-            value = "/image",
+            value = "/upload/image" ,
             consumes = {
                     MediaType.MULTIPART_FORM_DATA_VALUE,
                     MediaType.APPLICATION_JSON_VALUE
@@ -54,26 +67,11 @@ public class ChatController {
             @RequestPart(value = "chatRoomId", required = false) String chatRoomId,
             @RequestPart(required = false) MultipartFile[] images
     ) {
-        ChatUploadImageReqDto reqDto = ChatUploadImageReqDto.builder()
-                .userId(userId)
-                .chatRoomId(chatRoomId)
-                .images(images)
-                .build();
-        return chatService.uploadChatImages(reqDto);
-    }
-
-    @PostMapping("/name")
-    public boolean changeChatRoomName(@RequestBody ChatRoomNameChangeReqDto reqDto) {
-        return chatService.changeChatRoomName(reqDto);
-    }
-
-    @PostMapping("/invite")
-    public ChatRoomDataResDto inviteUser(@RequestBody ChatRoomDataReqDto chatRoomDataReqDto) {
-        return chatService.inviteUser(chatRoomDataReqDto);
-    }
-
-    @PostMapping("/exit")
-    public boolean exitChatRoom(@RequestBody ChatRoomExitReqDto reqDto) {
-        return chatService.exitChatRoom(reqDto);
+        return chatService.uploadChatImages(
+                ChatUploadImageReqDto.builder()
+                        .userId(userId)
+                        .chatRoomId(chatRoomId)
+                        .images(images)
+                        .build());
     }
 }

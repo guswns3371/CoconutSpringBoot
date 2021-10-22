@@ -1,6 +1,5 @@
 package com.coconut.api.dto.req;
 
-import com.coconut.domain.chat.UserChatRoom;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -27,12 +26,5 @@ public class UserChatRoomInfoReqDto {
         this.unReads = unReads;
         this.chatRoomName = chatRoomName;
         this.chatRoomInfo = chatRoomInfo;
-    }
-
-    public UserChatRoomInfoReqDto(UserChatRoom entity) {
-        this.chatRoomId = entity.getId().toString();
-        this.unReads = Integer.toString(entity.getUnReads());
-        this.chatRoomName = entity.getCurrentChatRoomName();
-        this.chatRoomInfo = new ChatRoomInfoReqDto(entity.getChatRoom());
     }
 }

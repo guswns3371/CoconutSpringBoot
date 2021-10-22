@@ -3,7 +3,7 @@ package com.coconut.config.auth;
 import com.coconut.config.auth.dto.OAuthAttributes;
 import com.coconut.config.auth.dto.SessionUser;
 import com.coconut.domain.user.User;
-import com.coconut.repository.UserRepository;
+import com.coconut.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

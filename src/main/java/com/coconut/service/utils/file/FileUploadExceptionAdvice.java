@@ -1,4 +1,4 @@
-package com.coconut.utils.file;
+package com.coconut.service.utils.file;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

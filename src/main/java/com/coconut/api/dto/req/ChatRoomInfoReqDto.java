@@ -1,14 +1,11 @@
 package com.coconut.api.dto.req;
 
-import com.coconut.domain.chat.ChatRoom;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.format.DateTimeFormatter;
-
 @NoArgsConstructor
-@Data
+@Getter
 public class ChatRoomInfoReqDto {
 
     /**
@@ -26,13 +23,22 @@ public class ChatRoomInfoReqDto {
     private String lastTime;
 
     @Builder
-    public ChatRoomInfoReqDto(ChatRoom entity) {
-        this.id = entity.getId().toString();
-        this.members = entity.getMembers();
-        this.roomType = entity.getRoomType().getKey();
-        this.lastMessage = entity.getLastMessage();
-        this.lastTime = entity.getModifiedDate().format(DateTimeFormatter.ofPattern("a h: mm"));
+    public ChatRoomInfoReqDto(String id, String members, String roomType, String lastMessage, String lastTime) {
+        this.id = id;
+        this.members = members;
+        this.roomType = roomType;
+        this.lastMessage = lastMessage;
+        this.lastTime = lastTime;
     }
 
-
+    @Override
+    public String toString() {
+        return "ChatRoomInfoReqDto{" +
+                "id='" + id + '\'' +
+                ", members='" + members + '\'' +
+                ", roomType='" + roomType + '\'' +
+                ", lastMessage='" + lastMessage + '\'' +
+                ", lastTime='" + lastTime + '\'' +
+                '}';
+    }
 }

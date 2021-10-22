@@ -1,13 +1,12 @@
 package com.coconut.service;
 
 import com.coconut.domain.user.User;
-import com.coconut.repository.UserRepository;
+import com.coconut.domain.user.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,18 +30,15 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-    public Optional<ArrayList<User>> findUsersByIds(List<Long> ids) {
-        return userRepository.findUserByIdIn(ids);
-    }
-
     public boolean checkByEmail(String email) {
-        return userRepository.existsByEmail(email);
+        return userRepository.findByEmail(email).isPresent();
     }
 
     @Transactional
     public Long save(User user) {
         validateDuplicateUser(user);
-        return userRepository.save(user).getId();
+        User user1 = userRepository.save(user);
+        return user1.getId();
     }
 
     @Transactional

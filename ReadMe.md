@@ -1,10 +1,8 @@
-# ì‹œìŠ¤í…œ êµ¬ì¡°
+# ½Ã½ºÅÛ ±¸Á¶
 
-- í´ë¼ì´ì–¸íŠ¸ : (Android/Kotlin) [https://github.com/guswns3371/Coconut](https://github.com/guswns3371/Coconut)
-- ì„œë²„ : (Spring Boot
-  Application) [https://github.com/guswns3371/coconut-spring-server](https://github.com/guswns3371/coconut-spring-server)
-
-# ì‹œì—° ì˜ìƒ
+- Å¬¶óÀÌ¾ğÆ® : (Android/Kotlin) [https://github.com/guswns3371/Coconut](https://github.com/guswns3371/Coconut)
+- ¼­¹ö : (Spring Boot Application) [https://github.com/guswns3371/coconut-spring-server](https://github.com/guswns3371/coconut-spring-server)
+# ½Ã¿¬ ¿µ»ó
 
 [https://www.youtube.com/watch?v=Qxjdj7Q9GQA](https://www.youtube.com/watch?v=Qxjdj7Q9GQA)
 

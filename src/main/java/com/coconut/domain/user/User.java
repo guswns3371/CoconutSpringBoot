@@ -1,11 +1,13 @@
 package com.coconut.domain.user;
 
+import com.coconut.api.dto.req.UserSaveReqDto;
+import com.coconut.api.dto.res.UserDataResDto;
 import com.coconut.domain.BaseTimeEntity;
 import com.coconut.domain.chat.ChatHistory;
 import com.coconut.domain.chat.ChatRoom;
 import com.coconut.domain.chat.UserChatHistory;
 import com.coconut.domain.chat.UserChatRoom;
-import com.coconut.utils.mail.TokenGenerator;
+import com.coconut.service.utils.mail.TokenGenerator;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -31,7 +33,7 @@ public class User extends BaseTimeEntity {
     @Column(nullable = false, unique = true)
     private String email;
 
-    private String usrId;
+    private String uId;
     private String password;
     private String stateMessage;
     private String profilePicture;
@@ -52,8 +54,8 @@ public class User extends BaseTimeEntity {
     private List<UserChatHistory> userChatHistoryList = new ArrayList<>();
 
     @Builder
-    public User(String usrId, String name, String email, String password, String stateMessage, String profilePicture, String backgroundPicture, String confirmToken, Role role, String fcmToken) {
-        this.usrId = usrId;
+    public User(String uId, String name, String email, String password, String stateMessage, String profilePicture, String backgroundPicture, String confirmToken, Role role, String fcmToken) {
+        this.uId = uId;
         this.name = name;
         this.email = email;
         this.password = password;
@@ -66,8 +68,8 @@ public class User extends BaseTimeEntity {
     }
 
     public User update(User entity) {
-        if (entity.getUsrId() != null)
-            this.usrId = entity.getUsrId();
+        if (entity.getUId() != null)
+            this.uId = entity.getUId();
         if (entity.name != null)
             this.name = entity.getName();
         if (entity.profilePicture != null)
@@ -123,11 +125,32 @@ public class User extends BaseTimeEntity {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
+    public UserDataResDto toUserDataResDto() {
+        return UserDataResDto.builder()
+                .id(id)
+                .userId(uId)
+                .email(email)
+                .name(name)
+                .profilePicture(profilePicture)
+                .backgroundPicture(backgroundPicture)
+                .stateMessage(stateMessage)
+                .build();
+    }
+
+    public UserSaveReqDto toUserSaveReqDto() {
+        return UserSaveReqDto.builder()
+                .email(email)
+                .name(name)
+                .password(password)
+                .userId(uId)
+                .build();
+    }
+
     @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
-                ", userId='" + usrId + '\'' +
+                ", userId='" + uId + '\'' +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 ", password='" + password + '\'' +

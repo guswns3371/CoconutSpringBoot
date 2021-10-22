@@ -5,10 +5,8 @@ import com.coconut.domain.user.User;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.springframework.util.StringUtils;
 
 import javax.persistence.*;
-import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 @Entity
@@ -41,10 +39,10 @@ public class UserChatRoom extends BaseTimeEntity {
 
     @Builder
     public UserChatRoom(String chatRoomName, int unReads, User user, ChatRoom chatRoom) {
+        this.chatRoomName = chatRoomName;
+        this.unReads = unReads;
         setUser(user);
         setChatRoom(chatRoom);
-        this.unReads = unReads;
-        this.chatRoomName = chatRoomName;
     }
 
     // https://cornswrold.tistory.com/355
@@ -62,30 +60,17 @@ public class UserChatRoom extends BaseTimeEntity {
         }
     }
 
-    public String getCurrentChatRoomName() {
-        if (StringUtils.hasText(chatRoomName)) {
-            return chatRoomName;
-        }
+    public String getCurrentChatRoomName(String userId) {
+        if (this.chatRoomName != null)
+            return this.chatRoomName;
 
-        ArrayList<User> users = chatRoom.getUsers();
-        if (users.size() == 1) {
-            return users.get(0).getName();
-        }
+        else if (this.chatRoom.getUsers().size() == 1)
+            return this.chatRoom.getUsers().get(0).getName();
 
-        return users.stream()
-                .filter(it -> !it.equals(user))
+        return this.chatRoom.getUsers().stream()
+                .filter(it -> !it.getId().equals(Long.parseLong(userId)))
                 .map(User::getName)
                 .collect(Collectors.joining(", "));
-    }
-
-    public void remove() {
-        user.getUserChatRoomList().remove(this);
-        chatRoom.getUserChatRoomList().remove(this);
-    }
-
-    public void removeHistory() {
-        user.getUserChatHistoryList().removeIf(it -> it.getUser().equals(user));
-        chatRoom.getChatHistoryList().removeIf(it -> it.getChatRoom().equals(chatRoom));
     }
 
     public void updateUnReads(int unReads) {
@@ -100,11 +85,7 @@ public class UserChatRoom extends BaseTimeEntity {
         this.chatRoomName = chatRoomName;
     }
 
-    public void disableChatRoom() {
-        this.ableType = AbleType.DISABLE;
-    }
+    public void disableChatRoom() { this.ableType = AbleType.DISABLE; }
 
-    public void enableChatRoom() {
-        this.ableType = AbleType.ENABLE;
-    }
+    public void enableChatRoom() { this.ableType = AbleType.ENABLE; }
 }
