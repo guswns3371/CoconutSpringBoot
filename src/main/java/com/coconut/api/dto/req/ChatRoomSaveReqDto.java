@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @NoArgsConstructor
@@ -16,16 +17,28 @@ public class ChatRoomSaveReqDto {
      * @SerializedName("chatRoomMembers") var chatRoomMembers : ArrayList<String>
      */
 
-    private String chatUserId;
+    private Long chatUserId;
     private ArrayList<String> chatRoomMembers;
 
     @Builder
-    public ChatRoomSaveReqDto(String chatUserId, ArrayList<String> chatRoomMembers) {
+    public ChatRoomSaveReqDto(Long chatUserId, ArrayList<String> chatRoomMembers) {
         this.chatUserId = chatUserId;
-        this.chatRoomMembers = chatRoomMembers;
+        this.chatRoomMembers = chatRoomMembers.stream()
+                .distinct()
+                .sorted()
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public ArrayList<String> getDistinctChatRoomMembers() {
-        return this.chatRoomMembers.stream().distinct().sorted().collect(Collectors.toCollection(ArrayList::new));
+        return this.chatRoomMembers.stream()
+                .distinct()
+                .sorted()
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public List<Long> getMemberLongIds() {
+        return chatRoomMembers.stream()
+                .map(Long::parseLong)
+                .collect(Collectors.toList());
     }
 }

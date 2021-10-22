@@ -17,14 +17,14 @@ import java.time.LocalDateTime;
 public abstract class BaseTimeEntity {
     // @CreatedDate : 엔티티가 생성되어 저장될 떄의 시간이 자동 저장된다.
     @CreatedDate
-    private LocalDateTime createdData;
+    private LocalDateTime createdDate;
 
     // @LastModifiedDate : 조회한 엔티티의 값을 변경할 떄의 시간이 자동 저장된다.
     @LastModifiedDate
-    private LocalDateTime modifiedData;
+    private LocalDateTime modifiedDate;
 
     @PreUpdate
     public void onModifiedDateUpdate() {
-        modifiedData = LocalDateTime.now();
+        modifiedDate = LocalDateTime.now();
     }
 }
