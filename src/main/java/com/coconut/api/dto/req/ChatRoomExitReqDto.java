@@ -11,6 +11,6 @@ public class ChatRoomExitReqDto {
      *     @SerializedName("userId") var userId : String?
      */
 
-    private String chatRoomId;
-    private String userId;
+    private Long chatRoomId;
+    private Long userId;
 }

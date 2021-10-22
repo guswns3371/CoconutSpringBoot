@@ -1,12 +1,11 @@
 package com.coconut.domain.user;
 
-import com.coconut.api.dto.req.UserSaveReqDto;
 import com.coconut.domain.BaseTimeEntity;
 import com.coconut.domain.chat.ChatHistory;
 import com.coconut.domain.chat.ChatRoom;
 import com.coconut.domain.chat.UserChatHistory;
 import com.coconut.domain.chat.UserChatRoom;
-import com.coconut.service.utils.mail.TokenGenerator;
+import com.coconut.utils.mail.TokenGenerator;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

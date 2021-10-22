@@ -1,5 +1,6 @@
-package com.coconut.domain.chat;
+package com.coconut.repository;
 
+import com.coconut.domain.chat.UserChatRoom;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.ArrayList;
@@ -11,12 +12,8 @@ public interface UserChatRoomRepository extends JpaRepository<UserChatRoom, Long
 
     ArrayList<UserChatRoom> findUserChatRoomsByUser_IdOrderByModifiedDateDesc(Long userId);
 
-    Optional<Boolean> deleteUserChatRoomByChatRoom_IdAndUser_Id(Long chatRoomId, Long userId);
-
-    Optional<ArrayList<UserChatRoom>> findAllByUser_Id(Long userId);
-
     Optional<ArrayList<UserChatRoom>> findAllByChatRoom_Id(Long chatRoomId);
 
-
+    boolean existsUserChatRoomByChatRoom_IdAndUser_Id(Long chatRoomId,Long userId);
 
 }

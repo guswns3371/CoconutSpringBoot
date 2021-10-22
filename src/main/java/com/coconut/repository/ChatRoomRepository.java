@@ -1,5 +1,6 @@
-package com.coconut.domain.chat;
+package com.coconut.repository;
 
+import com.coconut.domain.chat.ChatRoom;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

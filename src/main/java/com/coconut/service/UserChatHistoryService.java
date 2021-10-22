@@ -1,7 +1,7 @@
 package com.coconut.service;
 
 import com.coconut.domain.chat.UserChatHistory;
-import com.coconut.domain.chat.UserChatHistoryRepository;
+import com.coconut.repository.UserChatHistoryRepository;
 import com.coconut.domain.user.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

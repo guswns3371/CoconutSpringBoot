@@ -32,7 +32,7 @@ public class UserChatRoomInfoReqDto {
     public UserChatRoomInfoReqDto(UserChatRoom entity) {
         this.chatRoomId = entity.getId().toString();
         this.unReads = Integer.toString(entity.getUnReads());
-        this.chatRoomName = entity.getChatRoomName();
+        this.chatRoomName = entity.getCurrentChatRoomName();
         this.chatRoomInfo = new ChatRoomInfoReqDto(entity.getChatRoom());
     }
 }

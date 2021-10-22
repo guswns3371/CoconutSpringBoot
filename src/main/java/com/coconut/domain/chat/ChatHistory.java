@@ -1,6 +1,5 @@
 package com.coconut.domain.chat;
 
-import com.coconut.api.dto.res.ChatHistoryResDto;
 import com.coconut.api.dto.res.ChatHistorySaveResDto;
 import com.coconut.api.dto.res.UserDataResDto;
 import com.coconut.domain.BaseTimeEntity;
@@ -15,7 +14,6 @@ import javax.persistence.*;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @NoArgsConstructor
@@ -31,7 +29,7 @@ public class ChatHistory extends BaseTimeEntity {
     private String history;
 
     @Column
-    private String readMembers;
+    private int readCount;
 
     @Column(length = 800)
     private String chatImages;
@@ -52,9 +50,9 @@ public class ChatHistory extends BaseTimeEntity {
     private List<UserChatHistory> userChatHistoryList = new ArrayList<>();
 
     @Builder
-    public ChatHistory(String history, String readMembers, String chatImages, MessageType messageType, User user, ChatRoom chatRoom) {
+    public ChatHistory(String history, int readCount, String chatImages, MessageType messageType, User user, ChatRoom chatRoom) {
         this.history = history;
-        this.readMembers = readMembers;
+        this.readCount = readCount;
         this.chatImages = chatImages;
         this.messageType = messageType;
         setUser(user);
@@ -79,35 +77,8 @@ public class ChatHistory extends BaseTimeEntity {
         return this.messageType.getKey();
     }
 
-    public void updateReadMembers(String readMembers) {
-        this.readMembers = readMembers;
-    }
-
-    public ArrayList<User> getReadUsers() {
-        return this.userChatHistoryList.stream()
-                .map(UserChatHistory::getUser)
-                .collect(Collectors.toCollection(ArrayList::new));
-    }
-
-    public ChatHistoryResDto toChatHistoryResDto() {
-
-        ArrayList<String> chatImagesString = null;
-        if (chatImages != null) {
-            chatImagesString =
-                    new GsonBuilder().create().fromJson(chatImages, new TypeToken<ArrayList<String>>() {
-                    }.getType());
-        }
-
-        return ChatHistoryResDto.builder()
-                .userInfo(new UserDataResDto(user))
-                .chatRoomId(chatRoom.getId().toString())
-                .chatUserId(user.getId().toString())
-                .readMembers(readMembers)
-                .time(getCreatedDate().format(DateTimeFormatter.ofPattern("a h: mm")))
-                .history(history)
-                .chatImages(chatImagesString)
-                .messageType(getMessageTypeKey())
-                .build();
+    public void updateReadCount() {
+        readCount = userChatHistoryList.size();
     }
 
     public ChatHistorySaveResDto toChatHistorySaveResDto() {
@@ -123,7 +94,7 @@ public class ChatHistory extends BaseTimeEntity {
                 .userInfo(new UserDataResDto(user))
                 .chatRoomId(chatRoom.getId().toString())
                 .chatUserId(user.getId().toString())
-                .readMembers(readMembers)
+                .readCount(readCount)
                 .time(getCreatedDate().format(DateTimeFormatter.ofPattern("a h: mm")))
                 .history(history)
                 .chatImages(chatImagesString)

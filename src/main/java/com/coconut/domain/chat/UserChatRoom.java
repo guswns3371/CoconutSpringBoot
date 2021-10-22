@@ -78,7 +78,15 @@ public class UserChatRoom extends BaseTimeEntity {
                 .collect(Collectors.joining(", "));
     }
 
+    public void remove() {
+        user.getUserChatRoomList().remove(this);
+        chatRoom.getUserChatRoomList().remove(this);
+    }
 
+    public void removeHistory() {
+        user.getUserChatHistoryList().removeIf(it -> it.getUser().equals(user));
+        chatRoom.getChatHistoryList().removeIf(it -> it.getChatRoom().equals(chatRoom));
+    }
 
     public void updateUnReads(int unReads) {
         this.unReads = unReads;

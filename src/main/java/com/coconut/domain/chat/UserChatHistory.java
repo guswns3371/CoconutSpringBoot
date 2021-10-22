@@ -17,11 +17,11 @@ public class UserChatHistory {
     @Column(name = "user_chat_history_id")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_history_id")
     private ChatHistory chatHistory;
 
@@ -43,6 +43,11 @@ public class UserChatHistory {
         if (!chatHistory.getUserChatHistoryList().contains(this)) {
             chatHistory.getUserChatHistoryList().add(this);
         }
+    }
+
+    public void remove() {
+        user.getUserChatHistoryList().remove(this);
+        chatHistory.getUserChatHistoryList().remove(this);
     }
 
 }

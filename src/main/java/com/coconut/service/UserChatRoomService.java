@@ -2,9 +2,9 @@ package com.coconut.service;
 
 import com.coconut.domain.chat.ChatRoom;
 import com.coconut.domain.chat.UserChatRoom;
-import com.coconut.domain.chat.UserChatRoomRepository;
+import com.coconut.repository.UserChatRoomRepository;
 import com.coconut.domain.user.User;
-import com.coconut.domain.user.UserRepository;
+import com.coconut.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -53,14 +53,11 @@ public class UserChatRoomService {
         userChatRoomRepository.saveAll(userChatRooms);
     }
 
-    public UserChatRoom findById(Long userChatRoomId) {
-        Optional<UserChatRoom> optionalUserChatRoom = userChatRoomRepository.findById(userChatRoomId);
-        if (optionalUserChatRoom.isEmpty()){
-            throw new IllegalStateException("존재하지 않는 UserChatRoom");
-        }
-        UserChatRoom userChatRoom = optionalUserChatRoom.get();
-        userChatRoom.updateChatRoomName(userChatRoom.getCurrentChatRoomName());
-        return userChatRoom;
+    public boolean exist(Long chatRoomId, Long userId) {
+        return userChatRoomRepository.existsUserChatRoomByChatRoom_IdAndUser_Id(chatRoomId, userId);
+    }
+    public Optional<UserChatRoom> findByUserIdAndChatRoomId(Long userId, Long chatRoomId) {
+        return userChatRoomRepository.findUserChatRoomByChatRoom_IdAndUser_Id(chatRoomId, userId);
     }
 
     public ArrayList<UserChatRoom> findAllByUserId(Long userId) {
@@ -71,9 +68,5 @@ public class UserChatRoomService {
 
     public Optional<ArrayList<UserChatRoom>> findAllByChatRoomId(Long chatRoomId) {
         return userChatRoomRepository.findAllByChatRoom_Id(chatRoomId);
-    }
-
-    public Optional<UserChatRoom> findByUserIdAndChatRoomId(Long userId, Long chatRoomId) {
-        return userChatRoomRepository.findUserChatRoomByChatRoom_IdAndUser_Id(chatRoomId, userId);
     }
 }

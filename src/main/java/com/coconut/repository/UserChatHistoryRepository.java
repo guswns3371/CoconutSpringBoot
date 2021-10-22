@@ -1,5 +1,7 @@
-package com.coconut.domain.chat;
+package com.coconut.repository;
 
+import com.coconut.domain.chat.ChatHistory;
+import com.coconut.domain.chat.UserChatHistory;
 import com.coconut.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 

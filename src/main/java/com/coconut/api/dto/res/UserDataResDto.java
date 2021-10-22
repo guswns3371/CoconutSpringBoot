@@ -3,10 +3,10 @@ package com.coconut.api.dto.res;
 import com.coconut.domain.user.User;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Getter
+@Data
 @NoArgsConstructor
 public class UserDataResDto {
     /**
@@ -71,17 +71,4 @@ public class UserDataResDto {
         this.backgroundPicture = entity.getBackgroundPicture();
     }
 
-    @Override
-    public String toString() {
-        return "UserDataResDto{" +
-                "id=" + id +
-                ", userId='" + userId + '\'' +
-                ", name='" + name + '\'' +
-                ", email='" + email + '\'' +
-                ", stateMessage='" + stateMessage + '\'' +
-                ", profilePicture='" + profilePicture + '\'' +
-                ", backgroundPicture='" + backgroundPicture + '\'' +
-                ", err='" + err + '\'' +
-                '}';
-    }
 }

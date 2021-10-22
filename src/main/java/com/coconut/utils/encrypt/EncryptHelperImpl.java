@@ -1,4 +1,4 @@
-package com.coconut.service.utils.encrypt;
+package com.coconut.utils.encrypt;
 
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.stereotype.Service;

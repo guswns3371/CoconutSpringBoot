@@ -1,7 +1,7 @@
 package com.coconut.service;
 
 import com.coconut.domain.chat.ChatHistory;
-import com.coconut.domain.chat.ChatHistoryRepository;
+import com.coconut.repository.ChatHistoryRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,7 +25,7 @@ public class ChatHistoryService {
 
     @Transactional
     public void deleteAllByUserIdAndChatRoomId(Long userId, Long chatRoomId) {
-        chatHistoryRepository.deleteChatHistoriesByChatRoom_IdAndUser_Id(chatRoomId, userId);
+        chatHistoryRepository.deleteAllByChatRoomIdAndUserId(chatRoomId, userId);
     }
 
     public Optional<ArrayList<ChatHistory>> findAllMessages(Long chatRoomId) {

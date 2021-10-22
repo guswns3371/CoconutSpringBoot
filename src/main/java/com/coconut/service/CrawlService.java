@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import static com.coconut.service.utils.url.CrawlUrl.*;
+import static com.coconut.utils.url.CrawlUrl.*;
 
 @Slf4j
 @RequiredArgsConstructor

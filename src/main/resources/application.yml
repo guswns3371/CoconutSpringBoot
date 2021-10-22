@@ -1,5 +1,5 @@
 server:
-  port: 8081
+  port: 8080
 
 socket:
   host: localhost
@@ -20,7 +20,7 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3307/coconut_db?serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true&useSSL=false&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:3306/coconut_db?serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true&useSSL=false&characterEncoding=UTF-8
     username: root
     password: wnsgusgk3537
 

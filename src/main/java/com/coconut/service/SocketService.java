@@ -6,7 +6,10 @@ import com.coconut.api.dto.res.ChatHistorySaveResDto;
 import com.coconut.config.fcm.FirebaseCloudMessageService;
 import com.coconut.domain.chat.*;
 import com.coconut.domain.user.User;
-import com.coconut.domain.user.UserRepository;
+import com.coconut.repository.ChatHistoryRepository;
+import com.coconut.repository.UserChatHistoryRepository;
+import com.coconut.repository.UserChatRoomRepository;
+import com.coconut.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
@@ -88,13 +91,17 @@ public class SocketService {
             List<ChatHistory> chatHistoryList = optionalChatHistoryList.get();
             User user = optionalUser.get();
 
-            chatHistoryList.forEach(history ->{
+            chatHistoryList.forEach(history -> {
                 boolean isExist = userChatHistoryRepository.existsUserChatHistoryByChatHistoryAndUser(history, user);
                 if (!isExist && !history.getMessageType().equals(MessageType.INFO)) {
+                    // 메시지 읽음 표시
                     userChatHistoryRepository.save(UserChatHistory.builder()
                             .chatHistory(history)
                             .user(user)
                             .build());
+
+                    // 읽은 유저수 갱신
+                    history.updateReadCount();
                 }
             });
         }
@@ -171,8 +178,9 @@ public class SocketService {
 
         Optional<UserChatRoom> optionalUserChatRoom =
                 userChatRoomRepository.findUserChatRoomByChatRoom_IdAndUser_Id(Long.parseLong(chatRoomId), Long.parseLong(userId));
-        if (optionalUserChatRoom.isEmpty())
-            return;
+        if (optionalUserChatRoom.isEmpty()) {
+            throw new IllegalStateException("존재하지 않는 UserChatRoom");
+        }
 
 
         UserChatRoom socketUserChatRoom = optionalUserChatRoom.get();
@@ -199,14 +207,11 @@ public class SocketService {
         ChatHistory savedHistory = chatHistoryRepository.save(ChatHistory.builder()
                 .user(socketUser)
                 .chatRoom(socketChatRoom)
-                .readMembers(Integer.toString(readMembers.size()))
                 .history(chatHistory)
                 .chatImages(stringChatImages)
                 .messageType(messageType)
                 .build());
 
-        ChatHistorySaveResDto resDto = savedHistory.toChatHistorySaveResDto();
-        messageSender.convertAndSend("/sub/chat/message/" + dto.getChatRoomId(), resDto);
 
         ArrayList<User> ReadMembers = users.stream()
                 .filter(it -> readMembers.contains(it.getId().toString()))
@@ -222,6 +227,13 @@ public class SocketService {
                         .build());
             }
         });
+
+        // 읽은 유저수 갱신
+        savedHistory.updateReadCount();
+
+        // 메시지 보내기
+        ChatHistorySaveResDto resDto = savedHistory.toChatHistorySaveResDto();
+        messageSender.convertAndSend("/sub/chat/message/" + dto.getChatRoomId(), resDto);
 
         ArrayList<User> unReadMembers = users.stream()
                 .filter(it -> !readMembers.contains(it.getId().toString()))

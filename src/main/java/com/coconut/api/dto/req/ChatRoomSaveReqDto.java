@@ -17,11 +17,11 @@ public class ChatRoomSaveReqDto {
      * @SerializedName("chatRoomMembers") var chatRoomMembers : ArrayList<String>
      */
 
-    private String chatUserId;
+    private Long chatUserId;
     private ArrayList<String> chatRoomMembers;
 
     @Builder
-    public ChatRoomSaveReqDto(String chatUserId, ArrayList<String> chatRoomMembers) {
+    public ChatRoomSaveReqDto(Long chatUserId, ArrayList<String> chatRoomMembers) {
         this.chatUserId = chatUserId;
         this.chatRoomMembers = chatRoomMembers.stream()
                 .distinct()

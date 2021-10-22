@@ -15,12 +15,12 @@ public class ChatRoomDataReqDto {
      *     @SerializedName("chatRoomMembers") var chatRoomMembers : ArrayList<String>
      */
 
-    private String chatUserId;
-    private String chatRoomId;
+    private Long chatUserId;
+    private Long chatRoomId;
     private ArrayList<String> chatRoomMembers;
 
     @Builder
-    public ChatRoomDataReqDto(String chatUserId, String chatRoomId, ArrayList<String> chatRoomMembers) {
+    public ChatRoomDataReqDto(Long chatUserId, Long chatRoomId, ArrayList<String> chatRoomMembers) {
         this.chatUserId = chatUserId;
         this.chatRoomId = chatRoomId;
         this.chatRoomMembers = chatRoomMembers;

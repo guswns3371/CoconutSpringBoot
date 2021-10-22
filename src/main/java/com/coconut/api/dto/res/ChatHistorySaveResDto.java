@@ -1,19 +1,19 @@
 package com.coconut.api.dto.res;
 
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 
 @NoArgsConstructor
-@Getter
+@Data
 public class ChatHistorySaveResDto {
     /**
      * @SerializedName("userInfo") var userInfo : UserDataResponse,
      * @SerializedName("chatRoomId") var chatRoomId : String,
      * @SerializedName("chatUserId") var chatUserId : String,
-     * @SerializedName("readMembers") var readMembers : String,
+     * @SerializedName("readCount") var readMembers : String,
      * @SerializedName("time") var time : String,
      * @SerializedName("history") var history : String,
      * @SerializedName("chatImages") var chatImages : String,
@@ -23,35 +23,23 @@ public class ChatHistorySaveResDto {
     private UserDataResDto userInfo;
     private String chatRoomId;
     private String chatUserId;
-    private String readMembers;
+    private int readCount;
     private String time;
     private String history;
     private ArrayList<String> chatImages;
     private String messageType;
 
     @Builder
-    public ChatHistorySaveResDto(UserDataResDto userInfo, String chatRoomId, String chatUserId, String readMembers, String time, String history, ArrayList<String> chatImages, String messageType) {
+    public ChatHistorySaveResDto(UserDataResDto userInfo, String chatRoomId, String chatUserId, int readCount, String time, String history, ArrayList<String> chatImages, String messageType) {
         this.userInfo = userInfo;
         this.chatRoomId = chatRoomId;
         this.chatUserId = chatUserId;
-        this.readMembers = readMembers;
+        this.readCount = readCount;
         this.time = time;
         this.history = history;
         this.chatImages = chatImages;
         this.messageType = messageType;
     }
 
-    @Override
-    public String toString() {
-        return "ChatHistorySaveResDto{" +
-                "userInfo=" + userInfo +
-                ", chatRoomId='" + chatRoomId + '\'' +
-                ", chatUserId='" + chatUserId + '\'' +
-                ", readMembers='" + readMembers + '\'' +
-                ", time='" + time + '\'' +
-                ", history='" + history + '\'' +
-                ", chatImages='" + chatImages + '\'' +
-                ", messageType='" + messageType + '\'' +
-                '}';
-    }
+
 }

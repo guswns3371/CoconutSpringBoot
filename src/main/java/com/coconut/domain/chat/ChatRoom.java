@@ -49,15 +49,10 @@ public class ChatRoom extends BaseTimeEntity {
         this.lastMessage = lastMessage;
     }
 
-    public List<Long> getLongChatMembers() {
-        List<String> members = getStringChatMembers();
-        return members.stream()
+    public List<Long> getUserIds() {
+        return getChatMembers().stream()
                 .map(Long::parseLong)
                 .collect(Collectors.toList());
-    }
-
-    public List<String> getStringChatMembers() {
-        return Arrays.asList(members.substring(1, members.length() - 1).split(", "));
     }
 
     public UserChatRoom getUserChatRoom(String userId) {
@@ -78,20 +73,21 @@ public class ChatRoom extends BaseTimeEntity {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public void exitChatRoom(String exitUserId) {
-        List<String> members = getStringChatMembers();
-        if (members.size() > 2)
-            this.members = members.stream()
-                    .filter(it -> !it.equals(exitUserId))
-                    .collect(Collectors.toCollection(ArrayList::new))
-                    .toString();
+    public void exitRoom(Long userId) {
+        this.members = getChatMembers().stream()
+                .filter(it -> !it.equals(userId.toString()))
+                .collect(Collectors.toCollection(ArrayList::new))
+                .toString();
     }
 
-    public void inviteMembers(ArrayList<String> members) {
-        List<String> existMembers = getStringChatMembers();
+    public void addMembers(ArrayList<String> members) {
+        List<String> existMembers = getChatMembers();
         existMembers.addAll(members);
-        existMembers = existMembers.stream().sorted().distinct().collect(Collectors.toList());
-        this.members = existMembers.toString();
+        this.members = existMembers.stream().sorted().distinct().collect(Collectors.toList()).toString();
+    }
+
+    public List<String> getChatMembers() {
+        return new ArrayList<>(Arrays.asList(members.substring(1, members.length() - 1).split(", ")));
     }
 
 }
