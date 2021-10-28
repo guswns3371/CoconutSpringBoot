@@ -1,6 +1,8 @@
 package com.coconut.service;
 
 import com.coconut.api.dto.*;
+import com.coconut.utils.file.FilesStorageService;
+import com.coconut.utils.selenium.SeleniumService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
@@ -8,9 +10,12 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.coconut.utils.url.CrawlUrl.*;
@@ -19,6 +24,9 @@ import static com.coconut.utils.url.CrawlUrl.*;
 @RequiredArgsConstructor
 @Service
 public class CrawlService {
+
+    private final FilesStorageService filesStorageService;
+    private final SeleniumService seleniumService;
 
     public List<CovidStatDto> getKoreaCovidData() throws IOException {
 
@@ -105,26 +113,28 @@ public class CrawlService {
 
     public List<MusicDto> getMusicTopList() throws IOException {
         List<MusicDto> musicDtoList = new ArrayList<>();
-        Document doc = Jsoup.connect(MELON_MUSIC_URL)
-                .userAgent(USER_AGENT)
-                .get();
 
-        Elements contents = doc.select("table tbody tr");
+        for (int i = 1; i <= 2; i++) {
+            Document doc = Jsoup.connect(MUSIC_URL + "?ditc=D&ymd=20211027&hh=14&rtm=Y&pg=" + i)
+                    .userAgent(USER_AGENT)
+                    .get();
 
-        for (Element content : contents) {
-            String albumImage = content.select("td > div.wrap > a.image_typeAll > img").attr("src");
-            String songTitle = content.select("td > div.wrap > div.wrap_song_info > div[class=ellipsis rank01] > span > a").text();
-            String artist = content.select("td > div.wrap > div.wrap_song_info > div[class=ellipsis rank02] > a").text();
-            String albumTitle = content.select("td > div.wrap > div.wrap_song_info > div[class=ellipsis rank03] > a").text();
+            Elements contents = doc.select("tr[class=list]");
+            for (Element content : contents) {
+                String albumImage = content.select("a[class=cover] > img").attr("src");
+                String songTitle = content.select("a[class=title ellipsis]").text();
+                String albumTitle = content.select("a[class=albumtitle ellipsis]").text();
+                String artist = content.select("a[class=artist ellipsis]").text();
 
-            MusicDto musicDto = MusicDto.builder()
-                    .albumImage(albumImage)
-                    .songTitle(songTitle)
-                    .artist(artist)
-                    .albumTitle(albumTitle)
-                    .build();
+                MusicDto musicDto = MusicDto.builder()
+                        .albumImage("https:" + albumImage)
+                        .songTitle(songTitle)
+                        .artist(artist)
+                        .albumTitle(albumTitle)
+                        .build();
 
-            musicDtoList.add(musicDto);
+                musicDtoList.add(musicDto);
+            }
         }
 
         return musicDtoList;
@@ -160,42 +170,47 @@ public class CrawlService {
     public List<JobDto> getJobList() throws IOException {
         List<JobDto> jobDtoList = new ArrayList<>();
 
-        for (int i = 1; i <= 3; i++) {
-            Document doc = Jsoup.connect(PROGRAMMERS_URL + "job?page=" + i)
-                    .userAgent(USER_AGENT)
-                    .get();
+        Document doc = Jsoup.connect(JOB_PLANET_URL + JOB_PARAMS + "&page=1")
+                .userAgent(USER_AGENT)
+                .get();
 
-            Elements contents = doc.select("ul[class=list-positions] li[class=list-position-item ]");
-            for (Element content : contents) {
-                Element itemBody = content.selectFirst("div[class=item-body]");
-                String companyImage = content.select("div[class=item-header] > img").attr("src");
-                String jobTitle = itemBody.select("h5[class=position-title] > a").text();
-                String jobLink = itemBody.select("h5[class=position-title] > a").attr("href");
-                String companyName = itemBody.select("h6[class=company-name]").text();
-                String career = itemBody.select("ul[class=company-info] > li[class=experience]").text();
-                String location = itemBody.select("ul[class=company-info] > li[class=location]").text();
-                String position = itemBody.select("ul[class=list-position-tags] li[class=stack-item js-position-tag-filter-item cursor-pointer]")
-                        .stream()
-                        .map(Element::text)
-                        .collect(Collectors.joining(" "));
+        Elements contents = doc.select("div[class=result_unit_con]");
+        for (Element content : contents) {
+            String companyImage = content.select("span.llogo > a > img").attr("src");
+            String jobLink = content.select("span.llogo > a").attr("href");
 
-                if (companyName.contains("평")) {
-                    companyName = companyName.split("(평균)")[0];
-                }
+            Element itemBody = content.selectFirst("div[class=result_unit_info]");
+            String jobTitle = itemBody.select("div[class=unit_head] > a").text();
+            String companyName = itemBody.select("p[class=company_name] > a[class=btn_open]").text();
+            String salary = itemBody.select("a[class=salary]").text();
+            String location = itemBody.select("span[class=tags ]")
+                    .stream()
+                    .map(Element::text)
+                    .collect(Collectors.joining(" "));
+            String dDay = itemBody.select("div[class=unit_head] > span").text();
 
-                JobDto jobDto = JobDto.builder()
-                        .companyName(companyName)
-                        .companyImage(companyImage)
-                        .jobLink(PROGRAMMERS_URL + jobLink)
-                        .location(location)
-                        .position(position)
-                        .jobTitle(jobTitle)
-                        .career(career)
-                        .build();
-
-                jobDtoList.add(jobDto);
+            if (!StringUtils.hasText(salary)) {
+                salary = "-";
             }
+            if (dDay.contains("(")) {
+                dDay = dDay.substring(0, 4);
+            } else if (!StringUtils.hasText(dDay)) {
+                dDay = "-";
+            }
+            JobDto jobDto = JobDto.builder()
+                    .companyName(companyName)
+                    .companyImage(companyImage)
+                    .jobLink(JOB_PLANET_URL + jobLink)
+                    .location(location)
+                    .position(salary)
+                    .jobTitle(jobTitle)
+                    .career(dDay)
+                    .build();
+            jobDtoList.add(jobDto);
         }
+
         return jobDtoList;
     }
+
+
 }

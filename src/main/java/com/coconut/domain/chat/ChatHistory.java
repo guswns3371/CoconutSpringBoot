@@ -14,6 +14,7 @@ import javax.persistence.*;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 @Getter
 @NoArgsConstructor
@@ -95,7 +96,7 @@ public class ChatHistory extends BaseTimeEntity {
                 .chatRoomId(chatRoom.getId().toString())
                 .chatUserId(user.getId().toString())
                 .readCount(readCount)
-                .time(getCreatedDate().format(DateTimeFormatter.ofPattern("a h: mm")))
+                .time(getCreatedDate().format(DateTimeFormatter.ofPattern("a h: mm", Locale.KOREA)))
                 .history(history)
                 .chatImages(chatImagesString)
                 .messageType(getMessageTypeKey())

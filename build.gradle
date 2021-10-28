@@ -104,6 +104,9 @@ dependencies {
     // jsoup for crawling
     compile group: 'org.jsoup', name: 'jsoup', version: '1.11.3'
 
+    // selenium for crawling
+    compile group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '3.3.1'
+
     // Swagger 2
     implementation group: 'io.springfox', name: 'springfox-swagger2', version: '2.9.2'
     implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.9.2'
