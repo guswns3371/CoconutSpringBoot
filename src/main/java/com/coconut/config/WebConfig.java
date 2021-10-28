@@ -14,7 +14,7 @@ import java.util.List;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
-    @Value("uploads")
+    @Value("/uploads")
     private String path;
     
     private final LoginUserArgumentResolver loginUserArgumentResolver;

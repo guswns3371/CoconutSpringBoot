@@ -158,7 +158,8 @@ public class SocketService {
         String chatRoomId = dto.getChatRoomId();
         String chatMessage = dto.getChatMessage();
         ArrayList<String> roomMembers = dto.getChatRoomMembers();
-        ArrayList<String> readMembers = dto.getReadMembers();
+//        ArrayList<String> readMembers = dto.getReadMembers();
+        ArrayList<String> readMembers = enteredUserMap.get(chatRoomId);
         ArrayList<String> chatImages = dto.getChatImages();
 
         MessageType messageType;

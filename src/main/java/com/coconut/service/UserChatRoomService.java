@@ -2,8 +2,8 @@ package com.coconut.service;
 
 import com.coconut.domain.chat.ChatRoom;
 import com.coconut.domain.chat.UserChatRoom;
-import com.coconut.repository.UserChatRoomRepository;
 import com.coconut.domain.user.User;
+import com.coconut.repository.UserChatRoomRepository;
 import com.coconut.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

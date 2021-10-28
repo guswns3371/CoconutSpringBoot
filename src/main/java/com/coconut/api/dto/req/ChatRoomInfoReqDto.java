@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.format.DateTimeFormatter;
+import java.util.Locale;
 
 @NoArgsConstructor
 @Data
@@ -31,7 +32,7 @@ public class ChatRoomInfoReqDto {
         this.members = entity.getMembers();
         this.roomType = entity.getRoomType().getKey();
         this.lastMessage = entity.getLastMessage();
-        this.lastTime = entity.getModifiedDate().format(DateTimeFormatter.ofPattern("a h: mm"));
+        this.lastTime = entity.getModifiedDate().format(DateTimeFormatter.ofPattern("a h: mm", Locale.KOREA));
     }
 
 

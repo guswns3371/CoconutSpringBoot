@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Locale;
 
 @NoArgsConstructor
 @Getter
@@ -49,7 +50,9 @@ public class ChatHistoryResDto {
         this.chatRoomId = entity.getId().toString();
         this.chatUserId = entity.getUser().getId().toString();
         this.readCount = entity.getReadCount();
-        this.time = entity.getCreatedDate().format(DateTimeFormatter.ofPattern("a h: mm"));
+        this.time = entity.getCreatedDate().format(
+                DateTimeFormatter.ofPattern("a h:mm", Locale.KOREA));
+//        this.time = entity.getCreatedDate().toString();
         this.history = entity.getHistory();
         String images = entity.getChatImages();
         this.chatImages = (images == null) ? null : new ArrayList<>(Arrays.asList(images.substring(1, images.length() - 1).split(", ")));
