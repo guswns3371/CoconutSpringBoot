@@ -1,6 +1,6 @@
 package com.coconut;
 
-import com.coconut.base.utils.file.FilesStorageService;
+import com.coconut.common.utils.file.FilesStorageService;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.boot.CommandLineRunner;

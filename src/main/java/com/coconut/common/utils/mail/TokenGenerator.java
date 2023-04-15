@@ -1,4 +1,4 @@
-package com.coconut.base.utils.mail;
+package com.coconut.common.utils.mail;
 
 import lombok.NoArgsConstructor;
 

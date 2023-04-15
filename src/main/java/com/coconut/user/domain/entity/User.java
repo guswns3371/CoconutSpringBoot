@@ -6,7 +6,7 @@ import com.coconut.chat.domain.entity.ChatRoom;
 import com.coconut.chat.domain.entity.UserChatHistory;
 import com.coconut.chat.domain.entity.UserChatRoom;
 import com.coconut.user.domain.constant.Role;
-import com.coconut.base.utils.mail.TokenGenerator;
+import com.coconut.common.utils.mail.TokenGenerator;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

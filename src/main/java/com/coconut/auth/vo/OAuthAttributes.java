@@ -1,4 +1,4 @@
-package com.coconut.auth.ouath;
+package com.coconut.auth.vo;
 
 import com.coconut.user.domain.constant.Role;
 import com.coconut.user.domain.entity.User;

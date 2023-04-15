@@ -1,5 +1,6 @@
-package com.coconut.auth.ouath;
+package com.coconut.auth.ouath.anno;
 
+import com.coconut.auth.vo.SessionUser;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;

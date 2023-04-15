@@ -1,7 +1,7 @@
 package com.coconut.crawl.application;
 
 import com.coconut.crawl.presentation.dto.*;
-import com.coconut.base.utils.file.FilesStorageService;
+import com.coconut.common.utils.file.FilesStorageService;
 import com.coconut.crawl.utils.selenium.SeleniumService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

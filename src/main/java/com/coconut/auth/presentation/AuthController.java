@@ -10,7 +10,7 @@ import com.coconut.user.domain.constant.Role;
 import com.coconut.user.domain.entity.User;
 import com.coconut.user.application.UserService;
 import com.coconut.user.utils.encrypt.EncryptHelper;
-import com.coconut.base.utils.mail.MailService;
+import com.coconut.common.utils.mail.MailService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

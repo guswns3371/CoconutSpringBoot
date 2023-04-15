@@ -1,4 +1,4 @@
-package com.coconut.base.config;
+package com.coconut.common.config;
 
 
 import com.coconut.auth.ouath.CustomOAuth2UserService;

@@ -1,6 +1,6 @@
-package com.coconut.base.config;
+package com.coconut.common.config;
 
-import com.coconut.auth.ouath.LoginUserArgumentResolver;
+import com.coconut.auth.ouath.anno.LoginUserArgumentResolver;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;

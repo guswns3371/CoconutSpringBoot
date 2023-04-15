@@ -1,4 +1,4 @@
-package com.coconut.auth.ouath;
+package com.coconut.auth.ouath.anno;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

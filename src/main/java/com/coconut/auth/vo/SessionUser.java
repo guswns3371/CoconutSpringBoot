@@ -1,4 +1,4 @@
-package com.coconut.auth.ouath;
+package com.coconut.auth.vo;
 
 // SessionUser 에는 인증된 사용자 정보만 필요하다.
 // 그 외의 정보는 필요 없으니 name, email, picture만 필드로 선언한다.

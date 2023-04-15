@@ -1,7 +1,7 @@
 package com.coconut.user.presentation.dto;
 
 import com.coconut.user.domain.entity.User;
-import com.coconut.base.utils.file.PathNameBuilder;
+import com.coconut.common.utils.file.PathNameBuilder;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

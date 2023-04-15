@@ -5,7 +5,7 @@ import com.coconut.base.presentation.dto.BaseResDto;
 import com.coconut.auth.presentation.dto.UserDataResDto;
 import com.coconut.user.domain.entity.User;
 import com.coconut.user.application.UserService;
-import com.coconut.base.utils.file.FilesStorageService;
+import com.coconut.common.utils.file.FilesStorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;

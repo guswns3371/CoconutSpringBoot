@@ -1,4 +1,4 @@
-package com.coconut.base.utils.mail;
+package com.coconut.common.utils.mail;
 
 import com.coconut.crawl.presentation.dto.MailDto;
 import lombok.RequiredArgsConstructor;

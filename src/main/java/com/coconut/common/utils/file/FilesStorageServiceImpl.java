@@ -1,4 +1,4 @@
-package com.coconut.base.utils.file;
+package com.coconut.common.utils.file;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,5 +1,7 @@
 package com.coconut.auth.ouath;
 
+import com.coconut.auth.vo.OAuthAttributes;
+import com.coconut.auth.vo.SessionUser;
 import com.coconut.user.domain.entity.User;
 import com.coconut.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
