@@ -1,7 +1,6 @@
 package com.coconut.chat.domain.entity;
 
 import com.coconut.user.domain.entity.User;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -25,10 +24,14 @@ public class UserChatHistory {
     @JoinColumn(name = "chat_history_id")
     private ChatHistory chatHistory;
 
-    @Builder
-    public UserChatHistory(User user, ChatHistory chatHistory) {
+
+    private UserChatHistory(User user, ChatHistory chatHistory) {
         setUser(user);
         setChatHistory(chatHistory);
+    }
+
+    public static UserChatHistory create(User user, ChatHistory chatHistory) {
+        return new UserChatHistory(user, chatHistory);
     }
 
     public void setUser(User user) {

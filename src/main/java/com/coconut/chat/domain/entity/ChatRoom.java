@@ -3,7 +3,6 @@ package com.coconut.chat.domain.entity;
 import com.coconut.base.domain.BaseTimeEntity;
 import com.coconut.chat.domain.constant.RoomType;
 import com.coconut.user.domain.entity.User;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,6 +10,7 @@ import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Getter
@@ -34,20 +34,22 @@ public class ChatRoom extends BaseTimeEntity {
     private RoomType roomType = RoomType.GROUP;
 
     @OneToMany(mappedBy = "chatRoom", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<UserChatRoom> userChatRoomList = new ArrayList<>();
+    private final List<UserChatRoom> userChatRoomList = new ArrayList<>();
 
     @OneToMany(mappedBy = "chatRoom", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<ChatHistory> chatHistoryList = new ArrayList<>();
+    private final List<ChatHistory> chatHistoryList = new ArrayList<>();
 
-    @Builder
-    public ChatRoom(String lastMessage, String members, RoomType roomType) {
-        this.lastMessage = lastMessage;
+    private ChatRoom(String members, RoomType roomType) {
         this.members = members;
         this.roomType = roomType;
     }
 
+    public static ChatRoom create(String members, RoomType roomType) {
+        return new ChatRoom(members, roomType);
+    }
+
     public void updateLastMessage(String lastMessage) {
-        this.lastMessage = lastMessage;
+        this.lastMessage = Objects.requireNonNull(lastMessage);
     }
 
     public List<Long> getUserIds() {

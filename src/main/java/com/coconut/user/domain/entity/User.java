@@ -5,9 +5,8 @@ import com.coconut.chat.domain.entity.ChatHistory;
 import com.coconut.chat.domain.entity.ChatRoom;
 import com.coconut.chat.domain.entity.UserChatHistory;
 import com.coconut.chat.domain.entity.UserChatRoom;
-import com.coconut.user.domain.constant.Role;
 import com.coconut.common.utils.mail.TokenGenerator;
-import lombok.Builder;
+import com.coconut.user.domain.constant.Role;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -44,16 +43,15 @@ public class User extends BaseTimeEntity {
     private Role role = Role.GUEST;
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<UserChatRoom> userChatRoomList = new ArrayList<>();
+    private final List<UserChatRoom> userChatRoomList = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<ChatHistory> chatHistoryList = new ArrayList<>();
+    private final List<ChatHistory> chatHistoryList = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private List<UserChatHistory> userChatHistoryList = new ArrayList<>();
+    private final List<UserChatHistory> userChatHistoryList = new ArrayList<>();
 
-    @Builder
-    public User(String usrId, String name, String email, String password, String stateMessage, String profilePicture, String backgroundPicture, String confirmToken, Role role, String fcmToken) {
+    private User(String usrId, String name, String email, String password, String stateMessage, String profilePicture, String backgroundPicture, String confirmToken, Role role, String fcmToken) {
         this.usrId = usrId;
         this.name = name;
         this.email = email;
@@ -64,6 +62,18 @@ public class User extends BaseTimeEntity {
         this.confirmToken = confirmToken;
         this.role = role;
         this.fcmToken = fcmToken;
+    }
+
+    private User(String email, String name, String userId, String password, Role role) {
+        this.email = email;
+        this.name = name;
+        this.usrId = userId;
+        this.password = password;
+        this.role = role;
+    }
+
+    public static User create(String email, String name, String userId, String password, Role role) {
+        return new User(email, name, userId, password, role);
     }
 
     public User update(User entity) {

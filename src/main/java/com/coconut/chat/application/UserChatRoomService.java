@@ -44,10 +44,7 @@ public class UserChatRoomService {
         }
 
         ArrayList<UserChatRoom> userChatRooms = optionalUsers.get().stream()
-                .map(user -> UserChatRoom.builder()
-                        .chatRoom(chatRoom)
-                        .user(user)
-                        .build())
+                .map(user -> UserChatRoom.create(user, chatRoom))
                 .collect(Collectors.toCollection(ArrayList::new));
 
         userChatRoomRepository.saveAll(userChatRooms);
@@ -56,6 +53,7 @@ public class UserChatRoomService {
     public boolean exist(Long chatRoomId, Long userId) {
         return userChatRoomRepository.existsUserChatRoomByChatRoom_IdAndUser_Id(chatRoomId, userId);
     }
+
     public Optional<UserChatRoom> findByUserIdAndChatRoomId(Long userId, Long chatRoomId) {
         return userChatRoomRepository.findUserChatRoomByChatRoom_IdAndUser_Id(chatRoomId, userId);
     }

@@ -1,13 +1,12 @@
 package com.coconut.chat.domain.entity;
 
-import com.coconut.chat.presentation.dto.ChatHistorySaveResDto;
 import com.coconut.auth.presentation.dto.UserDataResDto;
 import com.coconut.base.domain.BaseTimeEntity;
 import com.coconut.chat.domain.constant.MessageType;
+import com.coconut.chat.presentation.dto.ChatHistorySaveResDto;
 import com.coconut.user.domain.entity.User;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.GsonBuilder;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -16,6 +15,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 @Getter
 @NoArgsConstructor
@@ -51,25 +51,31 @@ public class ChatHistory extends BaseTimeEntity {
     @OneToMany(mappedBy = "chatHistory", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<UserChatHistory> userChatHistoryList = new ArrayList<>();
 
-    @Builder
-    public ChatHistory(String history, int readCount, String chatImages, MessageType messageType, User user, ChatRoom chatRoom) {
-        this.history = history;
-        this.readCount = readCount;
-        this.chatImages = chatImages;
-        this.messageType = messageType;
+    private ChatHistory(User user, ChatRoom chatRoom, String history, MessageType messageType, String chatImages) {
         setUser(user);
         setChatRoom(chatRoom);
+        this.history = Objects.requireNonNull(history);
+        this.messageType = Objects.requireNonNull(messageType);
+        this.chatImages = chatImages;
+    }
+
+    public static ChatHistory create(User user, ChatRoom chatRoom, String history, MessageType messageType) {
+        return create(user, chatRoom, history, messageType, null);
+    }
+
+    public static ChatHistory create(User user, ChatRoom chatRoom, String history, MessageType messageType, String chatImages) {
+        return new ChatHistory(user, chatRoom, history, messageType, chatImages);
     }
 
     private void setUser(User user) {
-        this.user = user;
+        this.user = Objects.requireNonNull(user);
         if (!user.getChatHistoryList().contains(this)) {
             user.getChatHistoryList().add(this);
         }
     }
 
     private void setChatRoom(ChatRoom chatRoom) {
-        this.chatRoom = chatRoom;
+        this.chatRoom = Objects.requireNonNull(chatRoom);
         if (!chatRoom.getChatHistoryList().contains(this)) {
             chatRoom.getChatHistoryList().add(this);
         }
