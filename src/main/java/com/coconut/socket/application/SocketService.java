@@ -98,10 +98,7 @@ public class SocketService {
                 boolean isExist = userChatHistoryRepository.existsUserChatHistoryByChatHistoryAndUser(history, user);
                 if (!isExist && !history.getMessageType().equals(MessageType.INFO)) {
                     // 메시지 읽음 표시
-                    userChatHistoryRepository.save(UserChatHistory.builder()
-                            .chatHistory(history)
-                            .user(user)
-                            .build());
+                    userChatHistoryRepository.save(UserChatHistory.create(user, history));
 
                     // 읽은 유저수 갱신
                     history.updateReadCount();
@@ -208,14 +205,7 @@ public class SocketService {
                 .collect(Collectors.toList()).get(0);
 
         // 채팅 기록 저장
-        ChatHistory savedHistory = chatHistoryRepository.save(ChatHistory.builder()
-                .user(socketUser)
-                .chatRoom(socketChatRoom)
-                .history(chatHistory)
-                .chatImages(stringChatImages)
-                .messageType(messageType)
-                .build());
-
+        ChatHistory savedHistory = chatHistoryRepository.save(ChatHistory.create(socketUser, socketChatRoom, chatHistory, messageType, stringChatImages));
 
         ArrayList<User> ReadMembers = users.stream()
                 .filter(it -> readMembers.contains(it.getId().toString()))
@@ -225,10 +215,7 @@ public class SocketService {
         ReadMembers.forEach(readUser -> {
             boolean isExist = userChatHistoryRepository.existsUserChatHistoryByChatHistoryAndUser(savedHistory, readUser);
             if (!isExist && !savedHistory.getMessageType().equals(MessageType.INFO)) {
-                userChatHistoryRepository.save(UserChatHistory.builder()
-                        .chatHistory(savedHistory)
-                        .user(readUser)
-                        .build());
+                userChatHistoryRepository.save(UserChatHistory.create(readUser, savedHistory));
             }
         });
 

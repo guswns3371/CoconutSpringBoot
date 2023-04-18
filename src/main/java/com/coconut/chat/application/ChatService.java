@@ -81,10 +81,7 @@ public class ChatService {
         // 채팅방 종류
         RoomType roomType = (members.size() == 1 && members.get(0).equals(userId.toString())) ? RoomType.ME : RoomType.GROUP;
         // 채팅방 생성
-        ChatRoom chatRoom = chatRoomService.save(ChatRoom.builder()
-                .roomType(roomType)
-                .members(members.toString())
-                .build());
+        ChatRoom chatRoom = chatRoomService.save(ChatRoom.create(members.toString(), roomType));
 
         // 유저마다 개별 UserChatRoom 생성 : saveAll
         userChatRoomService.saveAll(reqDto.getMemberLongIds(), chatRoom);
@@ -269,21 +266,15 @@ public class ChatService {
 
         // 초대 받은 유저들의 UserChatRoom 을 만든다
         guestUsers.forEach(user -> {
-            userChatRoomRepository.save(
-                    UserChatRoom.builder()
-                            .chatRoom(chatRoom)
-                            .user(user)
-                            .build());
+            userChatRoomRepository.save(UserChatRoom.create(user, chatRoom));
         });
 
         // 채팅 기록 저장
         String guestNames = getChatRoomName(guestUsers, userId);
-        ChatHistory savedHistory = chatHistoryRepository.save(ChatHistory.builder()
-                .user(hostUser)
-                .chatRoom(chatRoom)
-                .history("'" + hostUser.getName() + "'님이 '" + guestNames + "' 님을 초대하였습니다.")
-                .messageType(MessageType.INFO)
-                .build());
+
+        final String historyMessage = "'" + hostUser.getName() + "'님이 '" + guestNames + "' 님을 초대하였습니다.";
+        final ChatHistory chatHistory = ChatHistory.create(hostUser, chatRoom, historyMessage, MessageType.INFO);
+        final ChatHistory savedHistory = chatHistoryRepository.save(chatHistory);
 
         // 채팅방에 기록 남기기
         ChatHistorySaveResDto resDto = savedHistory.toChatHistorySaveResDto();
@@ -345,12 +336,9 @@ public class ChatService {
             userChatRoomRepository.delete(userChatRoom);
 
             // 채팅 기록 저장
-            ChatHistory savedHistory = chatHistoryRepository.save(ChatHistory.builder()
-                    .user(exitUser)
-                    .chatRoom(chatRoom)
-                    .history("'" + exitUser.getName() + "' 님이 채팅방을 나갔습니다.")
-                    .messageType(MessageType.INFO)
-                    .build());
+            final String historyMessage = "'" + exitUser.getName() + "' 님이 채팅방을 나갔습니다.";
+            final ChatHistory chatHistory = ChatHistory.create(exitUser, chatRoom, historyMessage, MessageType.INFO);
+            final ChatHistory savedHistory = chatHistoryRepository.save(chatHistory);
 
             // 채팅방에 알리기
             ChatHistorySaveResDto resDto = savedHistory.toChatHistorySaveResDto();

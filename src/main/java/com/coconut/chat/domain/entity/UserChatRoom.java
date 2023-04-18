@@ -3,7 +3,6 @@ package com.coconut.chat.domain.entity;
 import com.coconut.base.domain.BaseTimeEntity;
 import com.coconut.chat.domain.constant.AbleType;
 import com.coconut.user.domain.entity.User;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.util.StringUtils;
@@ -40,12 +39,13 @@ public class UserChatRoom extends BaseTimeEntity {
     @JoinColumn(name = "chat_room_id")
     private ChatRoom chatRoom;
 
-    @Builder
-    public UserChatRoom(String chatRoomName, int unReads, User user, ChatRoom chatRoom) {
+    private UserChatRoom(User user, ChatRoom chatRoom) {
         setUser(user);
         setChatRoom(chatRoom);
-        this.unReads = unReads;
-        this.chatRoomName = chatRoomName;
+    }
+
+    public static UserChatRoom create(User user, ChatRoom chatRoom) {
+        return new UserChatRoom(user, chatRoom);
     }
 
     // https://cornswrold.tistory.com/355

@@ -97,13 +97,7 @@ public class AuthController {
     @PostMapping()
     public ResponseEntity<UserSaveResDto> saveUser(@RequestBody UserSaveReqDto requestDto) {
 
-        User user = User.builder()
-                .email(requestDto.getEmail())
-                .name(requestDto.getName())
-                .usrId(requestDto.getUserId())
-                .role(Role.GUEST)
-                .password(encryptHelper.encrypt(requestDto.getPassword()))
-                .build();
+        User user = User.create(requestDto.getEmail(), requestDto.getName(), requestDto.getUserId(), encryptHelper.encrypt(requestDto.getPassword()), Role.GUEST);
 
         try {
             userService.save(user);
