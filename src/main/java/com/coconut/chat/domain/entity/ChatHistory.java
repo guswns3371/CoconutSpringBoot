@@ -7,6 +7,7 @@ import com.coconut.chat.presentation.dto.ChatHistorySaveResDto;
 import com.coconut.user.domain.entity.User;
 import com.google.common.reflect.TypeToken;
 import com.google.gson.GsonBuilder;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -51,6 +52,7 @@ public class ChatHistory extends BaseTimeEntity {
     @OneToMany(mappedBy = "chatHistory", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<UserChatHistory> userChatHistoryList = new ArrayList<>();
 
+    @Builder
     private ChatHistory(User user, ChatRoom chatRoom, String history, MessageType messageType, String chatImages) {
         setUser(user);
         setChatRoom(chatRoom);
@@ -60,11 +62,22 @@ public class ChatHistory extends BaseTimeEntity {
     }
 
     public static ChatHistory create(User user, ChatRoom chatRoom, String history, MessageType messageType) {
-        return create(user, chatRoom, history, messageType, null);
+        return ChatHistory.builder()
+                .user(user)
+                .chatRoom(chatRoom)
+                .history(history)
+                .messageType(messageType)
+                .build();
     }
 
     public static ChatHistory create(User user, ChatRoom chatRoom, String history, MessageType messageType, String chatImages) {
-        return new ChatHistory(user, chatRoom, history, messageType, chatImages);
+        return ChatHistory.builder()
+                .user(user)
+                .chatRoom(chatRoom)
+                .history(history)
+                .messageType(messageType)
+                .chatImages(chatImages)
+                .build();
     }
 
     private void setUser(User user) {
