@@ -43,3 +43,5 @@ uploads/
 /src/main/resources/firebase/firebase_service_key.json
 /src/test/resources/application-oauth.yml
 /src/main/resources/application-oauth.yml
+
+docker

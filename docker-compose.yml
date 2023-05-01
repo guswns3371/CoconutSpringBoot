@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+
+  # mysqldb
+  mysql:
+    container_name: coconut
+    image: mysql:8.0.31
+    ports:
+      - "13306:3306"
+    environment:
+      TZ: UTC
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: coconut_db
+      MYSQL_USER: coco
+      MYSQL_PASSWORD: coco
+    volumes:
+      - ./docker/mysql/data:/var/lib/mysql
