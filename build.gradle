@@ -23,11 +23,14 @@ dependencies {
     implementation 'org.testng:testng:7.7.0'
     testImplementation 'org.junit.jupiter:junit-jupiter:5.6.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+
+    implementation 'io.springfox:springfox-boot-starter:3.0.0'
+    implementation 'io.springfox:springfox-swagger-ui:3.0.0'
 
     // lombok
     annotationProcessor "org.projectlombok:lombok:1.18.26"
@@ -54,6 +57,13 @@ dependencies {
     // firebase sdk
     implementation 'com.google.firebase:firebase-admin:9.1.1'
     implementation 'com.squareup.okhttp3:okhttp:4.11.0'
+
+    // jsoup
+    implementation 'org.jsoup:jsoup:1.16.1'
+
+    // selenium
+    implementation 'org.seleniumhq.selenium:selenium:2.0rc2'
+
 }
 
 test {
