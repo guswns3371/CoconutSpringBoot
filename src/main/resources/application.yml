@@ -20,24 +20,20 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/coconut_db?serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true&useSSL=false&characterEncoding=UTF-8
-    username: root
-    password: wnsgusgk3537
+    url: jdbc:mysql://localhost:3307/coconut_db?serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true&useSSL=false&characterEncoding=UTF-8
+    username: test
+    password: test
 
   main:
     allow-bean-definition-overriding: true
 
   jpa:
-    hibernate:
-      ddl-auto: update
-
     properties:
       hibernate:
+        ddl-auto: update
+        format-sql: true
         dialect: org.hibernate.dialect.MySQL5InnoDBDialect
-        show_sql: true
-        format_sql: true
-        use_sql_comments: true
-        default_batch_fetch_size: 100
+    show-sql: true
     generate-ddl: true
     open-in-view: false
 
@@ -46,12 +42,6 @@ spring:
     # spring.session.jdbc.initialize-schema: always 설정이 있어야만 JPA 가 자동으로 세션 저장용 테이블을 생성한다.
     jdbc:
       initialize-schema: always
-
-  http:
-    encoding:
-      charset: UTF-8
-      enabled: true
-      force: true
 
   thymeleaf:
     prefix: classpath:/templates/
@@ -65,9 +55,3 @@ spring:
       max-file-size: 5MB
       max-request-size: 10MB
       enabled: true
-
-logging.level:
-  org.hibernate.type.descriptor.sql: error
-  org.springframework:
-    security: error
-  root: info
