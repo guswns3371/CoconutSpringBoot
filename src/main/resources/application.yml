@@ -20,7 +20,7 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/coconut_db?serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true&useSSL=false&characterEncoding=UTF-8
+    url: jdbc:mysql://localhost:13306/coconut_db?serverTimezone=Asia/Seoul&allowPublicKeyRetrieval=true&useSSL=false&characterEncoding=UTF-8
     username: coco
     password: coco
 
@@ -55,3 +55,6 @@ spring:
       max-file-size: 5MB
       max-request-size: 10MB
       enabled: true
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
