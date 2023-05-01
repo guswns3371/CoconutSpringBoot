@@ -6,11 +6,11 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class ChatRoomExitReqDto {
-    /**
-     *     @SerializedName("chatRoomId") var chatRoomId : String?,
-     *     @SerializedName("userId") var userId : String?
-     */
+  /**
+   *     @SerializedName("chatRoomId") var chatRoomId : String?,
+   *     @SerializedName("userId") var userId : String?
+   */
 
-    private Long chatRoomId;
-    private Long userId;
+  private Long chatRoomId;
+  private Long userId;
 }

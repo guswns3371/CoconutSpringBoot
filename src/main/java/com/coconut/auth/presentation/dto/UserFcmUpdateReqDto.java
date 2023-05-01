@@ -8,18 +8,18 @@ import lombok.NoArgsConstructor;
 @Getter
 public class UserFcmUpdateReqDto {
 
-    /**
-     *     @SerializedName("userId") var userId : String,
-     *     @SerializedName("fcmToken") var fcmToken : String?
-     */
+  /**
+   *     @SerializedName("userId") var userId : String,
+   *     @SerializedName("fcmToken") var fcmToken : String?
+   */
 
-    private String userId;
-    private String fcmToken;
+  private String userId;
+  private String fcmToken;
 
-    @Builder
-    public UserFcmUpdateReqDto(String userId, String fcmToken) {
-        this.userId = userId;
-        this.fcmToken = fcmToken;
-    }
+  @Builder
+  public UserFcmUpdateReqDto(String userId, String fcmToken) {
+    this.userId = userId;
+    this.fcmToken = fcmToken;
+  }
 
 }

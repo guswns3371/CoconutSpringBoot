@@ -2,7 +2,7 @@ package com.coconut.user.utils.encrypt;
 
 public interface EncryptHelper {
 
-    String encrypt(String password);
+  String encrypt(String password);
 
-    boolean isMatch(String password, String hashed);
+  boolean isMatch(String password, String hashed);
 }

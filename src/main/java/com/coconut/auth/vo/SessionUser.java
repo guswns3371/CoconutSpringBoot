@@ -4,10 +4,9 @@ package com.coconut.auth.vo;
 // 그 외의 정보는 필요 없으니 name, email, picture만 필드로 선언한다.
 
 import com.coconut.user.domain.entity.User;
+import java.io.Serializable;
 import lombok.Builder;
 import lombok.Getter;
-
-import java.io.Serializable;
 
 /****
  * SessionUser 대신 User 클래스를 사용하면 직렬화 관련 에러가 발생한다.
@@ -18,26 +17,26 @@ import java.io.Serializable;
  */
 @Getter
 public class SessionUser implements Serializable {
-    private boolean isExited;
-    private String name;
-    private String email;
-    private String profilePicture;
+  private boolean isExited;
+  private String name;
+  private String email;
+  private String profilePicture;
 
-    @Builder
-    public SessionUser(User user) {
-        this.isExited = true;
-        this.name = user.getName();
-        this.email = user.getEmail();
-        this.profilePicture = user.getProfilePicture();
-    }
+  @Builder
+  public SessionUser(User user) {
+    this.isExited = true;
+    this.name = user.getName();
+    this.email = user.getEmail();
+    this.profilePicture = user.getProfilePicture();
+  }
 
-    @Override
-    public String toString() {
-        return "SessionUser{" +
-                "isExited=" + isExited +
-                ", name='" + name + '\'' +
-                ", email='" + email + '\'' +
-                ", profilePicture='" + profilePicture + '\'' +
-                '}';
-    }
+  @Override
+  public String toString() {
+    return "SessionUser{" +
+           "isExited=" + isExited +
+           ", name='" + name + '\'' +
+           ", email='" + email + '\'' +
+           ", profilePicture='" + profilePicture + '\'' +
+           '}';
+  }
 }

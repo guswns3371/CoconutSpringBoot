@@ -6,12 +6,12 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class UserEmailVerifyReqDto {
-    /**
-     *     @SerializedName("email") val email : String,
-     *     @SerializedName("secretToken") val secretToken : String
-     */
+  /**
+   *     @SerializedName("email") val email : String,
+   *     @SerializedName("secretToken") val secretToken : String
+   */
 
-    private String email;
-    private String secretToken;
+  private String email;
+  private String secretToken;
 
 }

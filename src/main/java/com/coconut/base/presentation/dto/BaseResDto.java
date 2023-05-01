@@ -7,17 +7,17 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class BaseResDto {
-    /**
-     *     @SerializedName("success") var success : Boolean,
-     *     @SerializedName("message") var message : String,
-     */
+  /**
+   *     @SerializedName("success") var success : Boolean,
+   *     @SerializedName("message") var message : String,
+   */
 
-    private Boolean success;
-    private String message;
+  private Boolean success;
+  private String message;
 
-    @Builder
-    public BaseResDto(Boolean success, String message) {
-        this.success = success;
-        this.message = message;
-    }
+  @Builder
+  public BaseResDto(Boolean success, String message) {
+    this.success = success;
+    this.message = message;
+  }
 }

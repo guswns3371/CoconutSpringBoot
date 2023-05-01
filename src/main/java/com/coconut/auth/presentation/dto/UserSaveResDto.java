@@ -8,20 +8,19 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UserSaveResDto {
 
-    /**
-     *     @SerializedName("isEmailOk") var isEmailOk: Boolean,
-     *     @SerializedName("isRegistered") var isRegistered : Boolean
-     */
+  /**
+   *     @SerializedName("isEmailOk") var isEmailOk: Boolean,
+   *     @SerializedName("isRegistered") var isRegistered : Boolean
+   */
 
-    private Boolean isEmailOk;
-    private Boolean isRegistered;
+  private Boolean isEmailOk;
+  private Boolean isRegistered;
 
-
-    @Builder
-    public UserSaveResDto(Boolean isEmailOk, Boolean isRegistered) {
-        this.isEmailOk = isEmailOk;
-        this.isRegistered = isRegistered;
-    }
+  @Builder
+  public UserSaveResDto(Boolean isEmailOk, Boolean isRegistered) {
+    this.isEmailOk = isEmailOk;
+    this.isRegistered = isRegistered;
+  }
 
 }
 

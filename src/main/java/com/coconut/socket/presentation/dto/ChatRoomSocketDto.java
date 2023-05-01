@@ -8,25 +8,25 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ChatRoomSocketDto {
 
-    /**
-     *     var chatRoomId : String,
-     *     var chatUserId : String
-     */
+  /**
+   *     var chatRoomId : String,
+   *     var chatUserId : String
+   */
 
-    private String chatUserId;
-    private String chatRoomId;
+  private String chatUserId;
+  private String chatRoomId;
 
-    @Builder
-    public ChatRoomSocketDto(String chatUserId, String chatRoomId) {
-        this.chatUserId = chatUserId;
-        this.chatRoomId = chatRoomId;
-    }
+  @Builder
+  public ChatRoomSocketDto(String chatUserId, String chatRoomId) {
+    this.chatUserId = chatUserId;
+    this.chatRoomId = chatRoomId;
+  }
 
-    @Override
-    public String toString() {
-        return "ChatRoomSocketDto{" +
-                "chatUserId='" + chatUserId + '\'' +
-                ", chatRoomId='" + chatRoomId + '\'' +
-                '}';
-    }
+  @Override
+  public String toString() {
+    return "ChatRoomSocketDto{" +
+           "chatUserId='" + chatUserId + '\'' +
+           ", chatRoomId='" + chatRoomId + '\'' +
+           '}';
+  }
 }

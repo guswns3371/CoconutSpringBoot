@@ -7,12 +7,12 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class FileInfo {
-    private String name;
-    private String url;
+  private String name;
+  private String url;
 
-    @Builder
-    public FileInfo(String name, String url) {
-        this.name = name;
-        this.url = url;
-    }
+  @Builder
+  public FileInfo(String name, String url) {
+    this.name = name;
+    this.url = url;
+  }
 }

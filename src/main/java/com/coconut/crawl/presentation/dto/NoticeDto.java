@@ -8,16 +8,16 @@ import lombok.ToString;
 @ToString
 public class NoticeDto {
 
-    private final String link;
-    private final String title;
-    private final String author;
-    private final String date;
+  private final String link;
+  private final String title;
+  private final String author;
+  private final String date;
 
-    @Builder
-    public NoticeDto(String link, String title, String author, String date) {
-        this.link = link;
-        this.title = title;
-        this.author = author;
-        this.date = date;
-    }
+  @Builder
+  public NoticeDto(String link, String title, String author, String date) {
+    this.link = link;
+    this.title = title;
+    this.author = author;
+    this.date = date;
+  }
 }
