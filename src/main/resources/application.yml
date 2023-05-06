@@ -31,7 +31,7 @@ spring:
     properties:
       hibernate:
         ddl-auto: update
-        format-sql: true
+        format_sql: true
         dialect: org.hibernate.dialect.MySQL5InnoDBDialect
     show-sql: true
     generate-ddl: true
@@ -58,3 +58,11 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
+
+logging:
+  level:
+    org:
+      hibernate:
+        type:
+          descriptor:
+            sql: trace
